@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>N3ON RIPPER | DL ANY VID</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Share Tech Mono', 'Courier New', monospace;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at 20% 30%, #0a0f1e, #03050b);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* NEON GRID OVERLAY */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .cyber-card {
+            background: rgba(10, 20, 30, 0.65);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            border: 1px solid rgba(0, 255, 255, 0.4);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2), inset 0 0 20px rgba(0, 255, 255, 0.05);
+            padding: 2rem;
+            width: 90%;
+            max-width: 700px;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            background: linear-gradient(135deg, #0ff, #f0f);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 8px rgba(0,255,255,0.5);
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .glow-text {
+            text-align: center;
+            color: #8ae2ff;
+            font-size: 0.8rem;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        input {
+            flex: 1;
+            background: #0a0f1a;
+            border: 1px solid #2affff;
+            border-radius: 2rem;
+            padding: 1rem 1.5rem;
+            color: #0ff;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus {
+            box-shadow: 0 0 15px #0ff;
+            border-color: #f0f;
+        }
+
+        button {
+            background: linear-gradient(95deg, #0ff, #f0f);
+            border: none;
+            padding: 0 2rem;
+            border-radius: 3rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #010101;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 0 10px #0ff;
+        }
+
+        button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px #f0f;
+        }
+
+        /* AD SPOT — first click trigger */
+        .ad-trigger {
+            background: rgba(255,0,100,0.2);
+            border-left: 4px solid #ff00aa;
+            padding: 0.8rem;
+            margin-bottom: 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #ff99cc;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .ad-trigger:hover {
+            background: rgba(255,0,100,0.4);
+        }
+
+        .result-box {
+            margin-top: 2rem;
+            background: #03070faa;
+            border-radius: 1.5rem;
+            padding: 1rem;
+            border: 1px solid #0ff;
+            display: none;
+        }
+
+        .download-links a {
+            display: inline-block;
+            margin: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: #0f212e;
+            border-radius: 2rem;
+            color: #0ff;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .download-links a:hover {
+            background: #0ff;
+            color: black;
+            box-shadow: 0 0 12px cyan;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.7rem;
+            color: #6c8b9b;
+        }
+
+        @media (max-width: 600px) {
+            .cyber-card { padding: 1.2rem; }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="cyber-card">
+        <h1>⛓️ N3ON RIPPER ⛓️</h1>
+        <div class="glow-text">>> PASTE LINK // DOWNLOAD RAW <<</div>
+
+        <!-- AD SPOT: First click = Ad opens, then download works -->
+        <div id="adSpot" class="ad-trigger">
+            ⚡ [ AD SPACE ] ⚡<br>
+            🔥 Click here FIRST to support the server — then download unlimited 🔥
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="videoUrl" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off">
+            <button id="fetchBtn">⛓️ RIP NOW ⛓️</button>
+        </div>
+
+        <div id="result" class="result-box">
+            <div id="videoInfo" style="color:#0ff; margin-bottom: 1rem;"></div>
+            <div id="downloadLinks" class="download-links"></div>
+        </div>
+        <footer>⚡ NO API KEY • NO LIMITS • FIRST CLICK SUPPORTS US ⚡</footer>
+    </div>
+
+    <script>
+        const adSpot = document.getElementById('adSpot');
+        const fetchBtn = document.getElementById('fetchBtn');
+        const urlInput = document.getElementById('videoUrl');
+        const resultDiv = document.getElementById('result');
+        const videoInfoDiv = document.getElementById('videoInfo');
+        const downloadLinksDiv = document.getElementById('downloadLinks');
+
+        let adClicked = false;
+
+        // First click on ad spot opens affiliate/ad link
+        adSpot.addEventListener('click', () => {
+            if (!adClicked) {
+                // REPLACE WITH YOUR ACTUAL AD LINK (e.g., shorte.st, adfly, or any monetized link)
+                window.open('https://www.shorte.st/your-link-here', '_blank');
+                adSpot.style.opacity = '0.6';
+                adSpot.innerHTML = '✅ THANKS! NOW YOU CAN DOWNLOAD ✅<br>🔥 UNLIMITED ACCESS ACTIVE 🔥';
+                adClicked = true;
+            }
+        });
+
+        fetchBtn.addEventListener('click', async () => {
+            const url = urlInput.value.trim();
+            if (!url) {
+                alert('ENTER YOUTUBE LINK, HACKER!');
+                return;
+            }
+
+            if (!adClicked) {
+                alert('⚠️ FIRST CLICK THE AD SPOT ABOVE TO UNLOCK DOWNLOAD ⚠️\n(It helps keep this service alive)');
+                return;
+            }
+
+            // Show loading
+            videoInfoDiv.innerHTML = '🕶️ SCANNING NEON GRID... 🕶️';
+            downloadLinksDiv.innerHTML = '';
+            resultDiv.style.display = 'block';
+
+            try {
+                const response = await fetch('backend.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'url=' + encodeURIComponent(url)
+                });
+                const data = await response.json();
+
+                if (data.error) {
+                    videoInfoDiv.innerHTML = `❌ ERROR: ${data.error}`;
+                    downloadLinksDiv.innerHTML = '';
+                } else {
+                    videoInfoDiv.innerHTML = `🎬 ${data.title} 🎬<br>📏 ${data.length}`;
+                    let linksHtml = '';
+                    data.formats.forEach(fmt => {
+                        linksHtml += `<a href="${fmt.url}" download target="_blank">💾 ${fmt.quality} - ${fmt.type}</a>`;
+                    });
+                    downloadLinksDiv.innerHTML = linksHtml;
+                }
+            } catch (err) {
+                videoInfoDiv.innerHTML = '💀 BACKEND ERROR — CHECK SERVER CONFIG 💀';
+                console.error(err);
+            }
+        });
+    </script>
+</body>
+</html>
