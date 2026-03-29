@@ -209,6 +209,27 @@
             margin: 8px 0;
         }
 
+        /* NEW: Gaming Art Image - Invoker + SF Mix */
+        .gaming-art {
+            margin-top: 25px;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(0,255,200,0.5);
+            transition: 0.3s;
+        }
+
+        .gaming-art img {
+            width: 100%;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .gaming-art:hover {
+            border-color: #f0f;
+            box-shadow: 0 0 20px rgba(255,0,255,0.2);
+            transform: scale(1.01);
+        }
+
         /* Discord Button */
         .discord-btn {
             display: block;
@@ -331,6 +352,13 @@
                 <p>📺 108 Subscribers • 85+ Videos</p>
                 <a href="https://www.youtube.com/@CounterOFGames" target="_blank" style="color:#0ff; text-decoration:none;">▶️ SUBSCRIBE →</a>
             </div>
+            
+            <!-- 🔥 INVOKER + SHADOW FIEND MIX GAMING ART 🔥 -->
+            <div class="gaming-art">
+                <img src="https://i.pinimg.com/originals/7f/3e/2c/7f3e2c8b4a9d6c1e5f2a8b3c4d5e6f7a.jpg" 
+                     alt="Invoker Shadow Fiend Dota 2 Art"
+                     onerror="this.src='https://wallpapercave.com/wp/wp9474668.jpg'">
+            </div>
         </div>
 
         <!-- Right: Discord & Gaming Highlights -->
@@ -383,7 +411,7 @@
     localStorage.setItem('totalVisits', visits);
     document.getElementById('visitCounter').innerHTML = '👁️ TOTAL VISITS: ' + visits;
 
-    // Animated stats (just for vibe)
+    // Animated stats
     let gamesCount = 1247;
     setInterval(() => {
         gamesCount++;
