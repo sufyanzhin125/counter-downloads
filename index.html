@@ -3,58 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Counter Downloads | YouTube Video Downloader</title>
+    <title>Counter Download | YouTube Video Downloader</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Courier New', 'Segoe UI', monospace;
+            font-family: 'Segoe UI', 'Courier New', monospace;
         }
+
         body {
             background: radial-gradient(circle at 20% 30%, #0a0f1e, #010101);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 16px;
+            padding: 20px;
         }
-        .glass-card {
-            background: rgba(5, 10, 20, 0.85);
+
+        .container {
+            background: rgba(5, 10, 25, 0.9);
             backdrop-filter: blur(12px);
-            border-radius: 32px;
-            border: 1px solid #0ff;
-            box-shadow: 0 0 35px rgba(0, 255, 255, 0.3);
-            padding: 24px;
+            border-radius: 40px;
+            border: 1px solid #00ffcc;
+            box-shadow: 0 0 40px rgba(0, 255, 200, 0.3);
+            padding: 30px 25px;
             width: 100%;
             max-width: 600px;
             transition: 0.3s;
         }
+
         h1 {
-            font-size: 28px;
+            font-size: 32px;
             text-align: center;
             background: linear-gradient(135deg, #0ff, #f0f);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
         }
-        .counter-box {
+
+        .counter {
             background: #000000aa;
             text-align: center;
-            padding: 10px;
-            border-radius: 40px;
+            padding: 12px;
+            border-radius: 50px;
             margin: 20px 0;
             border: 1px solid #ffaa33;
             color: #ffaa33;
             font-weight: bold;
             font-size: 18px;
         }
+
         .ad-area {
-            background: linear-gradient(145deg, #ff00aa22, #ff44aa22);
+            background: linear-gradient(145deg, #2a0f2a, #1a0522);
             border: 2px solid #ff44aa;
-            padding: 14px;
-            border-radius: 28px;
+            padding: 15px;
+            border-radius: 50px;
             text-align: center;
             margin: 20px 0;
             cursor: pointer;
@@ -62,10 +67,12 @@
             font-weight: bold;
             color: #ffccff;
         }
+
         .ad-area:hover {
             background: #ff44aa55;
             transform: scale(1.01);
         }
+
         input {
             width: 100%;
             padding: 14px 18px;
@@ -77,6 +84,7 @@
             outline: none;
             margin-bottom: 18px;
         }
+
         button {
             width: 100%;
             padding: 14px;
@@ -88,96 +96,98 @@
             cursor: pointer;
             transition: 0.2s;
         }
+
         button:active {
             transform: scale(0.98);
         }
-        .result-panel {
-            margin-top: 20px;
+
+        .result {
+            margin-top: 25px;
             background: #000000aa;
-            border-radius: 24px;
-            padding: 16px;
+            border-radius: 30px;
+            padding: 18px;
             display: none;
             border-left: 4px solid #0ff;
         }
+
         .video-title {
             color: #0ff;
             font-weight: bold;
             word-break: break-word;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
+            font-size: 16px;
         }
-        .dl-link {
+
+        .download-link {
             display: inline-block;
             background: #0ff;
             color: black;
             padding: 12px 20px;
-            border-radius: 40px;
+            border-radius: 50px;
             text-decoration: none;
             font-weight: bold;
             margin-top: 10px;
             width: 100%;
             text-align: center;
+            font-size: 16px;
         }
+
         footer {
             text-align: center;
             font-size: 11px;
-            margin-top: 24px;
+            margin-top: 25px;
             color: #6c8baa;
         }
     </style>
 </head>
 <body>
 
-<div class="glass-card">
-    <h1>⚡ COUNTER DOWNLOADS ⚡</h1>
-    <div class="counter-box" id="totalDownloadsDisplay">📥 TOTAL DOWNLOADS: 0</div>
+<div class="container">
+    <h1>⚡ COUNTER DOWNLOAD ⚡</h1>
+    
+    <div class="counter" id="totalDownloads">📥 TOTAL DOWNLOADS: 0</div>
 
-    <!-- AD SPOT: YAHI TERA AD HAI — YAHAN SE PAISA AAYEGA -->
     <div class="ad-area" id="adTrigger">
         💰 CLICK HERE FIRST — SUPPORT THE SITE 💰<br>
-        (Ek baar click karo, fir unlimited download)
+        (One click unlocks unlimited downloads)
     </div>
 
-    <input type="text" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
-    <button id="downloadButton">⬇️ DOWNLOAD VIDEO ⬇️</button>
+    <input type="text" id="youtubeUrl" placeholder="Paste YouTube link here...">
+    <button id="downloadBtn">⬇️ DOWNLOAD VIDEO ⬇️</button>
 
-    <div class="result-panel" id="resultBox">
+    <div class="result" id="resultBox">
         <div class="video-title" id="videoTitle"></div>
-        <div id="downloadLinkContainer"></div>
+        <div id="downloadContainer"></div>
     </div>
 
-    <footer>🔒 First click = ad opens • Then download works • No hidden catches</footer>
+    <footer>🔒 First click opens link • Then download any video • No limits</footer>
 </div>
 
 <script>
-    // --------------------------------------------------------------
-    // 🔥 YAHAN SIRF APNA SHORTE.ST YA ADFLY LINK LAGA 🔥
-    // Pehle shorte.st pe jake link bana, phir ye wali line badal
-    const MY_AD_LINK = "https://shorte.st/xxxxxxxx";  // https://discord.gg/AVqw2YzGB
-    // --------------------------------------------------------------
+    // ============================================================
+    // 🔥 YOUR AD LINK 🔥
+    const AD_LINK = "https://discord.gg/AVqw2YzGB";
+    // ============================================================
 
     let adClicked = false;
     
-    // Load saved data
+    // Load download counter
     let totalDownloads = localStorage.getItem('totalDownloads') ? parseInt(localStorage.getItem('totalDownloads')) : 0;
-    document.getElementById('totalDownloadsDisplay').innerHTML = '📥 TOTAL DOWNLOADS: ' + totalDownloads;
+    document.getElementById('totalDownloads').innerHTML = '📥 TOTAL DOWNLOADS: ' + totalDownloads;
     
+    // Check if ad was clicked before
     if(localStorage.getItem('adClicked') === 'true') {
         adClicked = true;
         let adDiv = document.getElementById('adTrigger');
         adDiv.style.background = "#00aa8822";
         adDiv.style.borderColor = "#0ff";
-        adDiv.innerHTML = "✅ AD ALREADY CLICKED! UNLIMITED ACCESS ✅";
+        adDiv.innerHTML = "✅ AD CLICKED! UNLIMITED ACCESS ACTIVE ✅";
     }
     
     // AD CLICK HANDLER
     document.getElementById('adTrigger').onclick = function() {
         if(!adClicked) {
-            if(MY_AD_LINK && MY_AD_LINK !== "https://shorte.st/xxxxxxxx") {
-                window.open(MY_AD_LINK, '_blank');
-            } else {
-                alert("⚠️ Pehle apna Shorte.st link code mein daal! ⚠️");
-                return;
-            }
+            window.open(AD_LINK, '_blank');
             adClicked = true;
             localStorage.setItem('adClicked', 'true');
             this.style.background = "#00aa8822";
@@ -186,70 +196,70 @@
         }
     };
     
-    // EXTRACT YOUTUBE VIDEO ID
-    function getYoutubeId(url) {
+    // Extract YouTube Video ID
+    function extractVideoId(url) {
         let patterns = [
             /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?#]+)/,
             /youtube\.com\/watch\?.*v=([^&]+)/
         ];
         for(let p of patterns) {
             let match = url.match(p);
-            if(match && match[1].length === 11) return match[1];
+            if(match && match[1] && match[1].length === 11) return match[1];
         }
         return null;
     }
     
     // DOWNLOAD HANDLER
-    document.getElementById('downloadButton').onclick = async function() {
-        let urlInput = document.getElementById('youtubeUrl').value.trim();
-        if(!urlInput) {
-            alert("❌ Pehle YouTube link daal!");
+    document.getElementById('downloadBtn').onclick = async function() {
+        let url = document.getElementById('youtubeUrl').value.trim();
+        
+        if(!url) {
+            alert("Please enter a YouTube link!");
             return;
         }
         
         if(!adClicked) {
-            alert("⚠️ Pehle upar wale AD box pe click kar! ⚠️");
+            alert("Please click the ad box above first!");
             return;
         }
         
-        let videoId = getYoutubeId(urlInput);
+        let videoId = extractVideoId(url);
         if(!videoId) {
-            alert("❌ Galat YouTube link! Sahi link daal.");
+            alert("Invalid YouTube link! Make sure it's a valid video URL.");
             return;
         }
         
         let resultDiv = document.getElementById('resultBox');
         let titleDiv = document.getElementById('videoTitle');
-        let linkContainer = document.getElementById('downloadLinkContainer');
+        let container = document.getElementById('downloadContainer');
         
         resultDiv.style.display = 'block';
         titleDiv.innerHTML = "🕶️ FETCHING VIDEO... 🕶️";
-        linkContainer.innerHTML = "";
+        container.innerHTML = "";
         
         try {
-            // WORKING API — NO BACKEND NEEDED
             let apiUrl = `https://pipedapi.kavin.rocks/streams/${videoId}`;
-            let res = await fetch(apiUrl);
-            let data = await res.json();
+            let response = await fetch(apiUrl);
+            let data = await response.json();
             
             if(data && data.videoStreams && data.videoStreams.length > 0) {
                 let best = data.videoStreams[data.videoStreams.length - 1];
                 let videoTitle = data.title || "YouTube Video";
                 
                 titleDiv.innerHTML = `🎬 ${videoTitle} 🎬`;
-                linkContainer.innerHTML = `<a class="dl-link" href="${best.url}" download target="_blank">💾 DOWNLOAD VIDEO (${best.quality}p)</a>`;
+                container.innerHTML = `<a class="download-link" href="${best.url}" download target="_blank">💾 DOWNLOAD VIDEO (${best.quality}p)</a>`;
                 
-                // INCREASE COUNTER
+                // Increase counter
                 totalDownloads++;
                 localStorage.setItem('totalDownloads', totalDownloads);
-                document.getElementById('totalDownloadsDisplay').innerHTML = '📥 TOTAL DOWNLOADS: ' + totalDownloads;
+                document.getElementById('totalDownloads').innerHTML = '📥 TOTAL DOWNLOADS: ' + totalDownloads;
             } else {
-                titleDiv.innerHTML = "❌ Video download link nahi mila. Private ya age-restricted ho sakti hai.";
+                titleDiv.innerHTML = "❌ No download links found. Video may be private or age-restricted.";
             }
         } catch(error) {
             console.error(error);
-            titleDiv.innerHTML = "💀 ERROR: Try another video or check internet 💀";
-            linkContainer.innerHTML = '<span style="color:#ff8888;">⚠️ Server busy, try again in 10 seconds.</span>';
+            titleDiv.innerHTML = "💀 ERROR: Failed to fetch video. Try another link or check your connection.";
+            container.innerHTML = '<span style="color:#ff8888;">⚠️ Server busy, please try again in a few seconds.</span>';
         }
     };
 </script>
