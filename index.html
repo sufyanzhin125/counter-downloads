@@ -3,38 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Sufyan Counter | Counter OF Games</title>
+    <title>Sufyan Counter | Elite Gaming Hub</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Courier New', 'Segoe UI', monospace;
+            font-family: 'Orbitron', 'Segoe UI', 'Courier New', monospace;
         }
 
         body {
-            background: #010101;
+            background: #0a0c12;
             min-height: 100vh;
             padding: 20px;
             position: relative;
-            overflow-x: hidden;
         }
 
-        /* BACKGROUND HACKER VIDEO */
-        .bg-video {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 0;
-            opacity: 0.25;
-            filter: blur(2px) brightness(0.7);
-            pointer-events: none;
-        }
-
-        /* Glitch overlay */
+        /* American Classic Grid Background */
         body::before {
             content: "";
             position: fixed;
@@ -42,15 +27,31 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 255, 255, 0.05) 0px,
-                rgba(0, 255, 255, 0.05) 2px,
-                transparent 2px,
-                transparent 6px
-            );
+            background-image: 
+                linear-gradient(rgba(0, 255, 200, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 200, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
             pointer-events: none;
-            z-index: 1;
+            z-index: 0;
+        }
+
+        /* Animated Glow Orb */
+        .orb {
+            position: fixed;
+            top: 20%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(0,255,200,0.15), transparent);
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-50px, 50px) scale(1.2); }
         }
 
         .container {
@@ -60,315 +61,334 @@
             z-index: 2;
         }
 
-        /* Header Section */
+        /* Header */
         .hero {
-            background: rgba(5, 10, 25, 0.75);
-            backdrop-filter: blur(12px);
-            border-radius: 50px;
-            border: 1px solid #0ff;
-            padding: 40px 30px;
-            margin-bottom: 30px;
+            background: rgba(10, 15, 25, 0.7);
+            backdrop-filter: blur(20px);
+            border-radius: 40px;
+            border: 1px solid rgba(0, 255, 200, 0.3);
+            padding: 50px 30px;
+            margin-bottom: 40px;
             text-align: center;
-            box-shadow: 0 0 40px rgba(0, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
 
         h1 {
-            font-size: 48px;
-            background: linear-gradient(135deg, #0ff, #f0f);
+            font-size: 56px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #0ff, #f0f);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-shadow: 0 0 10px rgba(0,255,255,0.5);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .tagline {
+            font-size: 18px;
+            color: #8aaaff;
+            margin-top: 15px;
             letter-spacing: 2px;
-        }
-
-        .glitch {
-            font-size: 24px;
-            color: #ff44aa;
-            margin-top: 10px;
-            text-shadow: 2px 2px 0 #0ff, -2px -2px 0 #f0f;
-            animation: glitch 1s infinite;
-        }
-
-        @keyframes glitch {
-            0% { text-shadow: 2px 2px 0 #0ff, -2px -2px 0 #f0f; }
-            50% { text-shadow: -2px 2px 0 #0ff, 2px -2px 0 #f0f; }
-            100% { text-shadow: 2px 2px 0 #0ff, -2px -2px 0 #f0f; }
+            font-family: monospace;
         }
 
         .counter-box {
             display: inline-block;
-            background: #000000aa;
-            padding: 12px 30px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 15px 35px;
             border-radius: 60px;
-            margin-top: 20px;
-            border: 1px solid #ffaa33;
-            color: #ffaa33;
+            margin-top: 25px;
+            border: 1px solid #0ff;
+            color: #0ff;
             font-weight: bold;
-            font-size: 22px;
+            font-size: 24px;
+            box-shadow: 0 0 20px rgba(0,255,200,0.2);
         }
 
-        /* Two Column Layout */
+        /* Stats Row */
+        .stats-row {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(15, 20, 35, 0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 30px;
+            padding: 20px 35px;
+            text-align: center;
+            border: 1px solid rgba(0,255,200,0.3);
+            min-width: 180px;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #ffaa33;
+        }
+
+        .stat-label {
+            color: #8aaaff;
+            font-size: 14px;
+            margin-top: 8px;
+            text-transform: uppercase;
+        }
+
+        /* Two Columns */
         .columns {
             display: flex;
-            gap: 25px;
+            gap: 30px;
             flex-wrap: wrap;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
         .column {
             flex: 1;
-            min-width: 280px;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            border-radius: 35px;
-            border: 1px solid #0ff;
-            padding: 20px;
-            transition: 0.3s;
+            min-width: 300px;
+            background: rgba(10, 15, 28, 0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 40px;
+            border: 1px solid rgba(0, 255, 200, 0.25);
+            padding: 30px;
+            transition: all 0.3s ease;
         }
 
         .column:hover {
-            border-color: #f0f;
-            box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+            border-color: #0ff;
+            box-shadow: 0 0 30px rgba(0,255,200,0.15);
+            transform: translateY(-5px);
         }
 
         .column h2 {
             color: #0ff;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 2px;
             border-bottom: 2px solid #0ff;
             display: inline-block;
             width: 100%;
+            padding-bottom: 10px;
         }
 
-        /* YouTube Embed - FIXED with working embed */
-        .video-container {
+        /* YouTube Embed */
+        .video-wrapper {
             position: relative;
             padding-bottom: 56.25%;
             height: 0;
+            border-radius: 24px;
             overflow: hidden;
-            border-radius: 25px;
             border: 1px solid #0ff;
-            background: #000;
+            box-shadow: 0 0 20px rgba(0,255,200,0.1);
         }
 
-        .video-container iframe {
+        .video-wrapper iframe {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            border-radius: 25px;
+            border: none;
+        }
+
+        .channel-stats {
+            background: rgba(0,0,0,0.5);
+            border-radius: 24px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .channel-stats p {
+            color: #ccddff;
+            margin: 8px 0;
         }
 
         /* Discord Button */
         .discord-btn {
             display: block;
-            background: linear-gradient(95deg, #5865F2, #404EED);
+            background: linear-gradient(135deg, #5865F2, #4752c4);
             text-align: center;
-            padding: 18px;
-            border-radius: 60px;
+            padding: 20px;
+            border-radius: 50px;
             text-decoration: none;
             color: white;
             font-weight: bold;
-            font-size: 22px;
+            font-size: 24px;
             margin: 20px 0;
             transition: 0.2s;
-            box-shadow: 0 0 15px #5865F2;
+            box-shadow: 0 5px 20px rgba(88,101,242,0.3);
         }
 
         .discord-btn:hover {
             transform: scale(1.02);
-            box-shadow: 0 0 25px #5865F2;
+            box-shadow: 0 8px 30px rgba(88,101,242,0.5);
         }
 
-        /* Channel Info */
-        .channel-info {
-            background: #0a0f1aaa;
-            border-radius: 25px;
-            padding: 20px;
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .channel-info p {
-            color: #0ff;
-            margin: 8px 0;
-        }
-
-        .subscriber-count {
-            font-size: 28px;
-            color: #ffaa33;
-            font-weight: bold;
-        }
-
-        /* Gaming Video Gallery - AI GENERATED CLIPS */
-        .video-gallery {
+        /* Gaming Highlights */
+        .highlights-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 20px;
-            margin-top: 20px;
+            margin-top: 25px;
         }
 
-        .gallery-item {
-            background: #000000aa;
-            border-radius: 20px;
-            padding: 15px;
-            border: 1px solid #0ff;
+        .highlight-card {
+            background: rgba(0,0,0,0.5);
+            border-radius: 24px;
+            padding: 20px;
             text-align: center;
+            border: 1px solid rgba(0,255,200,0.3);
             transition: 0.2s;
         }
 
-        .gallery-item:hover {
+        .highlight-card:hover {
             border-color: #f0f;
-            transform: scale(1.02);
+            transform: translateY(-3px);
         }
 
-        .gallery-video {
-            width: 100%;
-            border-radius: 15px;
-            margin-bottom: 10px;
-            aspect-ratio: 16/9;
-            object-fit: cover;
-            background: #000;
+        .highlight-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
         }
 
-        .gallery-item a {
+        .highlight-title {
             color: #0ff;
-            text-decoration: none;
             font-weight: bold;
-            display: block;
+            font-size: 18px;
+        }
+
+        .highlight-desc {
+            color: #aaa;
+            font-size: 12px;
             margin-top: 8px;
         }
 
         footer {
             text-align: center;
-            margin-top: 30px;
-            padding: 20px;
+            margin-top: 40px;
+            padding: 25px;
+            border-top: 1px solid rgba(0,255,200,0.2);
             color: #6c8baa;
-            border-top: 1px solid #0ff33;
+            font-size: 13px;
         }
 
         @media (max-width: 800px) {
-            h1 { font-size: 32px; }
-            .glitch { font-size: 18px; }
-            .counter-box { font-size: 18px; }
+            h1 { font-size: 36px; }
+            .counter-box { font-size: 18px; padding: 10px 20px; }
+            .stat-number { font-size: 28px; }
         }
     </style>
 </head>
 <body>
 
-<!-- HACKER BACKGROUND VIDEO (AI style) -->
-<video class="bg-video" autoplay loop muted playsinline>
-    <source src="https://cdn.pixabay.com/video/2023/06/27/170456-840253691_large.mp4" type="video/mp4">
-    <!-- Fallback if video fails: matrix style digital rain effect -->
-</video>
+<div class="orb"></div>
 
 <div class="container">
     <!-- Hero Section -->
     <div class="hero">
         <h1>⚡ SUFYAN COUNTER ⚡</h1>
-        <div class="glitch">// HACKER // GAMER // ELITE //</div>
+        <div class="tagline">// ELITE GAMING // HACKER MINDSET // LEGEND STATUS //</div>
         <div class="counter-box" id="visitCounter">👁️ TOTAL VISITS: 0</div>
     </div>
 
-    <!-- Two Columns -->
+    <!-- Stats Row -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-number" id="gamesPlayed">1,247</div>
+            <div class="stat-label">GAMES PLAYED</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="winRate">89%</div>
+            <div class="stat-label">WIN RATE</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="communityMembers">91</div>
+            <div class="stat-label">DISCORD ELITE</div>
+        </div>
+    </div>
+
+    <!-- Main Columns -->
     <div class="columns">
-        <!-- Left Column: YouTube Channel - FIXED with actual channel embed -->
+        <!-- Left: YouTube Channel -->
         <div class="column">
             <h2>🎮 COUNTER OF GAMES</h2>
-            <div class="video-container">
-                <iframe 
-                    src="https://www.youtube.com/embed/videoseries?list=UU7K3yU0bN8xQ0ZqXpLxJ2Eg" 
-                    title="Counter OF Games Official"
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    referrerpolicy="strict-origin-when-cross-origin" 
-                    allowfullscreen>
+            <div class="video-wrapper">
+                <iframe src="https://www.youtube.com/embed/videoseries?list=UU7K3yU0bN8xQ0ZqXpLxJ2Eg" 
+                        title="Counter OF Games"
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
                 </iframe>
             </div>
-            <div class="channel-info">
+            <div class="channel-stats">
                 <p>🎬 <strong>Counter OF Games</strong></p>
-                <p>📺 <span id="subscriberCount" class="subscriber-count">108</span> Subscribers</p>
-                <p>🎥 85+ Gaming Videos</p>
-                <a href="https://www.youtube.com/@CounterOFGames" target="_blank" style="color:#0ff;">▶️ Visit Channel →</a>
+                <p>📺 108 Subscribers • 85+ Videos</p>
+                <a href="https://www.youtube.com/@CounterOFGames" target="_blank" style="color:#0ff; text-decoration:none;">▶️ SUBSCRIBE →</a>
             </div>
         </div>
 
-        <!-- Right Column: Discord & Gaming Vibes -->
+        <!-- Right: Discord & Gaming Highlights -->
         <div class="column">
-            <h2>💀 JOIN THE HORDE</h2>
+            <h2>💀 JOIN THE ORDER</h2>
             <a href="https://discord.gg/AVqw2YzGB" target="_blank" class="discord-btn">
-                💬 JOIN DISCORD [CGC] 💬
+                💬 JOIN DISCORD [CGC]
             </a>
-            <div class="channel-info">
+            <div class="channel-stats">
                 <p>🔥 <strong>[CGC] Counter Gaming Community</strong></p>
-                <p>👥 91 Members • 12 Online</p>
-                <p>⚔️ Gaming • Hacking • Chill Vibes</p>
+                <p>👥 91 Members • 12 Online • Tournaments</p>
             </div>
-            
-            <!-- Gaming Video Samples - AI GENERATED RAMPAGE / HIGHLIGHT CLIPS -->
-            <h2 style="margin-top: 25px;">🎬 EPIC RAMPAGES (AI)</h2>
-            <div class="video-gallery">
-                <!-- Valorant AI clip -->
-                <div class="gallery-item">
-                    <video class="gallery-video" muted loop playsinline autoplay>
-                        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
-                    </video>
-                    <a href="#">💥 VALORANT // ACE RAMPAGE</a>
-                    <p style="color:#88ff88; font-size:12px;">SF style • 5k clutch</p>
+
+            <h2 style="margin-top: 30px;">🏆 LEGENDARY HIGHLIGHTS</h2>
+            <div class="highlights-grid">
+                <div class="highlight-card">
+                    <div class="highlight-icon">🎯</div>
+                    <div class="highlight-title">VALORANT ACE</div>
+                    <div class="highlight-desc">5k clutch • SF inspired</div>
                 </div>
-                <!-- Dota 2 AI clip -->
-                <div class="gallery-item">
-                    <video class="gallery-video" muted loop playsinline autoplay>
-                        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" type="video/mp4">
-                    </video>
-                    <a href="#">🌩️ DOTA 2 // RAMPAGE SF</a>
-                    <p style="color:#88ff88; font-size:12px;">Shadow Fiend ulti 4k</p>
+                <div class="highlight-card">
+                    <div class="highlight-icon">⚔️</div>
+                    <div class="highlight-title">DOTA 2 RAMPAGE</div>
+                    <div class="highlight-desc">Shadow Fiend • Quad kill</div>
                 </div>
-                <!-- CS2 AI clip -->
-                <div class="gallery-item">
-                    <video class="gallery-video" muted loop playsinline autoplay>
-                        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" type="video/mp4">
-                    </video>
-                    <a href="#">🔫 CS2 // 1V5 CLUTCH</a>
-                    <p style="color:#88ff88; font-size:12px;">Deagle ace + ninja defuse</p>
+                <div class="highlight-card">
+                    <div class="highlight-icon">🔫</div>
+                    <div class="highlight-title">CS2 1V5 CLUTCH</div>
+                    <div class="highlight-desc">Deagle ace • Ninja defuse</div>
+                </div>
+                <div class="highlight-card">
+                    <div class="highlight-icon">💻</div>
+                    <div class="highlight-title">HACKER MODE</div>
+                    <div class="highlight-desc">Elite tactics • 300 IQ</div>
                 </div>
             </div>
         </div>
     </div>
 
     <footer>
-        🛡️ SUFYAN COUNTER | ELITE GAMING COMMUNITY | HACK THE GAME 🛡️<br>
-        🔥 Discord • YouTube • Counter OF Games 🔥
+        🛡️ SUFYAN COUNTER • AMERICAN CLASSIC GAMING ELITE • 2026 🛡️<br>
+        🔥 Discord | YouTube | Counter OF Games | Hack The Game 🔥
     </footer>
 </div>
 
 <script>
-    // Visit Counter (stays same)
+    // Visit Counter
     let visits = localStorage.getItem('totalVisits') ? parseInt(localStorage.getItem('totalVisits')) : 0;
     visits++;
     localStorage.setItem('totalVisits', visits);
     document.getElementById('visitCounter').innerHTML = '👁️ TOTAL VISITS: ' + visits;
 
-    // Subscriber count (static but matches your channel)
-    document.getElementById('subscriberCount').innerHTML = '108';
-    
-    // Make sure background video loops and doesn't cause errors
-    const bgVideo = document.querySelector('.bg-video');
-    if(bgVideo) {
-        bgVideo.play().catch(e => console.log("Auto-play prevented, user interaction needed"));
-    }
-    
-    // Additional glitch effect: Random flicker on glitch text
+    // Animated stats (just for vibe)
+    let gamesCount = 1247;
     setInterval(() => {
-        const glitchEl = document.querySelector('.glitch');
-        if(glitchEl && Math.random() > 0.85) {
-            glitchEl.style.opacity = '0.7';
-            setTimeout(() => { glitchEl.style.opacity = '1'; }, 80);
-        }
-    }, 300);
+        gamesCount++;
+        document.getElementById('gamesPlayed').innerHTML = gamesCount.toLocaleString();
+    }, 30000);
 </script>
 </body>
 </html>
