@@ -138,6 +138,11 @@
             margin-top: 25px;
             color: #6c8baa;
         }
+        
+        .loading {
+            color: #ffaa33;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -209,6 +214,53 @@
         return null;
     }
     
+    // Multiple APIs to try
+    async function fetchVideoWithFallback(videoId) {
+        // API 1: Piped API
+        try {
+            let res = await fetch(`https://pipedapi.kavin.rocks/streams/${videoId}`);
+            if(res.ok) {
+                let data = await res.json();
+                if(data && data.videoStreams && data.videoStreams.length > 0) {
+                    return { success: true, data: data };
+                }
+            }
+        } catch(e) { console.log("API 1 failed", e); }
+        
+        // API 2: YouTube DL API (alternative)
+        try {
+            let res = await fetch(`https://youtube-mp3-downloader2.p.rapidapi.com/ytdl/video?id=${videoId}`, {
+                headers: {
+                    'x-rapidapi-key': '9f7e2b6b6bmsh5e7b3a8f9c2e4b1p1f4e1fjsn3f5b6e7d8c9',
+                    'x-rapidapi-host': 'youtube-mp3-downloader2.p.rapidapi.com'
+                }
+            });
+            if(res.ok) {
+                let data = await res.json();
+                if(data && data.link) {
+                    return { success: true, data: { title: data.title, videoStreams: [{ url: data.link, quality: "HD" }] } };
+                }
+            }
+        } catch(e) { console.log("API 2 failed", e); }
+        
+        // API 3: Another free API
+        try {
+            let res = await fetch(`https://api.cobalt.tools/api/json`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: `https://www.youtube.com/watch?v=${videoId}`, videoQuality: '720' })
+            });
+            if(res.ok) {
+                let data = await res.json();
+                if(data && data.url) {
+                    return { success: true, data: { title: "YouTube Video", videoStreams: [{ url: data.url, quality: "720p" }] } };
+                }
+            }
+        } catch(e) { console.log("API 3 failed", e); }
+        
+        return { success: false };
+    }
+    
     // DOWNLOAD HANDLER
     document.getElementById('downloadBtn').onclick = async function() {
         let url = document.getElementById('youtubeUrl').value.trim();
@@ -234,32 +286,25 @@
         let container = document.getElementById('downloadContainer');
         
         resultDiv.style.display = 'block';
-        titleDiv.innerHTML = "🕶️ FETCHING VIDEO... 🕶️";
+        titleDiv.innerHTML = '<div class="loading">🕶️ FETCHING VIDEO... 🕶️</div>';
         container.innerHTML = "";
         
-        try {
-            let apiUrl = `https://pipedapi.kavin.rocks/streams/${videoId}`;
-            let response = await fetch(apiUrl);
-            let data = await response.json();
+        let result = await fetchVideoWithFallback(videoId);
+        
+        if(result.success && result.data.videoStreams && result.data.videoStreams.length > 0) {
+            let best = result.data.videoStreams[result.data.videoStreams.length - 1];
+            let videoTitle = result.data.title || "YouTube Video";
             
-            if(data && data.videoStreams && data.videoStreams.length > 0) {
-                let best = data.videoStreams[data.videoStreams.length - 1];
-                let videoTitle = data.title || "YouTube Video";
-                
-                titleDiv.innerHTML = `🎬 ${videoTitle} 🎬`;
-                container.innerHTML = `<a class="download-link" href="${best.url}" download target="_blank">💾 DOWNLOAD VIDEO (${best.quality}p)</a>`;
-                
-                // Increase counter
-                totalDownloads++;
-                localStorage.setItem('totalDownloads', totalDownloads);
-                document.getElementById('totalDownloads').innerHTML = '📥 TOTAL DOWNLOADS: ' + totalDownloads;
-            } else {
-                titleDiv.innerHTML = "❌ No download links found. Video may be private or age-restricted.";
-            }
-        } catch(error) {
-            console.error(error);
-            titleDiv.innerHTML = "💀 ERROR: Failed to fetch video. Try another link or check your connection.";
-            container.innerHTML = '<span style="color:#ff8888;">⚠️ Server busy, please try again in a few seconds.</span>';
+            titleDiv.innerHTML = `🎬 ${videoTitle} 🎬`;
+            container.innerHTML = `<a class="download-link" href="${best.url}" download target="_blank">💾 DOWNLOAD VIDEO (${best.quality || 'MP4'})</a>`;
+            
+            // Increase counter
+            totalDownloads++;
+            localStorage.setItem('totalDownloads', totalDownloads);
+            document.getElementById('totalDownloads').innerHTML = '📥 TOTAL DOWNLOADS: ' + totalDownloads;
+        } else {
+            titleDiv.innerHTML = "❌ No download links found. Try a different YouTube video.";
+            container.innerHTML = '<span style="color:#ff8888;">⚠️ Could not fetch video. Make sure the video is public and try again.</span>';
         }
     };
 </script>
