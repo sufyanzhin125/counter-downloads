@@ -3,144 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Counter Download | YouTube Downloader</title>
+    <title>Sufyan Counter | Counter OF Games</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', 'Courier New', monospace;
+            font-family: 'Courier New', 'Segoe UI', monospace;
         }
 
         body {
             background: radial-gradient(circle at 20% 30%, #0a0f1e, #010101);
             min-height: 100vh;
             padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Glitch effect overlay */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 255, 255, 0.03) 0px,
+                rgba(0, 255, 255, 0.03) 2px,
+                transparent 2px,
+                transparent 6px
+            );
+            pointer-events: none;
+            z-index: 1;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1300px;
             margin: 0 auto;
+            position: relative;
+            z-index: 2;
         }
 
-        .header {
-            background: rgba(5, 10, 25, 0.9);
+        /* Header Section */
+        .hero {
+            background: rgba(5, 10, 25, 0.85);
             backdrop-filter: blur(12px);
-            border-radius: 40px;
-            border: 1px solid #00ffcc;
-            padding: 25px;
-            margin-bottom: 25px;
+            border-radius: 50px;
+            border: 1px solid #0ff;
+            padding: 40px 30px;
+            margin-bottom: 30px;
             text-align: center;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.2);
         }
 
         h1 {
-            font-size: 32px;
+            font-size: 48px;
             background: linear-gradient(135deg, #0ff, #f0f);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+            text-shadow: 0 0 10px rgba(0,255,255,0.5);
+            letter-spacing: 2px;
         }
 
-        .counter {
-            background: #000000aa;
+        .glitch {
+            font-size: 24px;
+            color: #ff44aa;
+            margin-top: 10px;
+            text-shadow: 2px 2px 0 #0ff, -2px -2px 0 #f0f;
+            animation: glitch 1s infinite;
+        }
+
+        @keyframes glitch {
+            0% { text-shadow: 2px 2px 0 #0ff, -2px -2px 0 #f0f; }
+            50% { text-shadow: -2px 2px 0 #0ff, 2px -2px 0 #f0f; }
+            100% { text-shadow: 2px 2px 0 #0ff, -2px -2px 0 #f0f; }
+        }
+
+        .counter-box {
             display: inline-block;
-            padding: 10px 25px;
-            border-radius: 50px;
-            margin-top: 15px;
+            background: #000000aa;
+            padding: 12px 30px;
+            border-radius: 60px;
+            margin-top: 20px;
             border: 1px solid #ffaa33;
+            color: #ffaa33;
+            font-weight: bold;
+            font-size: 22px;
+        }
+
+        /* Two Column Layout */
+        .columns {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .column {
+            flex: 1;
+            min-width: 280px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 35px;
+            border: 1px solid #0ff;
+            padding: 20px;
+            transition: 0.3s;
+        }
+
+        .column:hover {
+            border-color: #f0f;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+        }
+
+        .column h2 {
+            color: #0ff;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 28px;
+            border-bottom: 2px solid #0ff;
+            display: inline-block;
+            width: 100%;
+        }
+
+        /* YouTube Embed */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 25px;
+            border: 1px solid #0ff;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 25px;
+        }
+
+        /* Discord Button */
+        .discord-btn {
+            display: block;
+            background: linear-gradient(95deg, #5865F2, #404EED);
+            text-align: center;
+            padding: 18px;
+            border-radius: 60px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            font-size: 22px;
+            margin: 20px 0;
+            transition: 0.2s;
+            box-shadow: 0 0 15px #5865F2;
+        }
+
+        .discord-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 25px #5865F2;
+        }
+
+        /* Channel Info */
+        .channel-info {
+            background: #0a0f1aaa;
+            border-radius: 25px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .channel-info p {
+            color: #0ff;
+            margin: 8px 0;
+        }
+
+        .subscriber-count {
+            font-size: 28px;
             color: #ffaa33;
             font-weight: bold;
         }
 
-        .ad-area {
-            background: linear-gradient(145deg, #2a0f2a, #1a0522);
-            border: 2px solid #ff44aa;
-            padding: 18px;
-            border-radius: 60px;
-            text-align: center;
-            margin-bottom: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            color: #ffccff;
-            font-size: 18px;
-            transition: 0.2s;
+        /* Gaming Video Gallery */
+        .video-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
         }
 
-        .ad-area:hover {
-            background: #ff44aa55;
-            transform: scale(1.01);
-        }
-
-        .iframe-container {
-            background: rgba(0,0,0,0.6);
-            border-radius: 30px;
-            padding: 10px;
+        .gallery-item {
+            background: #000000aa;
+            border-radius: 20px;
+            padding: 15px;
             border: 1px solid #0ff;
+            text-align: center;
         }
 
-        iframe {
+        .gallery-item img {
             width: 100%;
-            height: 550px;
-            border: none;
-            border-radius: 25px;
-            background: #fff;
+            border-radius: 15px;
+            margin-bottom: 10px;
+        }
+
+        .gallery-item a {
+            color: #0ff;
+            text-decoration: none;
+            font-weight: bold;
         }
 
         footer {
             text-align: center;
-            margin-top: 25px;
+            margin-top: 30px;
+            padding: 20px;
             color: #6c8baa;
-            font-size: 12px;
+            border-top: 1px solid #0ff33;
+        }
+
+        @media (max-width: 800px) {
+            h1 { font-size: 32px; }
+            .glitch { font-size: 18px; }
+            .counter-box { font-size: 18px; }
         }
     </style>
 </head>
 <body>
+
 <div class="container">
-    <div class="header">
-        <h1>⚡ COUNTER DOWNLOAD ⚡</h1>
-        <div class="counter" id="totalDownloads">📥 TOTAL DOWNLOADS: 0</div>
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>⚡ SUFYAN COUNTER ⚡</h1>
+        <div class="glitch">// HACKER // GAMER // ELITE //</div>
+        <div class="counter-box" id="visitCounter">👁️ TOTAL VISITS: 0</div>
     </div>
 
-    <div class="ad-area" id="adTrigger">
-        💰 CLICK HERE FIRST — SUPPORT THE SITE 💰<br>
-        (One click unlocks the downloader)
+    <!-- Two Columns -->
+    <div class="columns">
+        <!-- Left Column: YouTube Channel -->
+        <div class="column">
+            <h2>🎮 COUNTER OF GAMES</h2>
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/videoseries?si=YOUR_CHANNEL_ID&list=UUCHANNEL_ID" 
+                        title="Counter OF Games"
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        referrerpolicy="strict-origin-when-cross-origin" 
+                        allowfullscreen>
+                </iframe>
+            </div>
+            <div class="channel-info">
+                <p>🎬 <strong>Counter OF Games</strong></p>
+                <p>📺 <span id="subscriberCount" class="subscriber-count">108</span> Subscribers</p>
+                <p>🎥 85+ Gaming Videos</p>
+                <a href="https://www.youtube.com/@CounterOFGames" target="_blank" style="color:#0ff;">▶️ Visit Channel →</a>
+            </div>
+        </div>
+
+        <!-- Right Column: Discord & Gaming Vibes -->
+        <div class="column">
+            <h2>💀 JOIN THE HORDE</h2>
+            <a href="https://discord.gg/AVqw2YzGB" target="_blank" class="discord-btn">
+                💬 JOIN DISCORD [CGC] 💬
+            </a>
+            <div class="channel-info">
+                <p>🔥 <strong>[CGC] Counter Gaming Community</strong></p>
+                <p>👥 91 Members • 12 Online</p>
+                <p>⚔️ Gaming • Hacking • Chill Vibes</p>
+            </div>
+            
+            <!-- Gaming Video Samples -->
+            <h2 style="margin-top: 25px;">🎮 LATEST GAMING</h2>
+            <div class="video-gallery">
+                <div class="gallery-item">
+                    <img src="https://img.youtube.com/vi/VIDEO_ID_1/mqdefault.jpg" alt="Game Clip">
+                    <a href="#">▶️ Counter Strike Clutch</a>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://img.youtube.com/vi/VIDEO_ID_2/mqdefault.jpg" alt="Game Clip">
+                    <a href="#">🔥 Valorant Ace</a>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="iframe-container" id="downloaderFrame" style="display: none;">
-        <iframe src="https://en.savefrom.net/1-youtube-video-downloader-13sg/"></iframe>
-    </div>
-
-    <footer>🔒 First click opens link • Then use the YouTube downloader below</footer>
+    <footer>
+        🛡️ SUFYAN COUNTER | ELITE GAMING COMMUNITY | HACK THE GAME 🛡️<br>
+        🔥 Discord • YouTube • Counter OF Games 🔥
+    </footer>
 </div>
 
 <script>
-    const AD_LINK = "https://discord.gg/AVqw2YzGB";  // YOUR DISCORD LINK
-    let adClicked = false;
+    // Visit Counter
+    let visits = localStorage.getItem('totalVisits') ? parseInt(localStorage.getItem('totalVisits')) : 0;
+    visits++;
+    localStorage.setItem('totalVisits', visits);
+    document.getElementById('visitCounter').innerHTML = '👁️ TOTAL VISITS: ' + visits;
 
-    // Load counter
-    let totalDownloads = localStorage.getItem('totalDownloads') ? parseInt(localStorage.getItem('totalDownloads')) : 0;
-    document.getElementById('totalDownloads').innerText = '📥 TOTAL DOWNLOADS: ' + totalDownloads;
-
-    if(localStorage.getItem('adClicked') === 'true') {
-        adClicked = true;
-        document.getElementById('adTrigger').style.display = 'none';
-        document.getElementById('downloaderFrame').style.display = 'block';
-    }
-
-    // Ad click
-    document.getElementById('adTrigger').onclick = function() {
-        if(!adClicked) {
-            window.open(AD_LINK, '_blank');
-            adClicked = true;
-            localStorage.setItem('adClicked', 'true');
-            this.style.display = 'none';
-            document.getElementById('downloaderFrame').style.display = 'block';
-            
-            totalDownloads++;
-            localStorage.setItem('totalDownloads', totalDownloads);
-            document.getElementById('totalDownloads').innerText = '📥 TOTAL DOWNLOADS: ' + totalDownloads;
+    // Optional: Try to fetch real subscriber count (works sometimes)
+    async function fetchSubscribers() {
+        try {
+            let response = await fetch('https://www.youtube.com/@CounterOFGames');
+            // Note: This is simplified; actual YouTube API would be better
+            // For now showing static 108
+        } catch(e) {
+            console.log("Subscriber fetch not available");
         }
-    };
+    }
+    fetchSubscribers();
 </script>
 </body>
 </html>
