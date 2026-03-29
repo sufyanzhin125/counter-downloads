@@ -30,7 +30,6 @@
             padding: 30px 25px;
             width: 100%;
             max-width: 600px;
-            transition: 0.3s;
         }
 
         h1 {
@@ -40,7 +39,6 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            letter-spacing: 1px;
         }
 
         .counter {
@@ -94,7 +92,6 @@
             font-weight: bold;
             font-size: 18px;
             cursor: pointer;
-            transition: 0.2s;
         }
 
         button:active {
@@ -115,7 +112,6 @@
             font-weight: bold;
             word-break: break-word;
             margin-bottom: 15px;
-            font-size: 16px;
         }
 
         .download-link {
@@ -129,7 +125,6 @@
             margin-top: 10px;
             width: 100%;
             text-align: center;
-            font-size: 16px;
         }
 
         footer {
@@ -137,6 +132,17 @@
             font-size: 11px;
             margin-top: 25px;
             color: #6c8baa;
+        }
+        
+        .quality-select {
+            width: 100%;
+            padding: 12px;
+            background: #0a0f1a;
+            border: 1px solid #0ff;
+            border-radius: 50px;
+            color: #0ff;
+            margin-bottom: 15px;
+            font-size: 14px;
         }
         
         .loading {
@@ -158,6 +164,12 @@
     </div>
 
     <input type="text" id="youtubeUrl" placeholder="Paste YouTube link here...">
+    <select id="quality" class="quality-select">
+        <option value="720">720p (HD)</option>
+        <option value="480">480p</option>
+        <option value="360">360p</option>
+        <option value="mp3">Audio Only (MP3)</option>
+    </select>
     <button id="downloadBtn">⬇️ DOWNLOAD VIDEO ⬇️</button>
 
     <div class="result" id="resultBox">
@@ -169,18 +181,12 @@
 </div>
 
 <script>
-    // ============================================================
-    // 🔥 YOUR AD LINK 🔥
     const AD_LINK = "https://discord.gg/AVqw2YzGB";
-    // ============================================================
-
     let adClicked = false;
     
-    // Load download counter
     let totalDownloads = localStorage.getItem('totalDownloads') ? parseInt(localStorage.getItem('totalDownloads')) : 0;
     document.getElementById('totalDownloads').innerHTML = '📥 TOTAL DOWNLOADS: ' + totalDownloads;
     
-    // Check if ad was clicked before
     if(localStorage.getItem('adClicked') === 'true') {
         adClicked = true;
         let adDiv = document.getElementById('adTrigger');
@@ -189,7 +195,6 @@
         adDiv.innerHTML = "✅ AD CLICKED! UNLIMITED ACCESS ACTIVE ✅";
     }
     
-    // AD CLICK HANDLER
     document.getElementById('adTrigger').onclick = function() {
         if(!adClicked) {
             window.open(AD_LINK, '_blank');
@@ -201,7 +206,6 @@
         }
     };
     
-    // Extract YouTube Video ID
     function extractVideoId(url) {
         let patterns = [
             /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?#]+)/,
@@ -214,56 +218,9 @@
         return null;
     }
     
-    // Multiple APIs to try
-    async function fetchVideoWithFallback(videoId) {
-        // API 1: Piped API
-        try {
-            let res = await fetch(`https://pipedapi.kavin.rocks/streams/${videoId}`);
-            if(res.ok) {
-                let data = await res.json();
-                if(data && data.videoStreams && data.videoStreams.length > 0) {
-                    return { success: true, data: data };
-                }
-            }
-        } catch(e) { console.log("API 1 failed", e); }
-        
-        // API 2: YouTube DL API (alternative)
-        try {
-            let res = await fetch(`https://youtube-mp3-downloader2.p.rapidapi.com/ytdl/video?id=${videoId}`, {
-                headers: {
-                    'x-rapidapi-key': '9f7e2b6b6bmsh5e7b3a8f9c2e4b1p1f4e1fjsn3f5b6e7d8c9',
-                    'x-rapidapi-host': 'youtube-mp3-downloader2.p.rapidapi.com'
-                }
-            });
-            if(res.ok) {
-                let data = await res.json();
-                if(data && data.link) {
-                    return { success: true, data: { title: data.title, videoStreams: [{ url: data.link, quality: "HD" }] } };
-                }
-            }
-        } catch(e) { console.log("API 2 failed", e); }
-        
-        // API 3: Another free API
-        try {
-            let res = await fetch(`https://api.cobalt.tools/api/json`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: `https://www.youtube.com/watch?v=${videoId}`, videoQuality: '720' })
-            });
-            if(res.ok) {
-                let data = await res.json();
-                if(data && data.url) {
-                    return { success: true, data: { title: "YouTube Video", videoStreams: [{ url: data.url, quality: "720p" }] } };
-                }
-            }
-        } catch(e) { console.log("API 3 failed", e); }
-        
-        return { success: false };
-    }
-    
-    // DOWNLOAD HANDLER
     document.getElementById('downloadBtn').onclick = async function() {
         let url = document.getElementById('youtubeUrl').value.trim();
+        let quality = document.getElementById('quality').value;
         
         if(!url) {
             alert("Please enter a YouTube link!");
@@ -277,7 +234,7 @@
         
         let videoId = extractVideoId(url);
         if(!videoId) {
-            alert("Invalid YouTube link! Make sure it's a valid video URL.");
+            alert("Invalid YouTube link!");
             return;
         }
         
@@ -289,22 +246,29 @@
         titleDiv.innerHTML = '<div class="loading">🕶️ FETCHING VIDEO... 🕶️</div>';
         container.innerHTML = "";
         
-        let result = await fetchVideoWithFallback(videoId);
-        
-        if(result.success && result.data.videoStreams && result.data.videoStreams.length > 0) {
-            let best = result.data.videoStreams[result.data.videoStreams.length - 1];
-            let videoTitle = result.data.title || "YouTube Video";
+        try {
+            let response = await fetch('download.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'url=' + encodeURIComponent(url) + '&quality=' + encodeURIComponent(quality)
+            });
             
-            titleDiv.innerHTML = `🎬 ${videoTitle} 🎬`;
-            container.innerHTML = `<a class="download-link" href="${best.url}" download target="_blank">💾 DOWNLOAD VIDEO (${best.quality || 'MP4'})</a>`;
+            let data = await response.json();
             
-            // Increase counter
-            totalDownloads++;
-            localStorage.setItem('totalDownloads', totalDownloads);
-            document.getElementById('totalDownloads').innerHTML = '📥 TOTAL DOWNLOADS: ' + totalDownloads;
-        } else {
-            titleDiv.innerHTML = "❌ No download links found. Try a different YouTube video.";
-            container.innerHTML = '<span style="color:#ff8888;">⚠️ Could not fetch video. Make sure the video is public and try again.</span>';
+            if(data.success) {
+                titleDiv.innerHTML = `🎬 ${data.title} 🎬`;
+                container.innerHTML = `<a class="download-link" href="${data.downloadUrl}" download>💾 DOWNLOAD VIDEO (${quality === 'mp3' ? 'MP3' : quality + 'p'})</a>`;
+                
+                totalDownloads++;
+                localStorage.setItem('totalDownloads', totalDownloads);
+                document.getElementById('totalDownloads').innerHTML = '📥 TOTAL DOWNLOADS: ' + totalDownloads;
+            } else {
+                titleDiv.innerHTML = "❌ " + data.error;
+                container.innerHTML = '<span style="color:#ff8888;">⚠️ Try another video or quality setting.</span>';
+            }
+        } catch(e) {
+            titleDiv.innerHTML = "💀 ERROR: Server issue. Try again.";
+            container.innerHTML = '<span style="color:#ff8888;">⚠️ Please wait a moment and try again.</span>';
         }
     };
 </script>
