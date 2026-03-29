@@ -2,260 +2,256 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>N3ON RIPPER | DL ANY VID</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Counter Downloads | YouTube Video Downloader</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Share Tech Mono', 'Courier New', monospace;
+            font-family: 'Courier New', 'Segoe UI', monospace;
         }
-
         body {
+            background: radial-gradient(circle at 20% 30%, #0a0f1e, #010101);
             min-height: 100vh;
-            background: radial-gradient(circle at 20% 30%, #0a0f1e, #03050b);
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
-            overflow-x: hidden;
+            padding: 16px;
         }
-
-        /* NEON GRID OVERLAY */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .cyber-card {
-            background: rgba(10, 20, 30, 0.65);
+        .glass-card {
+            background: rgba(5, 10, 20, 0.85);
             backdrop-filter: blur(12px);
-            border-radius: 2rem;
-            border: 1px solid rgba(0, 255, 255, 0.4);
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2), inset 0 0 20px rgba(0, 255, 255, 0.05);
-            padding: 2rem;
-            width: 90%;
-            max-width: 700px;
-            z-index: 2;
-            transition: all 0.3s ease;
+            border-radius: 32px;
+            border: 1px solid #0ff;
+            box-shadow: 0 0 35px rgba(0, 255, 255, 0.3);
+            padding: 24px;
+            width: 100%;
+            max-width: 600px;
+            transition: 0.3s;
         }
-
         h1 {
-            font-size: 2.5rem;
+            font-size: 28px;
             text-align: center;
             background: linear-gradient(135deg, #0ff, #f0f);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-shadow: 0 0 8px rgba(0,255,255,0.5);
             letter-spacing: 2px;
-            margin-bottom: 0.5rem;
         }
-
-        .glow-text {
+        .counter-box {
+            background: #000000aa;
             text-align: center;
-            color: #8ae2ff;
-            font-size: 0.8rem;
-            margin-bottom: 2rem;
-            opacity: 0.8;
+            padding: 10px;
+            border-radius: 40px;
+            margin: 20px 0;
+            border: 1px solid #ffaa33;
+            color: #ffaa33;
+            font-weight: bold;
+            font-size: 18px;
         }
-
-        .input-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        input {
-            flex: 1;
-            background: #0a0f1a;
-            border: 1px solid #2affff;
-            border-radius: 2rem;
-            padding: 1rem 1.5rem;
-            color: #0ff;
-            font-size: 1rem;
-            outline: none;
+        .ad-area {
+            background: linear-gradient(145deg, #ff00aa22, #ff44aa22);
+            border: 2px solid #ff44aa;
+            padding: 14px;
+            border-radius: 28px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
             transition: 0.2s;
+            font-weight: bold;
+            color: #ffccff;
         }
-
-        input:focus {
-            box-shadow: 0 0 15px #0ff;
-            border-color: #f0f;
+        .ad-area:hover {
+            background: #ff44aa55;
+            transform: scale(1.01);
         }
-
+        input {
+            width: 100%;
+            padding: 14px 18px;
+            background: #0a0f1a;
+            border: 1px solid #0ff;
+            border-radius: 50px;
+            color: #0ff;
+            font-size: 16px;
+            outline: none;
+            margin-bottom: 18px;
+        }
         button {
+            width: 100%;
+            padding: 14px;
             background: linear-gradient(95deg, #0ff, #f0f);
             border: none;
-            padding: 0 2rem;
-            border-radius: 3rem;
+            border-radius: 50px;
             font-weight: bold;
-            font-size: 1.2rem;
-            color: #010101;
-            cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 0 10px #0ff;
-        }
-
-        button:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 20px #f0f;
-        }
-
-        /* AD SPOT — first click trigger */
-        .ad-trigger {
-            background: rgba(255,0,100,0.2);
-            border-left: 4px solid #ff00aa;
-            padding: 0.8rem;
-            margin-bottom: 1.5rem;
-            border-radius: 1rem;
-            text-align: center;
-            font-size: 0.85rem;
-            color: #ff99cc;
+            font-size: 18px;
             cursor: pointer;
             transition: 0.2s;
         }
-
-        .ad-trigger:hover {
-            background: rgba(255,0,100,0.4);
+        button:active {
+            transform: scale(0.98);
         }
-
-        .result-box {
-            margin-top: 2rem;
-            background: #03070faa;
-            border-radius: 1.5rem;
-            padding: 1rem;
-            border: 1px solid #0ff;
+        .result-panel {
+            margin-top: 20px;
+            background: #000000aa;
+            border-radius: 24px;
+            padding: 16px;
             display: none;
+            border-left: 4px solid #0ff;
         }
-
-        .download-links a {
-            display: inline-block;
-            margin: 0.5rem;
-            padding: 0.6rem 1.2rem;
-            background: #0f212e;
-            border-radius: 2rem;
+        .video-title {
             color: #0ff;
-            text-decoration: none;
             font-weight: bold;
-            transition: 0.2s;
+            word-break: break-word;
+            margin-bottom: 12px;
         }
-
-        .download-links a:hover {
+        .dl-link {
+            display: inline-block;
             background: #0ff;
             color: black;
-            box-shadow: 0 0 12px cyan;
+            padding: 12px 20px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 10px;
+            width: 100%;
+            text-align: center;
         }
-
         footer {
             text-align: center;
-            margin-top: 2rem;
-            font-size: 0.7rem;
-            color: #6c8b9b;
-        }
-
-        @media (max-width: 600px) {
-            .cyber-card { padding: 1.2rem; }
-            h1 { font-size: 1.8rem; }
+            font-size: 11px;
+            margin-top: 24px;
+            color: #6c8baa;
         }
     </style>
 </head>
 <body>
-    <div class="cyber-card">
-        <h1>⛓️ N3ON RIPPER ⛓️</h1>
-        <div class="glow-text">>> PASTE LINK // DOWNLOAD RAW <<</div>
 
-        <!-- AD SPOT: First click = Ad opens, then download works -->
-        <div id="adSpot" class="ad-trigger">
-            ⚡ [ AD SPACE ] ⚡<br>
-            🔥 Click here FIRST to support the server — then download unlimited 🔥
-        </div>
+<div class="glass-card">
+    <h1>⚡ COUNTER DOWNLOADS ⚡</h1>
+    <div class="counter-box" id="totalDownloadsDisplay">📥 TOTAL DOWNLOADS: 0</div>
 
-        <div class="input-group">
-            <input type="text" id="videoUrl" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off">
-            <button id="fetchBtn">⛓️ RIP NOW ⛓️</button>
-        </div>
-
-        <div id="result" class="result-box">
-            <div id="videoInfo" style="color:#0ff; margin-bottom: 1rem;"></div>
-            <div id="downloadLinks" class="download-links"></div>
-        </div>
-        <footer>⚡ NO API KEY • NO LIMITS • FIRST CLICK SUPPORTS US ⚡</footer>
+    <!-- AD SPOT: YAHI TERA AD HAI — YAHAN SE PAISA AAYEGA -->
+    <div class="ad-area" id="adTrigger">
+        💰 CLICK HERE FIRST — SUPPORT THE SITE 💰<br>
+        (Ek baar click karo, fir unlimited download)
     </div>
 
-    <script>
-        const adSpot = document.getElementById('adSpot');
-        const fetchBtn = document.getElementById('fetchBtn');
-        const urlInput = document.getElementById('videoUrl');
-        const resultDiv = document.getElementById('result');
-        const videoInfoDiv = document.getElementById('videoInfo');
-        const downloadLinksDiv = document.getElementById('downloadLinks');
+    <input type="text" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
+    <button id="downloadButton">⬇️ DOWNLOAD VIDEO ⬇️</button>
 
-        let adClicked = false;
+    <div class="result-panel" id="resultBox">
+        <div class="video-title" id="videoTitle"></div>
+        <div id="downloadLinkContainer"></div>
+    </div>
 
-        // First click on ad spot opens affiliate/ad link
-        adSpot.addEventListener('click', () => {
-            if (!adClicked) {
-                // REPLACE WITH YOUR ACTUAL AD LINK (e.g., shorte.st, adfly, or any monetized link)
-                window.open('https://www.shorte.st/your-link-here', '_blank');
-                adSpot.style.opacity = '0.6';
-                adSpot.innerHTML = '✅ THANKS! NOW YOU CAN DOWNLOAD ✅<br>🔥 UNLIMITED ACCESS ACTIVE 🔥';
-                adClicked = true;
-            }
-        });
+    <footer>🔒 First click = ad opens • Then download works • No hidden catches</footer>
+</div>
 
-        fetchBtn.addEventListener('click', async () => {
-            const url = urlInput.value.trim();
-            if (!url) {
-                alert('ENTER YOUTUBE LINK, HACKER!');
+<script>
+    // --------------------------------------------------------------
+    // 🔥 YAHAN SIRF APNA SHORTE.ST YA ADFLY LINK LAGA 🔥
+    // Pehle shorte.st pe jake link bana, phir ye wali line badal
+    const MY_AD_LINK = "https://shorte.st/xxxxxxxx";  // <-- APNA LINK YAHAN DAL
+    // --------------------------------------------------------------
+
+    let adClicked = false;
+    
+    // Load saved data
+    let totalDownloads = localStorage.getItem('totalDownloads') ? parseInt(localStorage.getItem('totalDownloads')) : 0;
+    document.getElementById('totalDownloadsDisplay').innerHTML = '📥 TOTAL DOWNLOADS: ' + totalDownloads;
+    
+    if(localStorage.getItem('adClicked') === 'true') {
+        adClicked = true;
+        let adDiv = document.getElementById('adTrigger');
+        adDiv.style.background = "#00aa8822";
+        adDiv.style.borderColor = "#0ff";
+        adDiv.innerHTML = "✅ AD ALREADY CLICKED! UNLIMITED ACCESS ✅";
+    }
+    
+    // AD CLICK HANDLER
+    document.getElementById('adTrigger').onclick = function() {
+        if(!adClicked) {
+            if(MY_AD_LINK && MY_AD_LINK !== "https://shorte.st/xxxxxxxx") {
+                window.open(MY_AD_LINK, '_blank');
+            } else {
+                alert("⚠️ Pehle apna Shorte.st link code mein daal! ⚠️");
                 return;
             }
-
-            if (!adClicked) {
-                alert('⚠️ FIRST CLICK THE AD SPOT ABOVE TO UNLOCK DOWNLOAD ⚠️\n(It helps keep this service alive)');
-                return;
+            adClicked = true;
+            localStorage.setItem('adClicked', 'true');
+            this.style.background = "#00aa8822";
+            this.style.borderColor = "#0ff";
+            this.innerHTML = "✅ AD CLICKED! NOW YOU CAN DOWNLOAD ✅";
+        }
+    };
+    
+    // EXTRACT YOUTUBE VIDEO ID
+    function getYoutubeId(url) {
+        let patterns = [
+            /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?#]+)/,
+            /youtube\.com\/watch\?.*v=([^&]+)/
+        ];
+        for(let p of patterns) {
+            let match = url.match(p);
+            if(match && match[1].length === 11) return match[1];
+        }
+        return null;
+    }
+    
+    // DOWNLOAD HANDLER
+    document.getElementById('downloadButton').onclick = async function() {
+        let urlInput = document.getElementById('youtubeUrl').value.trim();
+        if(!urlInput) {
+            alert("❌ Pehle YouTube link daal!");
+            return;
+        }
+        
+        if(!adClicked) {
+            alert("⚠️ Pehle upar wale AD box pe click kar! ⚠️");
+            return;
+        }
+        
+        let videoId = getYoutubeId(urlInput);
+        if(!videoId) {
+            alert("❌ Galat YouTube link! Sahi link daal.");
+            return;
+        }
+        
+        let resultDiv = document.getElementById('resultBox');
+        let titleDiv = document.getElementById('videoTitle');
+        let linkContainer = document.getElementById('downloadLinkContainer');
+        
+        resultDiv.style.display = 'block';
+        titleDiv.innerHTML = "🕶️ FETCHING VIDEO... 🕶️";
+        linkContainer.innerHTML = "";
+        
+        try {
+            // WORKING API — NO BACKEND NEEDED
+            let apiUrl = `https://pipedapi.kavin.rocks/streams/${videoId}`;
+            let res = await fetch(apiUrl);
+            let data = await res.json();
+            
+            if(data && data.videoStreams && data.videoStreams.length > 0) {
+                let best = data.videoStreams[data.videoStreams.length - 1];
+                let videoTitle = data.title || "YouTube Video";
+                
+                titleDiv.innerHTML = `🎬 ${videoTitle} 🎬`;
+                linkContainer.innerHTML = `<a class="dl-link" href="${best.url}" download target="_blank">💾 DOWNLOAD VIDEO (${best.quality}p)</a>`;
+                
+                // INCREASE COUNTER
+                totalDownloads++;
+                localStorage.setItem('totalDownloads', totalDownloads);
+                document.getElementById('totalDownloadsDisplay').innerHTML = '📥 TOTAL DOWNLOADS: ' + totalDownloads;
+            } else {
+                titleDiv.innerHTML = "❌ Video download link nahi mila. Private ya age-restricted ho sakti hai.";
             }
-
-            // Show loading
-            videoInfoDiv.innerHTML = '🕶️ SCANNING NEON GRID... 🕶️';
-            downloadLinksDiv.innerHTML = '';
-            resultDiv.style.display = 'block';
-
-            try {
-                const response = await fetch('backend.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: 'url=' + encodeURIComponent(url)
-                });
-                const data = await response.json();
-
-                if (data.error) {
-                    videoInfoDiv.innerHTML = `❌ ERROR: ${data.error}`;
-                    downloadLinksDiv.innerHTML = '';
-                } else {
-                    videoInfoDiv.innerHTML = `🎬 ${data.title} 🎬<br>📏 ${data.length}`;
-                    let linksHtml = '';
-                    data.formats.forEach(fmt => {
-                        linksHtml += `<a href="${fmt.url}" download target="_blank">💾 ${fmt.quality} - ${fmt.type}</a>`;
-                    });
-                    downloadLinksDiv.innerHTML = linksHtml;
-                }
-            } catch (err) {
-                videoInfoDiv.innerHTML = '💀 BACKEND ERROR — CHECK SERVER CONFIG 💀';
-                console.error(err);
-            }
-        });
-    </script>
+        } catch(error) {
+            console.error(error);
+            titleDiv.innerHTML = "💀 ERROR: Try another video or check internet 💀";
+            linkContainer.innerHTML = '<span style="color:#ff8888;">⚠️ Server busy, try again in 10 seconds.</span>';
+        }
+    };
+</script>
 </body>
 </html>
