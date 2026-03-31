@@ -308,6 +308,30 @@
             margin-top: 2rem;
         }
 
+        /* Country Select with Flag */
+        .country-select {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #0a0e16;
+            border: 1px solid #252c3f;
+            border-radius: 12px;
+            padding: 0 12px;
+            margin-bottom: 1rem;
+        }
+        .country-select span {
+            font-size: 1.3rem;
+        }
+        .country-select select {
+            border: none;
+            background: transparent;
+            margin-bottom: 0;
+            padding: 12px 0;
+        }
+        .country-select select:focus {
+            box-shadow: none;
+        }
+
         @media (max-width: 768px) {
             .grid-2 { grid-template-columns: 1fr; }
             .navbar { flex-direction: column; text-align: center; }
@@ -359,6 +383,25 @@
     let lastActivity = JSON.parse(localStorage.getItem('lastActivity')) || {};
     let userTimeouts = JSON.parse(localStorage.getItem('userTimeouts')) || {};
     let userMessageCount = JSON.parse(localStorage.getItem('userMessageCount')) || {};
+
+    // Countries with Flags
+    const countries = [
+        { code: "PK", name: "Pakistan", flag: "🇵🇰" },
+        { code: "US", name: "United States", flag: "🇺🇸" },
+        { code: "GB", name: "United Kingdom", flag: "🇬🇧" },
+        { code: "IN", name: "India", flag: "🇮🇳" },
+        { code: "AE", name: "UAE", flag: "🇦🇪" },
+        { code: "SA", name: "Saudi Arabia", flag: "🇸🇦" },
+        { code: "CA", name: "Canada", flag: "🇨🇦" },
+        { code: "AU", name: "Australia", flag: "🇦🇺" },
+        { code: "DE", name: "Germany", flag: "🇩🇪" },
+        { code: "FR", name: "France", flag: "🇫🇷" },
+        { code: "TR", name: "Turkey", flag: "🇹🇷" },
+        { code: "EG", name: "Egypt", flag: "🇪🇬" },
+        { code: "BD", name: "Bangladesh", flag: "🇧🇩" },
+        { code: "MY", name: "Malaysia", flag: "🇲🇾" },
+        { code: "SG", name: "Singapore", flag: "🇸🇬" }
+    ];
 
     // Auto Rep Messages
     const autoRepMessages = [
@@ -498,10 +541,11 @@
     // Auto Post When User Gets Tag
     function createAutoRepPost(username, tagName) {
         const randomMsg = autoRepMessages[Math.floor(Math.random() * autoRepMessages.length)];
+        const user = users.find(u => u.username === username);
         const newPost = {
             id: Date.now(),
             username: username,
-            userId: users.find(u => u.username === username)?.id,
+            userId: user?.id,
             content: `${randomMsg} 🎉 (Tagged as ${tagName.toUpperCase()})`,
             image: null,
             timestamp: new Date().toLocaleString(),
@@ -514,7 +558,6 @@
         posts.unshift(newPost);
         saveData();
         
-        // Also send message to owner about the auto post
         messages.push({
             id: Date.now(),
             from: 'SYSTEM',
@@ -524,7 +567,89 @@
             read: false
         });
         saveData();
+        showToast(`Auto reputation post created for ${username}!`);
     }
+
+    // ============= REGISTER MODAL =============
+    function showRegisterModal() {
+        const countryOptions = countries.map(c => `<option value="${c.name}" data-flag="${c.flag}">${c.flag} ${c.name}</option>`).join('');
+        showModal('📝 Register New Account', `
+            <input type="text" id="modalRegUsername" placeholder="Username" style="margin-bottom:0.5rem;">
+            <input type="email" id="modalRegEmail" placeholder="Email" style="margin-bottom:0.5rem;">
+            <div class="country-select">
+                <span id="selectedFlag">🇵🇰</span>
+                <select id="modalRegCountry" onchange="updateCountryFlag()">
+                    ${countryOptions}
+                </select>
+            </div>
+            <input type="password" id="modalRegPassword" placeholder="Password (min 4 chars)" style="margin-bottom:1rem;">
+            <button onclick="modalRegister()" style="width:100%;">Register</button>
+        `);
+    }
+
+    window.updateCountryFlag = function() {
+        const select = document.getElementById('modalRegCountry');
+        const selectedOption = select.options[select.selectedIndex];
+        const flag = selectedOption.getAttribute('data-flag') || '🇵🇰';
+        document.getElementById('selectedFlag').innerText = flag;
+    };
+
+    window.modalRegister = async function() {
+        const fp = await FingerprintJS.load();
+        const fingerprint = (await fp.get()).visitorId;
+        
+        if (bannedIPs.includes(fingerprint)) { 
+            showToast('Your device is banned', true); 
+            closeModal();
+            return; 
+        }
+        if (fingerprints[fingerprint]) { 
+            showToast('One account per device only', true); 
+            closeModal();
+            return; 
+        }
+        
+        const username = document.getElementById('modalRegUsername')?.value.trim();
+        const email = document.getElementById('modalRegEmail')?.value.trim();
+        const countrySelect = document.getElementById('modalRegCountry');
+        const country = countrySelect ? countrySelect.value : 'Pakistan';
+        const password = document.getElementById('modalRegPassword')?.value;
+        
+        if (!username || !email || !country || !password) { 
+            showToast('All fields required', true); 
+            return; 
+        }
+        if (users.find(u=>u.username === username)) { 
+            showToast('Username already taken', true); 
+            return; 
+        }
+        if (password.length < 4) { 
+            showToast('Password must be at least 4 characters', true); 
+            return; 
+        }
+        
+        fingerprints[fingerprint] = username;
+        const isOwner = (username === 'sufyan');
+        const newUser = { 
+            id: Date.now(), 
+            username, 
+            email, 
+            country, 
+            password, 
+            isOwner, 
+            isBanned: false, 
+            registeredAt: new Date().toISOString(), 
+            avatar: null, 
+            fingerprint 
+        };
+        users.push(newUser);
+        currentUser = newUser;
+        saveData();
+        updateNav();
+        closeModal();
+        showToast(`Welcome ${username}! Registration successful.`);
+        showPage('home');
+    };
 
     function showLoginModal() {
         showModal('🔐 Login to Counter Prime', `
@@ -535,16 +660,6 @@
         `);
         document.getElementById('modalLoginUsername')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') modalLogin(); });
         document.getElementById('modalLoginPassword')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') modalLogin(); });
-    }
-
-    function showRegisterModal() {
-        showModal('📝 Register New Account', `
-            <input type="text" id="modalRegUsername" placeholder="Username" style="margin-bottom:0.5rem;">
-            <input type="email" id="modalRegEmail" placeholder="Email" style="margin-bottom:0.5rem;">
-            <input type="text" id="modalRegCountry" placeholder="Country" style="margin-bottom:0.5rem;">
-            <input type="password" id="modalRegPassword" placeholder="Password (min 4 chars)" style="margin-bottom:1rem;">
-            <button onclick="modalRegister()" style="width:100%;">Register</button>
-        `);
     }
 
     window.modalLogin = function() {
@@ -559,33 +674,6 @@
         updateNav();
         closeModal();
         showToast(`Welcome ${username}!`);
-        showPage('home');
-    };
-
-    window.modalRegister = async function() {
-        const fp = await FingerprintJS.load();
-        const fingerprint = (await fp.get()).visitorId;
-        if (bannedIPs.includes(fingerprint)) { showToast('Device banned', true); closeModal(); return; }
-        if (fingerprints[fingerprint]) { showToast('One account per device', true); closeModal(); return; }
-        
-        const username = document.getElementById('modalRegUsername')?.value.trim();
-        const email = document.getElementById('modalRegEmail')?.value.trim();
-        const country = document.getElementById('modalRegCountry')?.value.trim();
-        const password = document.getElementById('modalRegPassword')?.value;
-        
-        if (!username || !email || !country || !password) { showToast('All fields required', true); return; }
-        if (users.find(u=>u.username===username)) { showToast('Username taken', true); return; }
-        if (password.length < 4) { showToast('Password min 4 chars', true); return; }
-        
-        fingerprints[fingerprint] = username;
-        const isOwner = (username === 'sufyan');
-        const newUser = { id: Date.now(), username, email, country, password, isOwner, isBanned: false, registeredAt: new Date().toISOString(), avatar: null, fingerprint };
-        users.push(newUser);
-        currentUser = newUser;
-        saveData();
-        updateNav();
-        closeModal();
-        showToast('Registered! Welcome!');
         showPage('home');
     };
 
@@ -644,7 +732,7 @@
     // Dashboard
     window.showDashboard = function() {
         if (!currentUser?.isOwner) { showPage('home'); return; }
-        const totalOrders = posts.length;
+        const totalOrders = posts.filter(p => !p.isAutoRep).length;
         const totalUsers = users.length;
         const totalRevenue = posts.filter(p => p.status === 'completed' && !p.isAutoRep).length * 10;
         showModal('Admin Dashboard', `
@@ -786,10 +874,8 @@
         
         if (tag) {
             userTags[username] = { tag: tag, glow: glow };
-            // If user is getting a tag (prime, premium, etc.), create auto rep post
-            if (tag !== 'banned' && tag !== oldTag) {
+            if (tag !== 'banned' && tag !== oldTag && tag !== 'member') {
                 createAutoRepPost(username, tag);
-                showToast(`Auto reputation post created for ${username}!`);
             }
         } else {
             delete userTags[username];
@@ -993,7 +1079,7 @@
         container.innerHTML = `<div class="card"><div class="card-title">💬 Public Live Chat</div>
             <div id="chatMessages" class="chat-container"></div>
             <div style="display:flex; gap:0.5rem;"><input type="text" id="chatInput" placeholder="Type message... (emojis allowed)" onkeypress="handleChatEnter(event)" style="flex:1;"><button onclick="sendChatMessage()">Send</button></div>
-            ${currentUser?.isOwner ? '<button onclick="clearAllChat()" style="margin-top:0.5rem; background:#6b7280;">Clear All Chat</button>' : ''}
+            ${currentUser?.isOwner ? '<button onclick="clearAllChat()" style="margin-top:0.5rem; background:#6b7280;">🗑️ Clear All Chat</button>' : ''}
             </div>`;
         renderChatMessages();
         setInterval(renderChatMessages, 3000);
@@ -1010,7 +1096,6 @@
             const user = users.find(u => u.username === m.username);
             return `<div class="chat-message"><span class="username ${getUserGlowClass(user || {})}" onclick="showProfile('${m.username}')">${m.username}</span> ${getUserTagDisplay(user || {})}<span class="time">${m.time}</span><br><div class="message-text">${m.message}</div>${currentUser?.isOwner ? `<button class="delete-btn" onclick="deleteChatMessage('${m.id}')">Delete</button>` : ''}</div>`;
         }).join('');
-        // Auto scroll to bottom
         container.scrollTop = container.scrollHeight;
     }
     
@@ -1022,7 +1107,6 @@
         saveData();
         document.getElementById('chatInput').value = '';
         renderChatMessages();
-        // Scroll to bottom after send
         const container = document.getElementById('chatMessages');
         if (container) container.scrollTop = container.scrollHeight;
     };
@@ -1040,7 +1124,7 @@
         chatMessages = []; 
         saveData(); 
         renderChatMessages(); 
-        showToast('Chat cleared'); 
+        showToast('All chat messages cleared'); 
     };
 
     // Store, Cart, Checkout
