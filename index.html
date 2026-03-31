@@ -299,6 +299,42 @@
         }
         .delete-btn:hover { background: #4b5563; }
 
+        /* Country Select Fix */
+        .country-wrapper {
+            margin-bottom: 1rem;
+        }
+        .country-select {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #0a0e16;
+            border: 1px solid #252c3f;
+            border-radius: 12px;
+            padding: 0 16px;
+        }
+        .country-select .flag-icon {
+            font-size: 1.3rem;
+            line-height: 1;
+        }
+        .country-select select {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 0;
+            margin-bottom: 0;
+            cursor: pointer;
+            color: white;
+        }
+        .country-select select:focus {
+            outline: none;
+            box-shadow: none;
+        }
+        .country-select select option {
+            background: #0a0e16;
+            color: white;
+            padding: 10px;
+        }
+
         footer {
             text-align: center;
             padding: 2rem;
@@ -306,30 +342,6 @@
             font-size: 0.75rem;
             border-top: 1px solid #1f2538;
             margin-top: 2rem;
-        }
-
-        /* Country Select with Flag */
-        .country-select {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #0a0e16;
-            border: 1px solid #252c3f;
-            border-radius: 12px;
-            padding: 0 12px;
-            margin-bottom: 1rem;
-        }
-        .country-select span {
-            font-size: 1.3rem;
-        }
-        .country-select select {
-            border: none;
-            background: transparent;
-            margin-bottom: 0;
-            padding: 12px 0;
-        }
-        .country-select select:focus {
-            box-shadow: none;
         }
 
         @media (max-width: 768px) {
@@ -570,28 +582,35 @@
         showToast(`Auto reputation post created for ${username}!`);
     }
 
-    // ============= REGISTER MODAL =============
-    function showRegisterModal() {
+    // ============= REGISTER MODAL (FIXED) =============
+    window.showRegisterModal = function() {
         const countryOptions = countries.map(c => `<option value="${c.name}" data-flag="${c.flag}">${c.flag} ${c.name}</option>`).join('');
-        showModal('📝 Register New Account', `
-            <input type="text" id="modalRegUsername" placeholder="Username" style="margin-bottom:0.5rem;">
-            <input type="email" id="modalRegEmail" placeholder="Email" style="margin-bottom:0.5rem;">
-            <div class="country-select">
-                <span id="selectedFlag">🇵🇰</span>
-                <select id="modalRegCountry" onchange="updateCountryFlag()">
-                    ${countryOptions}
-                </select>
+        const modalHtml = `
+            <input type="text" id="modalRegUsername" placeholder="Username" style="margin-bottom:0.8rem;">
+            <input type="email" id="modalRegEmail" placeholder="Email" style="margin-bottom:0.8rem;">
+            <div class="country-wrapper">
+                <div class="country-select">
+                    <span class="flag-icon" id="selectedFlag">🇵🇰</span>
+                    <select id="modalRegCountry" onchange="updateCountryFlag()">
+                        ${countryOptions}
+                    </select>
+                </div>
             </div>
             <input type="password" id="modalRegPassword" placeholder="Password (min 4 chars)" style="margin-bottom:1rem;">
-            <button onclick="modalRegister()" style="width:100%;">Register</button>
-        `);
-    }
+            <button onclick="modalRegister()" style="width:100%;">Create Account</button>
+            <p style="margin-top:1rem; text-align:center;">Already have account? <a onclick="closeModal();showLoginModal();" style="color:#f97316; cursor:pointer;">Login</a></p>
+        `;
+        showModal('📝 Create New Account', modalHtml);
+    };
 
     window.updateCountryFlag = function() {
         const select = document.getElementById('modalRegCountry');
-        const selectedOption = select.options[select.selectedIndex];
-        const flag = selectedOption.getAttribute('data-flag') || '🇵🇰';
-        document.getElementById('selectedFlag').innerText = flag;
+        if (select) {
+            const selectedOption = select.options[select.selectedIndex];
+            const flag = selectedOption.getAttribute('data-flag') || '🇵🇰';
+            const flagSpan = document.getElementById('selectedFlag');
+            if (flagSpan) flagSpan.innerText = flag;
+        }
     };
 
     window.modalRegister = async function() {
@@ -647,7 +666,7 @@
         saveData();
         updateNav();
         closeModal();
-        showToast(`Welcome ${username}! Registration successful.`);
+        showToast(`✅ Welcome ${username}! Registration successful.`);
         showPage('home');
     };
 
