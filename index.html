@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Counter Prime | Premium CFG Forum</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <!-- EmailJS SDK -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
@@ -85,7 +88,6 @@
             gap: 1rem;
         }
 
-        /* Tags */
         .tag {
             padding: 4px 12px;
             border-radius: 20px;
@@ -104,7 +106,6 @@
         .tag-banned { background: #000000; color: white; box-shadow: 0 0 12px #000000; border: 1px solid #ff0000; }
         .tag-member { background: #2a2f42; color: #b0b7d0; }
 
-        /* Glow Name */
         .glow-name { text-shadow: 0 0 8px currentColor; }
         .glow-prime { color: #fb923c; text-shadow: 0 0 12px #f97316; }
         .glow-premium { color: #facc15; text-shadow: 0 0 12px #eab308; }
@@ -386,50 +387,52 @@
     </div>
 
     <div class="container" id="pageContent"></div>
-    <footer>Counter-Prime-CFG | Owner: sufyan | Discord: sufyancounter | Auto Backup Every Hour</footer>
+    <footer>Counter-Prime-CFG | Owner: sufyan | Discord: sufyancounter | Firebase Cloud Database</footer>
 </div>
 
 <script>
-    // Initialize EmailJS with your keys
+    // ============= FIREBASE CONFIG =============
+    const firebaseConfig = {
+        apiKey: "AIzaSyBiT6KqM3HRSDkRrWx5wOmQCgfD7TD_Jz8",
+        authDomain: "counterprime-c1f95.firebaseapp.com",
+        projectId: "counterprime-c1f95",
+        storageBucket: "counterprime-c1f95.firebasestorage.app",
+        messagingSenderId: "1012703022142",
+        appId: "1:1012703022142:web:bbc9d4c71904e44b5c556f",
+        measurementId: "G-B8XJKGCH25"
+    };
+    
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    
+    // Initialize EmailJS
     (function() {
         emailjs.init("Csg4OWKUCevBX8W5A");
     })();
 
     // ============= DATA STRUCTURE =============
-    let users = JSON.parse(localStorage.getItem('users')) || [];
-    let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    let posts = JSON.parse(localStorage.getItem('posts')) || [];
-    let messages = JSON.parse(localStorage.getItem('messages')) || [];
-    let userTags = JSON.parse(localStorage.getItem('userTags')) || {};
-    let chatMessages = JSON.parse(localStorage.getItem('chatMessages')) || [];
-    let lastActivity = JSON.parse(localStorage.getItem('lastActivity')) || {};
-    let userTimeouts = JSON.parse(localStorage.getItem('userTimeouts')) || {};
-    let userMessageCount = JSON.parse(localStorage.getItem('userMessageCount')) || {};
-    let resetCodes = JSON.parse(localStorage.getItem('resetCodes')) || {};
+    let users = [];
+    let currentUser = null;
+    let cart = [];
+    let posts = [];
+    let messages = [];
+    let userTags = {};
+    let chatMessages = [];
+    let lastActivity = {};
+    let userTimeouts = {};
+    let userMessageCount = {};
+    let resetCodes = {};
 
     // Auto Rep Messages
     const autoRepMessages = [
-        "+REP Trusted seller! 🔥",
-        "+VOUCH Legit config! 💯",
-        "+REP Fast delivery! ⚡",
-        "VOUCH +1 Great service! 🌟",
-        "+REP 100% legit! ✅",
-        "Trusted member! 🤝",
-        "+VOUCH Highly recommended! 🎯",
-        "REP++ Best config ever! 🚀",
-        "Legit seller! 🔥🔥",
-        "+REP Will buy again! 💪",
-        "VOUCH! Working perfectly! 🎮",
-        "Trusted! Fast response! ⏱️",
-        "+REP Professional! 👑",
-        "VOUCH +100! 🏆",
-        "Legit and safe! 🔒",
-        "+REP A+ Service! ⭐",
-        "Trusted config master! 🧙",
-        "VOUCH! No ban! 🔥",
-        "+REP Great support! 💬",
-        "100% working! 🎯"
+        "+REP Trusted seller! 🔥", "+VOUCH Legit config! 💯", "+REP Fast delivery! ⚡",
+        "VOUCH +1 Great service! 🌟", "+REP 100% legit! ✅", "Trusted member! 🤝",
+        "+VOUCH Highly recommended! 🎯", "REP++ Best config ever! 🚀", "Legit seller! 🔥🔥",
+        "+REP Will buy again! 💪", "VOUCH! Working perfectly! 🎮", "Trusted! Fast response! ⏱️",
+        "+REP Professional! 👑", "VOUCH +100! 🏆", "Legit and safe! 🔒",
+        "+REP A+ Service! ⭐", "Trusted config master! 🧙", "VOUCH! No ban! 🔥",
+        "+REP Great support! 💬", "100% working! 🎯"
     ];
 
     const products = [
@@ -440,32 +443,129 @@
 
     const availableTags = ['prime', 'premium', 'vip', 'elite', 'legend', 'god', 'hacker'];
 
-    // Email validation function
     function isValidEmail(email) {
         const emailRegex = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
         return emailRegex.test(email);
     }
 
-    function saveData() {
-        localStorage.setItem('users', JSON.stringify(users));
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        localStorage.setItem('cart', JSON.stringify(cart));
-        localStorage.setItem('posts', JSON.stringify(posts));
-        localStorage.setItem('messages', JSON.stringify(messages));
-        localStorage.setItem('userTags', JSON.stringify(userTags));
-        localStorage.setItem('chatMessages', JSON.stringify(chatMessages));
-        localStorage.setItem('lastActivity', JSON.stringify(lastActivity));
-        localStorage.setItem('userTimeouts', JSON.stringify(userTimeouts));
-        localStorage.setItem('userMessageCount', JSON.stringify(userMessageCount));
-        localStorage.setItem('resetCodes', JSON.stringify(resetCodes));
-        updateCartCount();
-        updateInboxCount();
+    // ============= FIREBASE DATA FUNCTIONS =============
+    async function loadAllData() {
+        try {
+            const usersSnap = await db.collection('users').get();
+            users = [];
+            usersSnap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
+            
+            const postsSnap = await db.collection('posts').orderBy('timestampMs', 'desc').get();
+            posts = [];
+            postsSnap.forEach(doc => posts.push({ id: doc.id, ...doc.data() }));
+            
+            const messagesSnap = await db.collection('messages').get();
+            messages = [];
+            messagesSnap.forEach(doc => messages.push({ id: doc.id, ...doc.data() }));
+            
+            const tagsSnap = await db.collection('userTags').get();
+            userTags = {};
+            tagsSnap.forEach(doc => { userTags[doc.id] = doc.data(); });
+            
+            const chatSnap = await db.collection('chatMessages').orderBy('timestampMs', 'asc').get();
+            chatMessages = [];
+            chatSnap.forEach(doc => chatMessages.push({ id: doc.id, ...doc.data() }));
+            
+            const activitySnap = await db.collection('lastActivity').get();
+            lastActivity = {};
+            activitySnap.forEach(doc => { lastActivity[doc.id] = doc.data().timestamp; });
+            
+            const resetSnap = await db.collection('resetCodes').get();
+            resetCodes = {};
+            resetSnap.forEach(doc => { resetCodes[doc.id] = doc.data(); });
+            
+            updateCartCount();
+            updateInboxCount();
+            return true;
+        } catch (error) {
+            console.error("Error loading data:", error);
+            showToast("Firebase connection error", true);
+            return false;
+        }
+    }
+    
+    async function saveUser(user) {
+        await db.collection('users').doc(user.id).set(user);
+    }
+    
+    async function savePost(post) {
+        const docRef = await db.collection('posts').add(post);
+        post.id = docRef.id;
+        return post;
+    }
+    
+    async function deletePostById(postId) {
+        await db.collection('posts').doc(postId).delete();
+    }
+    
+    async function saveMessage(message) {
+        const docRef = await db.collection('messages').add(message);
+        message.id = docRef.id;
+        return message;
+    }
+    
+    async function deleteMessageById(msgId) {
+        await db.collection('messages').doc(msgId).delete();
+    }
+    
+    async function saveUserTag(username, tagData) {
+        await db.collection('userTags').doc(username).set(tagData);
+    }
+    
+    async function deleteUserTag(username) {
+        await db.collection('userTags').doc(username).delete();
+    }
+    
+    async function saveChatMessage(message) {
+        const docRef = await db.collection('chatMessages').add(message);
+        message.id = docRef.id;
+        return message;
+    }
+    
+    async function deleteChatMessageById(messageId) {
+        await db.collection('chatMessages').doc(messageId).delete();
+    }
+    
+    async function clearAllChatMessages() {
+        const snapshot = await db.collection('chatMessages').get();
+        snapshot.forEach(doc => doc.ref.delete());
+    }
+    
+    async function saveLastActivity(username) {
+        await db.collection('lastActivity').doc(username).set({ timestamp: Date.now() });
+    }
+    
+    async function saveResetCode(email, data) {
+        await db.collection('resetCodes').doc(email).set(data);
+    }
+    
+    async function deleteResetCode(email) {
+        await db.collection('resetCodes').doc(email).delete();
+    }
+    
+    async function loadCurrentUser() {
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+            const userData = JSON.parse(savedUser);
+            const userDoc = await db.collection('users').doc(userData.id).get();
+            if (userDoc.exists) {
+                currentUser = { id: userDoc.id, ...userDoc.data() };
+                return true;
+            }
+        }
+        return false;
     }
 
     function updateCartCount() {
         const el = document.getElementById('cartCount');
         if (el) el.innerText = cart.reduce((s, i) => s + i.quantity, 0);
     }
+    
     function updateInboxCount() {
         const el = document.getElementById('inboxCount');
         if (el && currentUser) el.innerText = messages.filter(m => m.to === currentUser.username && !m.read).length;
@@ -473,9 +573,13 @@
     }
 
     function updateLastActivity() {
-        if (currentUser) { lastActivity[currentUser.username] = Date.now(); saveData(); }
+        if (currentUser) { 
+            lastActivity[currentUser.username] = Date.now(); 
+            saveLastActivity(currentUser.username);
+        }
     }
     setInterval(updateLastActivity, 30000);
+    
     function isOnline(username) {
         return lastActivity[username] && (Date.now() - lastActivity[username]) < 5 * 60 * 1000;
     }
@@ -570,10 +674,10 @@
             showToast('Only owner can delete reputation posts', true);
             return;
         }
-        showConfirm('Are you sure you want to delete this reputation post?', (confirmed) => {
+        showConfirm('Are you sure you want to delete this reputation post?', async (confirmed) => {
             if (confirmed) {
+                await deletePostById(postId);
                 posts = posts.filter(p => p.id !== postId);
-                saveData();
                 showToast('Reputation post deleted');
                 renderHome(document.getElementById('pageContent'));
             }
@@ -581,27 +685,27 @@
     };
 
     // Create Auto REP Post
-    function createAutoOrderPost(username) {
+    async function createAutoOrderPost(username) {
         const randomMsg = autoRepMessages[Math.floor(Math.random() * autoRepMessages.length)];
         const user = users.find(u => u.username === username);
         const newPost = {
-            id: Date.now(),
             username: username,
             userId: user?.id,
             content: randomMsg,
             image: null,
             timestamp: new Date().toLocaleString(),
+            timestampMs: Date.now(),
             replies: [],
             status: 'completed',
             isAutoRep: true,
             isOrderRep: true
         };
-        posts.unshift(newPost);
-        saveData();
-        return newPost.id;
+        const saved = await savePost(newPost);
+        posts.unshift(saved);
+        return saved.id;
     }
 
-    // ============= SEND ORDER CONFIRMATION EMAIL =============
+    // Send Order Confirmation Email
     async function sendOrderConfirmationEmail(userEmail, username, orderDetails, totalPrice, cfgKey) {
         const templateParams = {
             to_email: userEmail,
@@ -621,7 +725,7 @@
         }
     }
 
-    // ============= FORGOT PASSWORD FUNCTIONS =============
+    // Forgot Password Functions
     function showForgotPasswordModal() {
         const modalHtml = `
             <div style="text-align:center;">
@@ -653,12 +757,12 @@
         }
         
         const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
-        resetCodes[email] = {
+        await saveResetCode(email, {
             code: resetCode,
             expires: Date.now() + 3600000,
             username: user.username
-        };
-        saveData();
+        });
+        resetCodes[email] = { code: resetCode, expires: Date.now() + 3600000, username: user.username };
         
         const templateParams = {
             to_email: email,
@@ -697,7 +801,7 @@
         showModal('🔐 Reset Password', modalHtml);
     }
 
-    window.completePasswordReset = function(email) {
+    window.completePasswordReset = async function(email) {
         const code = document.getElementById('resetCode')?.value.trim();
         const newPass = document.getElementById('newPassword')?.value;
         const confirmPass = document.getElementById('confirmPassword')?.value;
@@ -710,8 +814,8 @@
         
         if (Date.now() > resetData.expires) {
             showToast('Reset code has expired. Please request a new one.', true);
+            await deleteResetCode(email);
             delete resetCodes[email];
-            saveData();
             return;
         }
         
@@ -733,8 +837,9 @@
         const user = users.find(u => u.email === email);
         if (user) {
             user.password = newPass;
+            await saveUser(user);
+            await deleteResetCode(email);
             delete resetCodes[email];
-            saveData();
             showToast('Password reset successful! You can now login.');
             closeModal();
             showLoginModal();
@@ -755,7 +860,7 @@
         showModal('📝 Create New Account', modalHtml);
     };
 
-    window.modalRegister = function() {
+    window.modalRegister = async function() {
         const username = document.getElementById('modalRegUsername')?.value.trim();
         const email = document.getElementById('modalRegEmail')?.value.trim();
         const password = document.getElementById('modalRegPassword')?.value;
@@ -783,7 +888,7 @@
         
         const isOwner = (username === 'sufyan');
         const newUser = { 
-            id: Date.now(), 
+            id: Date.now().toString(), 
             username, 
             email,
             country: 'Not specified', 
@@ -794,8 +899,9 @@
             avatar: null
         };
         users.push(newUser);
+        await saveUser(newUser);
         currentUser = newUser;
-        saveData();
+        localStorage.setItem('currentUser', JSON.stringify({ id: newUser.id, username: newUser.username }));
         updateNav();
         closeModal();
         showToast(`✅ Welcome ${username}! Registration successful.`);
@@ -814,7 +920,7 @@
         document.getElementById('modalLoginPassword')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') modalLogin(); });
     }
 
-    window.modalLogin = function() {
+    window.modalLogin = async function() {
         const username = document.getElementById('modalLoginUsername')?.value;
         const password = document.getElementById('modalLoginPassword')?.value;
         const user = users.find(u => u.username === username);
@@ -822,7 +928,7 @@
         if (user.password !== password) { showToast('Incorrect password', true); return; }
         if (user.isBanned) { showToast('Account banned', true); return; }
         currentUser = user;
-        saveData();
+        localStorage.setItem('currentUser', JSON.stringify({ id: user.id, username: user.username }));
         updateNav();
         closeModal();
         showToast(`Welcome ${username}!`);
@@ -870,14 +976,12 @@
             if (userMessageCount[username].length >= 5) {
                 userTimeouts[username] = now + 120000;
                 userMessageCount[username] = [];
-                saveData();
                 showToast('Spam detected! 2 minute timeout', true);
                 return false;
             }
         }
         
         userMessageCount[username].push(now);
-        saveData();
         return true;
     }
 
@@ -918,14 +1022,15 @@
     // Ban/Unban with Confirmation
     window.banUser = function(username) {
         if (!currentUser?.isOwner) return;
-        showConfirm(`Are you sure you want to BAN ${username}?`, (confirmed) => {
+        showConfirm(`Are you sure you want to BAN ${username}?`, async (confirmed) => {
             if (confirmed) {
                 const user = users.find(u => u.username === username);
                 if (!user) return;
                 user.isBanned = true;
+                await saveUser(user);
+                await saveUserTag(username, { tag: 'banned', glow: false });
                 userTags[username] = { tag: 'banned', glow: false };
                 if (currentUser.username === username) logout();
-                saveData();
                 showToast(`${username} banned`);
                 closeModal();
                 if (document.getElementById('membersList')) renderMembersList();
@@ -935,13 +1040,14 @@
 
     window.unbanUser = function(username) {
         if (!currentUser?.isOwner) return;
-        showConfirm(`Are you sure you want to UNBAN ${username}?`, (confirmed) => {
+        showConfirm(`Are you sure you want to UNBAN ${username}?`, async (confirmed) => {
             if (confirmed) {
                 const user = users.find(u => u.username === username);
                 if (!user) return;
                 user.isBanned = false;
+                await saveUser(user);
+                await deleteUserTag(username);
                 delete userTags[username];
-                saveData();
                 showToast(`${username} unbanned`);
                 closeModal();
                 if (document.getElementById('membersList')) renderMembersList();
@@ -951,14 +1057,20 @@
     
     window.adminDeleteUser = function(username) {
         if (!currentUser?.isOwner) return;
-        showConfirm(`⚠️ PERMANENT ACTION!\n\nAre you sure you want to permanently DELETE ${username}?\nThis cannot be undone!`, (confirmed) => {
+        showConfirm(`⚠️ PERMANENT ACTION!\n\nAre you sure you want to permanently DELETE ${username}?\nThis cannot be undone!`, async (confirmed) => {
             if (confirmed) {
+                const user = users.find(u => u.username === username);
+                if (user) await db.collection('users').doc(user.id).delete();
                 users = users.filter(u => u.username !== username);
+                await deleteUserTag(username);
                 delete userTags[username];
+                const userPosts = posts.filter(p => p.username === username);
+                for (const post of userPosts) await deletePostById(post.id);
                 posts = posts.filter(p => p.username !== username);
+                const userMessages = messages.filter(m => m.from === username || m.to === username);
+                for (const msg of userMessages) await deleteMessageById(msg.id);
                 messages = messages.filter(m => m.from !== username && m.to !== username);
                 if (currentUser?.username === username) logout();
-                saveData();
                 showToast(`${username} deleted permanently`);
                 closeModal();
                 if (document.getElementById('membersList')) renderMembersList();
@@ -968,10 +1080,10 @@
 
     window.clearAllChatWithConfirm = function() {
         if (!currentUser?.isOwner) return;
-        showConfirm('Are you sure you want to clear ALL chat messages?', (confirmed) => {
+        showConfirm('Are you sure you want to clear ALL chat messages?', async (confirmed) => {
             if (confirmed) {
+                await clearAllChatMessages();
                 chatMessages = [];
-                saveData();
                 if (document.getElementById('chatMessages')) renderChatMessages();
                 if (document.getElementById('homeChat')) renderHomeChat();
                 showToast('All chat messages cleared');
@@ -981,18 +1093,10 @@
     };
     
     window.clearHomeChat = function() {
-        if (!currentUser?.isOwner) return;
-        showConfirm('Are you sure you want to clear ALL chat messages?', (confirmed) => {
-            if (confirmed) {
-                chatMessages = [];
-                saveData();
-                renderHomeChat();
-                showToast('All chat messages cleared');
-            }
-        });
+        clearAllChatWithConfirm();
     };
 
-    // Profile - Email only visible to self
+    // Profile
     window.showProfile = function(username) {
         const user = users.find(u => u.username === username);
         if (!user) return;
@@ -1049,67 +1153,76 @@
         document.getElementById('directMsg')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendDirectMessage(username); });
     };
     
-    window.sendDirectMessage = function(to) {
+    window.sendDirectMessage = async function(to) {
         const content = document.getElementById('directMsg')?.value.trim();
         if (!content) return;
-        messages.push({ id: Date.now(), from: currentUser.username, to: to, content: content, timestamp: new Date().toLocaleString(), read: false });
-        saveData();
+        const newMsg = { from: currentUser.username, to: to, content: content, timestamp: new Date().toLocaleString(), read: false };
+        const saved = await saveMessage(newMsg);
+        messages.push(saved);
         showToast('Message sent!');
         closeModal();
     };
     
-    window.adminUpdateTag = function(username) {
+    window.adminUpdateTag = async function(username) {
         const tag = document.getElementById('adminTagSelect').value;
         const glow = document.getElementById('adminGlowCheck').checked;
         const oldTag = userTags[username]?.tag;
         
         if (tag) {
+            await saveUserTag(username, { tag: tag, glow: glow });
             userTags[username] = { tag: tag, glow: glow };
             if (tag !== 'banned' && tag !== oldTag && tag !== 'member') {
                 const randomMsg = autoRepMessages[Math.floor(Math.random() * autoRepMessages.length)];
                 const user = users.find(u => u.username === username);
                 const newPost = {
-                    id: Date.now(),
                     username: username,
                     userId: user?.id,
                     content: `${randomMsg} 🎉 (Tagged as ${tag.toUpperCase()})`,
                     image: null,
                     timestamp: new Date().toLocaleString(),
+                    timestampMs: Date.now(),
                     replies: [],
                     status: 'completed',
                     isAutoRep: true
                 };
-                posts.unshift(newPost);
-                saveData();
+                const saved = await savePost(newPost);
+                posts.unshift(saved);
                 showToast(`Auto reputation post created for ${username}!`);
             }
         } else {
+            await deleteUserTag(username);
             delete userTags[username];
         }
-        saveData();
         showToast(`Tag updated for ${username}`);
         closeModal();
         showProfile(username);
     };
     
-    window.uploadAvatar = function() {
+    window.uploadAvatar = async function() {
         const file = document.getElementById('avatarUpload').files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = e => { currentUser.avatar = e.target.result; saveData(); updateNav(); showToast('Avatar updated'); closeModal(); showProfile(currentUser.username); };
+            reader.onload = async (e) => { 
+                currentUser.avatar = e.target.result; 
+                await saveUser(currentUser);
+                updateNav(); 
+                showToast('Avatar updated'); 
+                closeModal(); 
+                showProfile(currentUser.username); 
+            };
             reader.readAsDataURL(file);
         }
     };
     
-    window.changePassword = function() {
+    window.changePassword = async function() {
         const newPass = document.getElementById('newPassword').value;
         const confirm = document.getElementById('confirmPassword').value;
         if (newPass !== confirm) { showToast('Passwords do not match', true); return; }
         if (newPass.length < 4) { showToast('Min 4 chars', true); return; }
         currentUser.password = newPass;
+        await saveUser(currentUser);
         const idx = users.findIndex(u => u.id === currentUser.id);
         if (idx !== -1) users[idx].password = newPass;
-        saveData();
         showToast('Password changed');
         closeModal();
     };
@@ -1131,7 +1244,7 @@
         if (!myPosts.length) { container.innerHTML = '<p>No orders yet. Create one after payment.</p>'; return; }
         container.innerHTML = myPosts.map(post => {
             const user = users.find(u => u.id === post.userId);
-            return `<div class="post"><div class="post-header"><div class="post-user" onclick="showProfile('${post.username}')"><span class="${getUserGlowClass(user || {})}">${post.username}</span>${getUserTagDisplay(user || {})}${post.status === 'completed' ? '<span class="tag tag-prime">DELIVERED</span>' : '<span class="tag tag-member" style="background:#dc2626;">PENDING</span>'}</div><div class="post-time">${post.timestamp}</div>${currentUser?.isOwner || currentUser?.username === post.username ? `<button class="delete-btn" onclick="deletePost(${post.id})">Delete</button>` : ''}</div><div class="post-content">${post.content.replace(/\n/g,'<br>')}</div>${post.image ? `<img src="${post.image}" class="post-image" onclick="window.open(this.src)">` : ''}<div id="replies-${post.id}">${post.replies.map(r => `<div class="reply"><strong class="${getUserGlowClass(users.find(u=>u.username===r.username)||{})}" onclick="showProfile('${r.username}')">${r.username}</strong> ${getUserTagDisplay(users.find(u=>u.username===r.username)||{})}<br>${r.content}</div>`).join('')}</div>${currentUser ? `<div class="reply-box"><textarea id="reply-${post.id}" rows="2" placeholder="Write reply..." onkeypress="handleReplyEnter(event, ${post.id})"></textarea><button onclick="addReply(${post.id})">Reply</button>${currentUser.isOwner ? `<button onclick="markDelivered(${post.id})" style="background:#10b981;">Mark Delivered & Send Key</button>` : ''}</div>` : ''}</div>`;
+            return `<div class="post"><div class="post-header"><div class="post-user" onclick="showProfile('${post.username}')"><span class="${getUserGlowClass(user || {})}">${post.username}</span>${getUserTagDisplay(user || {})}${post.status === 'completed' ? '<span class="tag tag-prime">DELIVERED</span>' : '<span class="tag tag-member" style="background:#dc2626;">PENDING</span>'}</div><div class="post-time">${post.timestamp}</div>${currentUser?.isOwner || currentUser?.username === post.username ? `<button class="delete-btn" onclick="deletePost(${post.id})">Delete</button>` : ''}</div><div class="post-content">${post.content.replace(/\n/g,'<br>')}</div>${post.image ? `<img src="${post.image}" class="post-image" onclick="window.open(this.src)">` : ''}<div id="replies-${post.id}">${(post.replies || []).map(r => `<div class="reply"><strong class="${getUserGlowClass(users.find(u=>u.username===r.username)||{})}" onclick="showProfile('${r.username}')">${r.username}</strong> ${getUserTagDisplay(users.find(u=>u.username===r.username)||{})}<br>${r.content}</div>`).join('')}</div>${currentUser ? `<div class="reply-box"><textarea id="reply-${post.id}" rows="2" placeholder="Write reply..." onkeypress="handleReplyEnter(event, ${post.id})"></textarea><button onclick="addReply(${post.id})">Reply</button>${currentUser.isOwner ? `<button onclick="markDelivered(${post.id})" style="background:#10b981;">Mark Delivered & Send Key</button>` : ''}</div>` : ''}</div>`;
         }).join('');
     }
     
@@ -1144,32 +1257,55 @@
         if (form) form.classList.toggle('hidden');
     };
     
-    window.submitPost = function() {
+    window.submitPost = async function() {
         const content = document.getElementById('postContent')?.value.trim();
         if (!content) { showToast('Enter payment details', true); return; }
         const file = document.getElementById('postImage').files[0];
         const totalPrice = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
         const orderDetails = cart.map(i => `${i.name} x${i.quantity} ($${i.price * i.quantity})`).join(', ');
         
-        createAutoOrderPost(currentUser.username);
+        await createAutoOrderPost(currentUser.username);
         
         if (file) {
             const reader = new FileReader();
-            reader.onload = e => savePost(content, e.target.result, orderDetails, totalPrice);
+            reader.onload = async (e) => savePost(content, e.target.result, orderDetails, totalPrice);
             reader.readAsDataURL(file);
         } else savePost(content, null, orderDetails, totalPrice);
     };
     
-    function savePost(content, image, orderDetails, totalPrice) {
-        const newPost = { id: Date.now(), username: currentUser.username, userId: currentUser.id, content, image, timestamp: new Date().toLocaleString(), replies: [], status: 'pending', orderDetails, totalPrice, isAutoRep: false, isOrderRep: false };
-        posts.unshift(newPost);
-        messages.push({ 
-            id: Date.now(), from: currentUser.username, to: 'sufyan', 
+    async function savePost(content, image, orderDetails, totalPrice) {
+        const newPost = { 
+            username: currentUser.username, 
+            userId: currentUser.id, 
+            content, 
+            image, 
+            timestamp: new Date().toLocaleString(), 
+            timestampMs: Date.now(),
+            replies: [], 
+            status: 'pending', 
+            orderDetails, 
+            totalPrice, 
+            isAutoRep: false, 
+            isOrderRep: false 
+        };
+        const saved = await savePost(newPost);
+        posts.unshift(saved);
+        const newMsg = { 
+            from: currentUser.username, 
+            to: 'sufyan', 
             content: `🛍️ NEW ORDER!\n\nProduct: ${orderDetails}\nTotal: $${totalPrice}\n\nPayment Details:\n${content.substring(0,300)}${content.length > 300 ? '...' : ''}\n\n${image ? '📸 Screenshot attached below' : 'No screenshot'}`,
-            timestamp: new Date().toLocaleString(), read: false, orderId: newPost.id, orderDetails: orderDetails, totalPrice: totalPrice, hasImage: !!image, imageData: image 
-        });
+            timestamp: new Date().toLocaleString(), 
+            read: false, 
+            orderId: saved.id, 
+            orderDetails: orderDetails, 
+            totalPrice: totalPrice, 
+            hasImage: !!image, 
+            imageData: image 
+        };
+        const savedMsg = await saveMessage(newMsg);
+        messages.push(savedMsg);
         cart = [];
-        saveData();
+        saveCart();
         document.getElementById('postContent').value = '';
         document.getElementById('postImage').value = '';
         document.getElementById('newPostForm').classList.add('hidden');
@@ -1177,19 +1313,36 @@
         showToast('Order placed! Auto +REP post created on home page!');
     }
     
-    window.addReply = function(postId) {
+    function saveCart() {
+        // Cart is local only, not saved to Firebase
+        updateCartCount();
+    }
+    
+    window.addReply = async function(postId) {
         const text = document.getElementById(`reply-${postId}`)?.value.trim();
         if (!text) return;
         const post = posts.find(p => p.id === postId);
-        if (post) { post.replies.push({ username: currentUser.username, content: text, timestamp: new Date().toLocaleString() }); saveData(); renderMyPosts(); }
+        if (post) {
+            post.replies = post.replies || [];
+            post.replies.push({ username: currentUser.username, content: text, timestamp: new Date().toLocaleString() });
+            await db.collection('posts').doc(postId).update({ replies: post.replies });
+            saveDataLocal();
+            renderMyPosts();
+        }
     };
     
-    window.deletePost = function(postId) {
+    function saveDataLocal() {
+        // Local cache update
+        updateCartCount();
+        updateInboxCount();
+    }
+    
+    window.deletePost = async function(postId) {
         const post = posts.find(p => p.id === postId);
         if (!post) return;
         if (currentUser?.isOwner || currentUser?.username === post.username) {
+            await deletePostById(postId);
             posts = posts.filter(p => p.id !== postId);
-            saveData();
             showToast('Post deleted');
             if (document.getElementById('forumPosts')) renderMyPosts();
         } else {
@@ -1197,22 +1350,23 @@
         }
     };
     
-    // UPDATED: Mark Delivered with Email Confirmation
     window.markDelivered = async function(postId) {
         const post = posts.find(p => p.id === postId);
         if (post) {
             const key = `CFG-${Math.random().toString(36).substring(2,10).toUpperCase()}`;
             post.status = 'completed';
+            post.replies = post.replies || [];
             post.replies.push({ username: 'OWNER', content: `✅ Payment verified! CFG Key: ${key}\nContact Discord: sufyancounter for file.`, timestamp: new Date().toLocaleString() });
+            await db.collection('posts').doc(postId).update({ status: 'completed', replies: post.replies });
             
-            // Send email confirmation to user
             const user = users.find(u => u.username === post.username);
             if (user && user.email) {
                 await sendOrderConfirmationEmail(user.email, user.username, post.orderDetails || 'CFG Package', post.totalPrice || '10', key);
             }
             
-            messages.push({ id: Date.now(), from: 'sufyan', to: post.username, content: `🎮 Order Delivered!\nProduct: ${post.orderDetails || 'CFG'}\nTotal: $${post.totalPrice || '10'}\nKey: ${key}`, timestamp: new Date().toLocaleString(), read: false });
-            saveData();
+            const newMsg = { from: 'sufyan', to: post.username, content: `🎮 Order Delivered!\nProduct: ${post.orderDetails || 'CFG'}\nTotal: $${post.totalPrice || '10'}\nKey: ${key}`, timestamp: new Date().toLocaleString(), read: false };
+            const savedMsg = await saveMessage(newMsg);
+            messages.push(savedMsg);
             renderMyPosts();
             showToast(`Key sent to ${post.username} and email confirmation sent!`);
         }
@@ -1234,12 +1388,12 @@
         container.innerHTML = `<div class="card"><div class="card-title">📬 Inbox</div><button onclick="composeMessage()">+ New Message</button><div id="inboxList">${userMsgs.map(m => `<div class="message-item ${!m.read && m.to===currentUser.username?'message-unread':''}" onclick="viewMessage(${m.id})"><strong>${m.from===currentUser.username?'To: '+m.to:'From: '+m.from}</strong><br>${m.content.substring(0,80)}${m.orderDetails ? `<br><small style="color:#f97316;">📦 Order: ${m.orderDetails}</small>` : ''}<br><small>${m.timestamp}</small>${currentUser?.isOwner ? `<button class="delete-btn" onclick="event.stopPropagation();deleteMessage(${m.id})">Delete</button>` : ''}</div>`).join('')}</div></div>`;
     }
     
-    window.deleteMessage = function(msgId) {
+    window.deleteMessage = async function(msgId) {
         if (!currentUser?.isOwner) return;
-        showConfirm('Are you sure you want to delete this message?', (confirmed) => {
+        showConfirm('Are you sure you want to delete this message?', async (confirmed) => {
             if (confirmed) {
+                await deleteMessageById(msgId);
                 messages = messages.filter(m => m.id !== msgId);
-                saveData();
                 showToast('Message deleted');
                 if (document.getElementById('inboxList')) showPage('inbox');
             }
@@ -1256,21 +1410,24 @@
         if (e.key === 'Enter') { e.preventDefault(); sendComposed(); }
     };
     
-    window.sendComposed = function() {
+    window.sendComposed = async function() {
         const to = document.getElementById('msgTo')?.value;
         const content = document.getElementById('msgContent')?.value.trim();
         if (!content) return;
-        messages.push({ id: Date.now(), from: currentUser.username, to: to, content: content, timestamp: new Date().toLocaleString(), read: false });
-        saveData();
+        const newMsg = { from: currentUser.username, to: to, content: content, timestamp: new Date().toLocaleString(), read: false };
+        const saved = await saveMessage(newMsg);
+        messages.push(saved);
         showToast('Sent');
         closeModal();
         showPage('inbox');
     };
     
-    window.viewMessage = function(id) {
+    window.viewMessage = async function(id) {
         const msg = messages.find(m => m.id === id);
-        if (msg && !msg.read && msg.to === currentUser.username) msg.read = true;
-        saveData();
+        if (msg && !msg.read && msg.to === currentUser.username) {
+            msg.read = true;
+            await db.collection('messages').doc(id).update({ read: true });
+        }
         let imageHtml = '';
         if (msg.hasImage && msg.imageData) {
             imageHtml = `<br><br><strong>📸 Screenshot:</strong><br><img src="${msg.imageData}" style="max-width:100%; border-radius:12px; margin-top:10px;">`;
@@ -1330,24 +1487,25 @@
         container.scrollTop = container.scrollHeight;
     }
     
-    window.sendChatMessage = function() {
+    window.sendChatMessage = async function() {
         const msg = document.getElementById('chatInput')?.value.trim();
         if (!msg) return;
         if (!canSendMessage(currentUser.username)) return;
-        chatMessages.push({ id: Date.now(), username: currentUser.username, message: msg, time: new Date().toLocaleTimeString() });
-        saveData();
+        const newMsg = { id: Date.now().toString(), username: currentUser.username, message: msg, time: new Date().toLocaleTimeString(), timestampMs: Date.now() };
+        const saved = await saveChatMessage(newMsg);
+        chatMessages.push(saved);
         document.getElementById('chatInput').value = '';
         renderChatMessages();
         const container = document.getElementById('chatMessages');
         if (container) container.scrollTop = container.scrollHeight;
     };
     
-    window.deleteChatMessage = function(id) {
+    window.deleteChatMessage = async function(id) {
         if (!currentUser?.isOwner) return;
-        showConfirm('Delete this message?', (confirmed) => {
+        showConfirm('Delete this message?', async (confirmed) => {
             if (confirmed) {
+                await deleteChatMessageById(id);
                 chatMessages = chatMessages.filter(m => m.id != id);
-                saveData();
                 renderChatMessages();
                 showToast('Message deleted');
             }
@@ -1366,7 +1524,7 @@
         const existing = cart.find(i=>i.id===id);
         if (existing) existing.quantity++;
         else cart.push({...p, quantity:1});
-        saveData();
+        saveCart();
         showToast(`${p.name} added`);
     };
     
@@ -1378,7 +1536,7 @@
         container.innerHTML = `<div class="card"><div class="card-title">🛒 Your Cart</div>${items}<div class="cart-item" style="border-top:2px solid #f97316;"><span>Total</span><span>$${total}</span></div><button onclick="showPage('checkout')">Checkout</button></div>`;
     }
     
-    window.removeFromCart = function(id) { cart = cart.filter(i=>i.id!==id); saveData(); showPage('cart'); };
+    window.removeFromCart = function(id) { cart = cart.filter(i=>i.id!==id); saveCart(); showPage('cart'); };
     
     function renderCheckout(container) {
         if (!checkAuthAndRedirect('checkout')) { container.innerHTML = `<div class="card"><div class="card-title">Checkout</div><p>Please login to checkout.</p></div>`; return; }
@@ -1407,7 +1565,7 @@
         </div>`;
     }
 
-    // Home with Direct Chat
+    // Home
     function renderHome(container) {
         const repPosts = posts.filter(p => p.isAutoRep === true);
         container.innerHTML = `<div class="card"><div class="card-title">⚡ Welcome to Counter Prime</div>
@@ -1439,12 +1597,13 @@
         container.scrollTop = container.scrollHeight;
     }
     
-    window.sendHomeChatMessage = function() {
+    window.sendHomeChatMessage = async function() {
         const msg = document.getElementById('homeChatInput')?.value.trim();
         if (!msg) return;
         if (!canSendMessage(currentUser.username)) return;
-        chatMessages.push({ id: Date.now(), username: currentUser.username, message: msg, time: new Date().toLocaleTimeString() });
-        saveData();
+        const newMsg = { id: Date.now().toString(), username: currentUser.username, message: msg, time: new Date().toLocaleTimeString(), timestampMs: Date.now() };
+        const saved = await saveChatMessage(newMsg);
+        chatMessages.push(saved);
         document.getElementById('homeChatInput').value = '';
         renderHomeChat();
         const container = document.getElementById('homeChat');
@@ -1467,14 +1626,25 @@
         else if (page === 'checkout') renderCheckout(content);
     }
     
-    function logout() { currentUser = null; saveData(); updateNav(); showToast('Logged out'); showPage('home'); }
+    function logout() { 
+        currentUser = null; 
+        localStorage.removeItem('currentUser');
+        updateNav(); 
+        showToast('Logged out'); 
+        showPage('home'); 
+    }
     
-    function init() {
-        if (!users.find(u=>u.username==='sufyan')) users.push({ id: 1, username: 'sufyan', email: 'sufyanzhin125@gmail.com', country: 'Pakistan', password: 'owner123', isOwner: true, registeredAt: new Date().toISOString(), avatar: null });
-        saveData();
+    async function init() {
+        await loadAllData();
+        await loadCurrentUser();
         updateNav();
         showPage('home');
-        setInterval(() => { if (document.getElementById('membersList')) renderMembersList(); if (document.getElementById('chatMessages')) renderChatMessages(); if (document.getElementById('homeChat')) renderHomeChat(); }, 5000);
+        setInterval(async () => { 
+            await loadAllData();
+            if (document.getElementById('membersList')) renderMembersList(); 
+            if (document.getElementById('chatMessages')) renderChatMessages(); 
+            if (document.getElementById('homeChat')) renderHomeChat(); 
+        }, 10000);
     }
     init();
 </script>
