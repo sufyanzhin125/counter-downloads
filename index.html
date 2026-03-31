@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Counter Prime | Ultimate CFG Forum</title>
-    <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fingerprint.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -354,8 +353,6 @@
     let messages = JSON.parse(localStorage.getItem('messages')) || [];
     let userTags = JSON.parse(localStorage.getItem('userTags')) || {};
     let chatMessages = JSON.parse(localStorage.getItem('chatMessages')) || [];
-    let fingerprints = JSON.parse(localStorage.getItem('fingerprints')) || {};
-    let bannedIPs = JSON.parse(localStorage.getItem('bannedIPs')) || [];
     let lastActivity = JSON.parse(localStorage.getItem('lastActivity')) || {};
     let userTimeouts = JSON.parse(localStorage.getItem('userTimeouts')) || {};
     let userMessageCount = JSON.parse(localStorage.getItem('userMessageCount')) || {};
@@ -400,8 +397,6 @@
         localStorage.setItem('messages', JSON.stringify(messages));
         localStorage.setItem('userTags', JSON.stringify(userTags));
         localStorage.setItem('chatMessages', JSON.stringify(chatMessages));
-        localStorage.setItem('fingerprints', JSON.stringify(fingerprints));
-        localStorage.setItem('bannedIPs', JSON.stringify(bannedIPs));
         localStorage.setItem('lastActivity', JSON.stringify(lastActivity));
         localStorage.setItem('userTimeouts', JSON.stringify(userTimeouts));
         localStorage.setItem('userMessageCount', JSON.stringify(userMessageCount));
@@ -425,13 +420,6 @@
     setInterval(updateLastActivity, 30000);
     function isOnline(username) {
         return lastActivity[username] && (Date.now() - lastActivity[username]) < 5 * 60 * 1000;
-    }
-
-    function isBanned(username) {
-        const user = users.find(u => u.username === username);
-        if (user?.isBanned) return true;
-        if (user?.fingerprint && bannedIPs.includes(user.fingerprint)) return true;
-        return false;
     }
 
     function getUserTagDisplay(user) {
@@ -488,7 +476,7 @@
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
     function checkAuthAndRedirect(action) {
-        if (!currentUser || isBanned(currentUser.username)) {
+        if (!currentUser || currentUser.isBanned) {
             showLoginModal();
             return false;
         }
@@ -527,7 +515,7 @@
         showToast(`Auto reputation post created for ${username}!`);
     }
 
-    // ============= REGISTER MODAL (FIXED - NO COUNTRY) =============
+    // ============= REGISTER MODAL (FIXED - FULLY WORKING) =============
     window.showRegisterModal = function() {
         const modalHtml = `
             <input type="text" id="modalRegUsername" placeholder="Username" style="margin-bottom:0.8rem;">
@@ -539,22 +527,8 @@
         showModal('📝 Create New Account', modalHtml);
     };
 
-    window.modalRegister = async function() {
+    window.modalRegister = function() {
         console.log("Register function called");
-        
-        const fp = await FingerprintJS.load();
-        const fingerprint = (await fp.get()).visitorId;
-        
-        if (bannedIPs.includes(fingerprint)) { 
-            showToast('Your device is banned', true); 
-            closeModal();
-            return; 
-        }
-        if (fingerprints[fingerprint]) { 
-            showToast('One account per device only', true); 
-            closeModal();
-            return; 
-        }
         
         const username = document.getElementById('modalRegUsername')?.value.trim();
         const email = document.getElementById('modalRegEmail')?.value.trim();
@@ -575,7 +549,6 @@
             return; 
         }
         
-        fingerprints[fingerprint] = username;
         const isOwner = (username === 'sufyan');
         const newUser = { 
             id: Date.now(), 
@@ -586,8 +559,7 @@
             isOwner, 
             isBanned: false, 
             registeredAt: new Date().toISOString(), 
-            avatar: null, 
-            fingerprint 
+            avatar: null
         };
         users.push(newUser);
         currentUser = newUser;
@@ -625,13 +597,13 @@
     };
 
     function updateNav() {
-        if (currentUser && !isBanned(currentUser.username)) {
+        if (currentUser && !currentUser.isBanned) {
             document.getElementById('authNav').classList.add('hidden');
             document.getElementById('userNav').classList.remove('hidden');
             const avatar = currentUser.avatar || `https://ui-avatars.com/api/?background=f97316&color=fff&name=${encodeURIComponent(currentUser.username)}`;
             document.getElementById('navAvatar').src = avatar;
             document.getElementById('userTag').innerHTML = `${currentUser.username} ${getUserTagDisplay(currentUser)}`;
-        } else if (currentUser && isBanned(currentUser.username)) {
+        } else if (currentUser && currentUser.isBanned) {
             logout();
             showToast('Your account has been banned', true);
         } else {
@@ -699,7 +671,7 @@
     };
 
     function downloadBackup() {
-        const backup = { users, posts, messages, userTags, chatMessages, fingerprints, bannedIPs, timestamp: new Date().toISOString() };
+        const backup = { users, posts, messages, userTags, chatMessages, timestamp: new Date().toISOString() };
         const blob = new Blob([JSON.stringify(backup)], {type: 'application/json'});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -716,7 +688,6 @@
         const user = users.find(u => u.username === username);
         if (!user) return;
         user.isBanned = true;
-        if (user.fingerprint) bannedIPs.push(user.fingerprint);
         userTags[username] = { tag: 'banned', glow: false };
         if (currentUser.username === username) logout();
         saveData();
@@ -730,10 +701,6 @@
         const user = users.find(u => u.username === username);
         if (!user) return;
         user.isBanned = false;
-        if (user.fingerprint) {
-            const index = bannedIPs.indexOf(user.fingerprint);
-            if (index !== -1) bannedIPs.splice(index, 1);
-        }
         delete userTags[username];
         saveData();
         showToast(`${username} unbanned`);
