@@ -6,6 +6,8 @@
     <title>Counter Prime | Premium CFG Forum</title>
     <!-- EmailJS for password reset -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <!-- FingerprintJS for IP/MAC restriction -->
+    <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fingerprint.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -20,19 +22,10 @@
             line-height: 1.5;
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #11151f;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #ff4d4d;
-            border-radius: 4px;
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #11151f; }
+        ::-webkit-scrollbar-thumb { background: #dc2626; border-radius: 4px; }
 
-        /* Navigation */
         .navbar {
             background: #11141c;
             border-bottom: 1px solid #1f2538;
@@ -50,13 +43,10 @@
         .logo {
             font-size: 1.6rem;
             font-weight: 700;
-            color: #fff;
+            cursor: pointer;
         }
-
-        .logo span {
-            color: #ff4d4d;
-            text-shadow: 0 0 10px rgba(255,77,77,0.5);
-        }
+        .logo span { color: #dc2626; text-shadow: 0 0 10px rgba(220,38,38,0.5); }
+        .logo:hover { opacity: 0.8; }
 
         .nav-links {
             display: flex;
@@ -64,7 +54,6 @@
             align-items: center;
             flex-wrap: wrap;
         }
-
         .nav-links a {
             color: #b0b7d0;
             text-decoration: none;
@@ -72,10 +61,7 @@
             cursor: pointer;
             transition: 0.2s;
         }
-
-        .nav-links a:hover {
-            color: #ff4d4d;
-        }
+        .nav-links a:hover { color: #dc2626; }
 
         .user-info {
             display: flex;
@@ -90,46 +76,27 @@
             font-size: 0.7rem;
             font-weight: 600;
         }
-        .tag-owner {
-            background: #ff4d4d;
-            color: white;
-            box-shadow: 0 0 8px #ff4d4d;
-        }
-        .tag-prime {
-            background: linear-gradient(135deg, #ff4d4d, #ff8c00);
-            color: white;
-            box-shadow: 0 0 8px #ff8c00;
-        }
-        .tag-premium {
-            background: linear-gradient(135deg, #d4af37, #ffd700);
-            color: #1a1a2e;
-            box-shadow: 0 0 8px #ffd700;
-        }
-        .tag-vip {
-            background: linear-gradient(135deg, #9b59b6, #8e44ad);
-            color: white;
-            box-shadow: 0 0 8px #9b59b6;
-        }
-        .tag-member {
-            background: #2a2f42;
-            color: #b0b7d0;
-        }
+        .tag-owner { background: #dc2626; color: white; box-shadow: 0 0 8px #dc2626; }
+        .tag-prime { background: linear-gradient(135deg, #dc2626, #f97316); color: white; box-shadow: 0 0 8px #f97316; }
+        .tag-premium { background: linear-gradient(135deg, #eab308, #facc15); color: #1a1a2e; box-shadow: 0 0 8px #eab308; }
+        .tag-vip { background: linear-gradient(135deg, #a855f7, #c084fc); color: white; box-shadow: 0 0 8px #a855f7; }
+        .tag-elite { background: linear-gradient(135deg, #06b6d4, #22d3ee); color: #1a1a2e; box-shadow: 0 0 8px #06b6d4; }
+        .tag-legend { background: linear-gradient(135deg, #3b82f6, #60a5fa); color: white; box-shadow: 0 0 8px #3b82f6; }
+        .tag-god { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; box-shadow: 0 0 8px #8b5cf6; }
+        .tag-hacker { background: linear-gradient(135deg, #10b981, #34d399); color: #1a1a2e; box-shadow: 0 0 8px #10b981; }
+        .tag-member { background: #2a2f42; color: #b0b7d0; }
 
         /* Glow Name */
-        .glow-name {
-            text-shadow: 0 0 8px currentColor;
-        }
-        .glow-prime { color: #ff4d4d; text-shadow: 0 0 10px #ff4d4d; }
-        .glow-premium { color: #ffd700; text-shadow: 0 0 10px #ffd700; }
-        .glow-vip { color: #9b59b6; text-shadow: 0 0 10px #9b59b6; }
+        .glow-name { text-shadow: 0 0 8px currentColor; }
+        .glow-prime { color: #f97316; text-shadow: 0 0 10px #f97316; }
+        .glow-premium { color: #facc15; text-shadow: 0 0 10px #facc15; }
+        .glow-vip { color: #c084fc; text-shadow: 0 0 10px #c084fc; }
+        .glow-elite { color: #22d3ee; text-shadow: 0 0 10px #22d3ee; }
+        .glow-legend { color: #60a5fa; text-shadow: 0 0 10px #60a5fa; }
+        .glow-god { color: #a78bfa; text-shadow: 0 0 10px #a78bfa; }
+        .glow-hacker { color: #34d399; text-shadow: 0 0 10px #34d399; }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        /* Cards */
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
         .card {
             background: #11151f;
             border-radius: 16px;
@@ -137,17 +104,14 @@
             margin-bottom: 1.5rem;
             border: 1px solid #1f2538;
         }
-
         .card-title {
             font-size: 1.3rem;
             font-weight: 600;
             margin-bottom: 1rem;
             color: #fff;
-            border-left: 3px solid #ff4d4d;
+            border-left: 3px solid #dc2626;
             padding-left: 1rem;
         }
-
-        /* Form Elements */
         input, select, textarea {
             width: 100%;
             background: #0a0e16;
@@ -159,14 +123,12 @@
             margin-bottom: 1rem;
             font-family: inherit;
         }
-
         input:focus, select:focus, textarea:focus {
             outline: none;
-            border-color: #ff4d4d;
+            border-color: #dc2626;
         }
-
         button {
-            background: #ff4d4d;
+            background: #dc2626;
             color: white;
             border: none;
             padding: 10px 20px;
@@ -176,34 +138,13 @@
             transition: 0.2s;
             font-family: inherit;
         }
+        button:hover { background: #b91c1c; transform: scale(0.98); }
+        .btn-secondary { background: #2a2f42; }
+        .btn-secondary:hover { background: #3a415e; }
 
-        button:hover {
-            background: #e63e3e;
-            transform: scale(0.98);
-        }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
 
-        .btn-secondary {
-            background: #2a2f42;
-        }
-
-        .btn-secondary:hover {
-            background: #3a415e;
-        }
-
-        /* Grid */
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-
-        /* Product Card */
         .product-card {
             background: #0a0e16;
             border-radius: 12px;
@@ -212,19 +153,9 @@
             border: 1px solid #1f2538;
             transition: 0.2s;
         }
-        .product-card:hover {
-            border-color: #ff4d4d;
-            transform: translateY(-2px);
-        }
+        .product-card:hover { border-color: #dc2626; transform: translateY(-2px); }
+        .product-price { color: #dc2626; font-size: 1.3rem; font-weight: 700; margin: 0.5rem 0; }
 
-        .product-price {
-            color: #ff4d4d;
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin: 0.5rem 0;
-        }
-
-        /* Cart */
         .cart-item {
             display: flex;
             justify-content: space-between;
@@ -232,15 +163,13 @@
             border-bottom: 1px solid #1f2538;
         }
 
-        /* Forum Posts */
         .post {
             background: #0a0e16;
             border-radius: 12px;
             padding: 1rem;
             margin-bottom: 1rem;
-            border-left: 3px solid #ff4d4d;
+            border-left: 3px solid #dc2626;
         }
-
         .post-header {
             display: flex;
             justify-content: space-between;
@@ -248,7 +177,6 @@
             flex-wrap: wrap;
             margin-bottom: 0.5rem;
         }
-
         .post-user {
             font-weight: 600;
             display: flex;
@@ -257,39 +185,12 @@
             flex-wrap: wrap;
             cursor: pointer;
         }
+        .post-time { font-size: 0.7rem; color: #7e849b; }
+        .post-content { margin: 0.5rem 0; word-break: break-word; }
+        .post-image { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 0.5rem; cursor: pointer; }
+        .reply-box { margin-top: 0.5rem; padding-left: 1rem; border-left: 2px solid #2a2f42; }
+        .reply { background: #0f1117; padding: 0.5rem; margin-top: 0.5rem; border-radius: 8px; }
 
-        .post-time {
-            font-size: 0.7rem;
-            color: #7e849b;
-        }
-
-        .post-content {
-            margin: 0.5rem 0;
-            word-break: break-word;
-        }
-
-        .post-image {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 8px;
-            margin-top: 0.5rem;
-            cursor: pointer;
-        }
-
-        .reply-box {
-            margin-top: 0.5rem;
-            padding-left: 1rem;
-            border-left: 2px solid #2a2f42;
-        }
-
-        .reply {
-            background: #0f1117;
-            padding: 0.5rem;
-            margin-top: 0.5rem;
-            border-radius: 8px;
-        }
-
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -302,74 +203,69 @@
             align-items: center;
             z-index: 1000;
         }
-
         .modal-content {
             background: #11151f;
             padding: 2rem;
             border-radius: 20px;
             max-width: 500px;
             width: 90%;
-            border: 1px solid #ff4d4d;
+            border: 1px solid #dc2626;
             max-height: 80vh;
             overflow-y: auto;
         }
 
-        /* Toast Notification */
         .toast {
             position: fixed;
             bottom: 20px;
             right: 20px;
             background: #11151f;
-            border-left: 4px solid #ff4d4d;
+            border-left: 4px solid #dc2626;
             padding: 1rem 1.5rem;
             border-radius: 12px;
             color: white;
             z-index: 1000;
             animation: slideIn 0.3s ease;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
-
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
 
-        .hidden {
-            display: none;
-        }
+        .hidden { display: none; }
+        .avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #dc2626; margin-bottom: 1rem; }
+        .avatar-small { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
 
-        /* Profile Avatar */
-        .avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #ff4d4d;
-            margin-bottom: 1rem;
-        }
-
-        .avatar-small {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        /* Inbox */
         .message-item {
             background: #0a0e16;
             padding: 0.75rem;
             border-radius: 10px;
             margin-bottom: 0.5rem;
             cursor: pointer;
+        }
+        .message-item:hover { background: #1a1e2a; }
+        .message-unread { border-left: 3px solid #dc2626; }
+
+        .member-card {
+            background: #0a0e16;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
             transition: 0.2s;
         }
-        .message-item:hover {
-            background: #1a1e2a;
+        .member-card:hover { border-color: #dc2626; transform: translateY(-2px); }
+        .online-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-left: 5px; }
+        .online { background: #10b981; box-shadow: 0 0 5px #10b981; }
+        .offline { background: #6b7280; }
+
+        .chat-message {
+            background: #0a0e16;
+            padding: 0.75rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
         }
-        .message-unread {
-            border-left: 3px solid #ff4d4d;
-        }
+        .chat-message .username { font-weight: 600; cursor: pointer; }
+        .chat-message .time { font-size: 0.65rem; color: #6b7280; margin-left: 0.5rem; }
 
         footer {
             text-align: center;
@@ -381,13 +277,8 @@
         }
 
         @media (max-width: 768px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-            .navbar {
-                flex-direction: column;
-                text-align: center;
-            }
+            .grid-2 { grid-template-columns: 1fr; }
+            .navbar { flex-direction: column; text-align: center; }
         }
     </style>
 </head>
@@ -396,19 +287,21 @@
 
 <div id="app">
     <div class="navbar">
-        <div class="logo">COUNTER <span>PRIME</span></div>
+        <div class="logo" onclick="showDashboard()">COUNTER <span>PRIME</span></div>
         <div class="nav-links">
             <a onclick="showPage('home')">Home</a>
             <a onclick="showPage('store')">Store</a>
             <a onclick="showPage('forum')">Forum</a>
             <a onclick="showPage('cart')">Cart (<span id="cartCount">0</span>)</a>
             <a onclick="showPage('inbox')">Inbox (<span id="inboxCount">0</span>)</a>
+            <a onclick="showPage('members')">Members</a>
+            <a onclick="showPage('chat')">Live Chat</a>
             <div id="authNav">
                 <a onclick="showPage('login')">Login</a>
                 <a onclick="showPage('register')">Register</a>
             </div>
             <div id="userNav" class="user-info hidden">
-                <img id="navAvatar" class="avatar-small" style="width:32px;height:32px;" src="">
+                <img id="navAvatar" class="avatar-small" src="">
                 <span id="userTag"></span>
                 <a onclick="showProfile(currentUser?.username)">Profile</a>
                 <a onclick="logout()">Logout</a>
@@ -422,9 +315,7 @@
 
 <script>
     // Initialize EmailJS
-    (function() {
-        emailjs.init("YOUR_PUBLIC_KEY_HERE"); // Replace with your EmailJS public key
-    })();
+    (function() { emailjs.init("YOUR_PUBLIC_KEY_HERE"); })();
 
     // ============= DATA STRUCTURE =============
     let users = JSON.parse(localStorage.getItem('users')) || [];
@@ -432,7 +323,10 @@
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
     let posts = JSON.parse(localStorage.getItem('posts')) || [];
     let messages = JSON.parse(localStorage.getItem('messages')) || [];
-    let userTags = JSON.parse(localStorage.getItem('userTags')) || {}; // { username: { tag: 'prime', glow: true } }
+    let userTags = JSON.parse(localStorage.getItem('userTags')) || {};
+    let chatMessages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+    let fingerprints = JSON.parse(localStorage.getItem('fingerprints')) || {};
+    let lastActivity = JSON.parse(localStorage.getItem('lastActivity')) || {};
 
     // Products
     const products = [
@@ -441,7 +335,9 @@
         { id: 3, name: "Bundle (Both Games)", price: 18, description: "Deadlock + Dota 2 CFG, lifetime updates" }
     ];
 
-    // Helper Functions
+    // Available Tags for Admin
+    const availableTags = ['prime', 'premium', 'vip', 'elite', 'legend', 'god', 'hacker', 'master', 'beast', 'pro', 'alpha', 'omega', 'phoenix', 'dragon', 'titan', 'immortal', 'mythic', 'radiant', 'shadow', 'storm'];
+
     function saveData() {
         localStorage.setItem('users', JSON.stringify(users));
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -449,71 +345,77 @@
         localStorage.setItem('posts', JSON.stringify(posts));
         localStorage.setItem('messages', JSON.stringify(messages));
         localStorage.setItem('userTags', JSON.stringify(userTags));
+        localStorage.setItem('chatMessages', JSON.stringify(chatMessages));
+        localStorage.setItem('fingerprints', JSON.stringify(fingerprints));
+        localStorage.setItem('lastActivity', JSON.stringify(lastActivity));
         updateCartCount();
         updateInboxCount();
     }
 
     function updateCartCount() {
-        const countEl = document.getElementById('cartCount');
-        if (countEl) countEl.innerText = cart.reduce((sum, item) => sum + item.quantity, 0);
+        const el = document.getElementById('cartCount');
+        if (el) el.innerText = cart.reduce((sum, i) => sum + i.quantity, 0);
+    }
+    function updateInboxCount() {
+        const el = document.getElementById('inboxCount');
+        if (el && currentUser) el.innerText = messages.filter(m => m.to === currentUser.username && !m.read).length;
+        else if (el) el.innerText = '0';
     }
 
-    function updateInboxCount() {
-        const countEl = document.getElementById('inboxCount');
-        if (countEl && currentUser) {
-            const unread = messages.filter(m => m.to === currentUser.username && !m.read).length;
-            countEl.innerText = unread;
-        } else if (countEl) {
-            countEl.innerText = '0';
+    function updateLastActivity() {
+        if (currentUser) {
+            lastActivity[currentUser.username] = Date.now();
+            saveData();
         }
+    }
+    setInterval(updateLastActivity, 30000);
+    function isOnline(username) {
+        return lastActivity[username] && (Date.now() - lastActivity[username]) < 5 * 60 * 1000;
     }
 
     function getUserTagDisplay(user) {
-        if (user.isOwner) return '<span class="tag tag-owner">OWNER</span>';
-        const tagData = userTags[user.username];
+        if (user?.isOwner) return '<span class="tag tag-owner">OWNER</span>';
+        const tagData = userTags[user?.username];
         if (tagData) {
-            const tagMap = { prime: 'tag-prime', premium: 'tag-premium', vip: 'tag-vip' };
+            const tagMap = {
+                prime: 'tag-prime', premium: 'tag-premium', vip: 'tag-vip', elite: 'tag-elite',
+                legend: 'tag-legend', god: 'tag-god', hacker: 'tag-hacker'
+            };
             return `<span class="tag ${tagMap[tagData.tag] || 'tag-member'}">${tagData.tag.toUpperCase()}</span>`;
         }
         return '<span class="tag tag-member">MEMBER</span>';
     }
 
     function getUserGlowClass(user) {
-        if (user.isOwner) return 'glow-name glow-prime';
-        const tagData = userTags[user.username];
-        if (tagData && tagData.glow) {
-            const glowMap = { prime: 'glow-prime', premium: 'glow-premium', vip: 'glow-vip' };
+        if (user?.isOwner) return 'glow-name glow-prime';
+        const tagData = userTags[user?.username];
+        if (tagData?.glow) {
+            const glowMap = { prime: 'glow-prime', premium: 'glow-premium', vip: 'glow-vip', elite: 'glow-elite', legend: 'glow-legend', god: 'glow-god', hacker: 'glow-hacker' };
             return `glow-name ${glowMap[tagData.tag] || ''}`;
         }
         return '';
     }
 
-    function showToast(message, isError = false) {
+    function showToast(msg, isError = false) {
         const toast = document.createElement('div');
         toast.className = 'toast';
-        toast.style.borderLeftColor = isError ? '#ff4d4d' : '#2e7d64';
-        toast.innerHTML = message;
+        toast.style.borderLeftColor = isError ? '#dc2626' : '#10b981';
+        toast.innerHTML = msg;
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
     }
 
-    function showModal(title, contentHtml) {
+    function showModal(title, html) {
         let modal = document.getElementById('globalModal');
         if (!modal) {
             modal = document.createElement('div');
             modal.id = 'globalModal';
             modal.className = 'modal';
-            modal.innerHTML = `
-                <div class="modal-content">
-                    <div id="modalTitle" style="font-size:1.3rem; font-weight:600; margin-bottom:1rem; color:#ff4d4d;"></div>
-                    <div id="modalBody"></div>
-                    <button onclick="closeModal()" style="margin-top:1rem;">Close</button>
-                </div>
-            `;
+            modal.innerHTML = `<div class="modal-content"><div id="modalTitle" style="font-size:1.3rem; font-weight:600; margin-bottom:1rem; color:#dc2626;"></div><div id="modalBody"></div><button onclick="closeModal()">Close</button></div>`;
             document.body.appendChild(modal);
         }
         document.getElementById('modalTitle').innerText = title;
-        document.getElementById('modalBody').innerHTML = contentHtml;
+        document.getElementById('modalBody').innerHTML = html;
         modal.style.display = 'flex';
     }
 
@@ -521,13 +423,14 @@
         const modal = document.getElementById('globalModal');
         if (modal) modal.style.display = 'none';
     };
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
     function updateNav() {
         if (currentUser) {
             document.getElementById('authNav').classList.add('hidden');
             document.getElementById('userNav').classList.remove('hidden');
-            const avatarUrl = currentUser.avatar || 'https://ui-avatars.com/api/?background=ff4d4d&color=fff&name=' + encodeURIComponent(currentUser.username);
-            document.getElementById('navAvatar').src = avatarUrl;
+            const avatar = currentUser.avatar || `https://ui-avatars.com/api/?background=dc2626&color=fff&name=${encodeURIComponent(currentUser.username)}`;
+            document.getElementById('navAvatar').src = avatar;
             document.getElementById('userTag').innerHTML = `${currentUser.username} ${getUserTagDisplay(currentUser)}`;
         } else {
             document.getElementById('authNav').classList.remove('hidden');
@@ -536,159 +439,357 @@
         updateInboxCount();
     }
 
-    // Show Profile
+    // Dashboard
+    window.showDashboard = function() {
+        if (!currentUser?.isOwner) { showPage('home'); return; }
+        const totalOrders = posts.length;
+        const totalUsers = users.length;
+        const totalRevenue = posts.filter(p => p.status === 'completed').length * 10;
+        showModal('Admin Dashboard', `
+            <div style="text-align:center;">
+                <h3>Welcome, ${currentUser.username}</h3>
+                <div class="grid-2" style="margin-top:1rem;">
+                    <div class="card" style="padding:1rem;"><strong>Total Users</strong><br><span style="font-size:2rem;">${totalUsers}</span></div>
+                    <div class="card" style="padding:1rem;"><strong>Total Orders</strong><br><span style="font-size:2rem;">${totalOrders}</span></div>
+                    <div class="card" style="padding:1rem;"><strong>Completed</strong><br><span style="font-size:2rem;">${posts.filter(p => p.status === 'completed').length}</span></div>
+                    <div class="card" style="padding:1rem;"><strong>Revenue</strong><br><span style="font-size:2rem;">$${totalRevenue}</span></div>
+                </div>
+                <button onclick="closeModal();showPage('members');">Manage Users</button>
+                <button onclick="closeModal();showPage('forum');" style="margin-left:0.5rem;">Manage Orders</button>
+            </div>
+        `);
+    };
+
+    // Members Page
+    function renderMembers(container) {
+        if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
+        container.innerHTML = `
+            <div class="card"><div class="card-title">Members Directory</div>
+            <input type="text" id="memberSearch" placeholder="Search members..." onkeyup="filterMembers()">
+            <div id="membersList" class="grid-3"></div></div>`;
+        renderMembersList();
+    }
+
+    function renderMembersList() {
+        const search = document.getElementById('memberSearch')?.value.toLowerCase() || '';
+        const filtered = users.filter(u => u.username.toLowerCase().includes(search));
+        document.getElementById('membersList').innerHTML = filtered.map(u => `
+            <div class="member-card" onclick="showProfile('${u.username}')">
+                <img class="avatar-small" style="width:50px;height:50px;border-radius:50%;" src="${u.avatar || `https://ui-avatars.com/api/?background=dc2626&color=fff&name=${encodeURIComponent(u.username)}`}">
+                <div class="${getUserGlowClass(u)}">${u.username}</div>
+                ${getUserTagDisplay(u)}
+                <div><span class="online-dot ${isOnline(u.username) ? 'online' : 'offline'}"></span> ${isOnline(u.username) ? 'Online' : 'Offline'}</div>
+            </div>
+        `).join('');
+    }
+    window.filterMembers = renderMembersList;
+
+    // Chat Page
+    function renderChat(container) {
+        if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
+        container.innerHTML = `
+            <div class="card"><div class="card-title">Public Live Chat</div>
+            <div id="chatMessages" style="height:400px; overflow-y:auto; background:#0a0e16; border-radius:12px; padding:1rem; margin-bottom:1rem;"></div>
+            <div style="display:flex; gap:0.5rem;"><input type="text" id="chatInput" placeholder="Type message... (emojis allowed)" style="flex:1;"><button onclick="sendChatMessage()">Send</button></div>
+            ${currentUser?.isOwner ? '<button onclick="clearAllChat()" style="margin-top:0.5rem; background:#6b7280;">Clear All Chat</button>' : ''}
+            </div>`;
+        renderChatMessages();
+        setInterval(renderChatMessages, 3000);
+    }
+
+    function renderChatMessages() {
+        const container = document.getElementById('chatMessages');
+        if (!container) return;
+        container.innerHTML = chatMessages.slice(-50).reverse().map(m => {
+            const user = users.find(u => u.username === m.username);
+            return `<div class="chat-message"><span class="username ${getUserGlowClass(user || {})}" onclick="showProfile('${m.username}')">${m.username}</span> ${getUserTagDisplay(user || {})}<span class="time">${m.time}</span><br>${m.message}</div>`;
+        }).join('');
+        container.scrollTop = container.scrollHeight;
+    }
+
+    window.sendChatMessage = function() {
+        const msg = document.getElementById('chatInput')?.value.trim();
+        if (!msg) return;
+        chatMessages.push({ username: currentUser.username, message: msg, time: new Date().toLocaleTimeString() });
+        saveData();
+        document.getElementById('chatInput').value = '';
+        renderChatMessages();
+    };
+    window.clearAllChat = function() { chatMessages = []; saveData(); renderChatMessages(); showToast('Chat cleared'); };
+
+    // Profile
     window.showProfile = function(username) {
         const user = users.find(u => u.username === username);
         if (!user) return;
-        const isOwnProfile = currentUser && currentUser.username === username;
+        const isOwner = currentUser?.isOwner;
+        const isSelf = currentUser?.username === username;
         const tagData = userTags[username] || {};
+        const userOrders = posts.filter(p => p.userId === user.id);
+        const messageCount = messages.filter(m => m.from === username || m.to === username).length;
         
-        let content = `
-            <div style="text-align:center;">
-                <img class="avatar" src="${user.avatar || 'https://ui-avatars.com/api/?background=ff4d4d&color=fff&name=' + encodeURIComponent(user.username)}">
-                <h2 class="${getUserGlowClass(user)}">${user.username}</h2>
-                <div>${getUserTagDisplay(user)}</div>
-                <p>Country: ${user.country || 'Not set'}</p>
-                <p>Member since: ${new Date(user.registeredAt).toLocaleDateString()}</p>
-        `;
+        let content = `<div style="text-align:center;">
+            <img class="avatar" src="${user.avatar || `https://ui-avatars.com/api/?background=dc2626&color=fff&name=${encodeURIComponent(user.username)}`}">
+            <h2 class="${getUserGlowClass(user)}">${user.username}</h2>
+            ${getUserTagDisplay(user)}<br>
+            <div><span class="online-dot ${isOnline(username) ? 'online' : 'offline'}"></span> ${isOnline(username) ? 'Online' : 'Offline'}</div>
+            <p>Country: ${user.country || 'Not set'}</p>
+            <p>Joined: ${new Date(user.registeredAt).toLocaleDateString()}</p>
+            <p>📊 Total Messages: ${messageCount}</p>
+            <p>📦 Orders: ${userOrders.length}</p>
+            <button onclick="closeModal();startChatWith('${username}')">💬 Send Message</button>`;
         
-        if (isOwnProfile) {
-            content += `
-                <hr style="margin:1rem 0; border-color:#1f2538;">
-                <h3>Settings</h3>
-                <input type="file" id="avatarUpload" accept="image/*">
-                <button onclick="uploadAvatar()">Change Avatar</button>
-                <input type="password" id="newPassword" placeholder="New Password">
-                <input type="password" id="confirmPassword" placeholder="Confirm Password">
-                <button onclick="changePassword()">Change Password</button>
-                <h3 style="margin-top:1rem;">Your Orders</h3>
-                <div id="userOrders"></div>
-                <h3 style="margin-top:1rem;">Your Messages</h3>
-                <div id="userMessages"></div>
-            `;
+        if (isSelf) {
+            content += `<hr style="margin:1rem 0;"><h3>Settings</h3>
+                <input type="file" id="avatarUpload" accept="image/*"><button onclick="uploadAvatar()">Change Avatar</button>
+                <input type="password" id="newPassword" placeholder="New Password"><input type="password" id="confirmPassword" placeholder="Confirm"><button onclick="changePassword()">Change Password</button>`;
         }
-        
-        if (currentUser && currentUser.isOwner && !isOwnProfile) {
-            content += `
-                <hr style="margin:1rem 0; border-color:#1f2538;">
-                <h3>Admin Actions</h3>
-                <select id="adminTagSelect">
-                    <option value="">Remove Tag</option>
-                    <option value="prime" ${tagData.tag === 'prime' ? 'selected' : ''}>Prime</option>
-                    <option value="premium" ${tagData.tag === 'premium' ? 'selected' : ''}>Premium</option>
-                    <option value="vip" ${tagData.tag === 'vip' ? 'selected' : ''}>VIP</option>
-                </select>
+        if (isOwner && !isSelf) {
+            content += `<hr style="margin:1rem 0;"><h3>Admin Actions</h3>
+                <select id="adminTagSelect"><option value="">Remove Tag</option>${availableTags.map(t => `<option value="${t}" ${tagData.tag === t ? 'selected' : ''}>${t.toUpperCase()}</option>`).join('')}</select>
                 <label><input type="checkbox" id="adminGlowCheck" ${tagData.glow ? 'checked' : ''}> Enable Name Glow</label>
                 <button onclick="adminUpdateTag('${username}')">Update Tag</button>
-                <button onclick="sendMessageToUser('${username}')">Send Message</button>
-            `;
+                <button onclick="adminDeleteUser('${username}')" style="background:#6b7280;">Delete User</button>`;
         }
-        
+        if (isOwner) {
+            content += `<hr><h3>User Orders</h3><div id="adminUserOrders"></div>`;
+        }
         content += `</div>`;
         showModal(user.username + "'s Profile", content);
-        
-        if (isOwnProfile) {
-            const orders = posts.filter(p => p.userId === user.id);
-            document.getElementById('userOrders').innerHTML = orders.length ? orders.map(o => `
-                <div style="background:#0a0e16; padding:0.5rem; margin:0.5rem 0; border-radius:8px;">
-                    ${o.content.substring(0, 100)}...<br>
-                    <small>${o.timestamp} | Status: ${o.status === 'completed' ? 'Delivered' : 'Pending'}</small>
-                </div>
-            `).join('') : '<p>No orders yet.</p>';
-            
-            const userMessages = messages.filter(m => m.to === user.username || m.from === user.username);
-            document.getElementById('userMessages').innerHTML = userMessages.length ? userMessages.map(m => `
-                <div style="background:#0a0e16; padding:0.5rem; margin:0.5rem 0; border-radius:8px;">
-                    <strong>${m.from === user.username ? 'To: ' + m.to : 'From: ' + m.from}</strong><br>
-                    ${m.content}<br>
-                    <small>${m.timestamp}</small>
-                </div>
-            `).join('') : '<p>No messages.</p>';
+        if (isOwner && userOrders.length) {
+            document.getElementById('adminUserOrders').innerHTML = userOrders.map(o => `<div class="reply">${o.content.substring(0,100)}...<br><small>${o.timestamp} | ${o.status}</small><button onclick="closeModal();viewOrderPost(${o.id})" style="margin-left:0.5rem; padding:2px 8px;">View</button></div>`).join('');
         }
     };
 
-    window.uploadAvatar = function() {
-        const file = document.getElementById('avatarUpload').files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                currentUser.avatar = e.target.result;
-                saveData();
-                updateNav();
-                showToast('Avatar updated!');
-                closeModal();
-                showProfile(currentUser.username);
-            };
-            reader.readAsDataURL(file);
-        }
+    window.startChatWith = function(username) {
+        closeModal();
+        showModal(`Message ${username}`, `<textarea id="directMsg" rows="4" placeholder="Type your message..."></textarea><button onclick="sendDirectMessage('${username}')">Send</button>`);
     };
-
-    window.changePassword = function() {
-        const newPass = document.getElementById('newPassword').value;
-        const confirm = document.getElementById('confirmPassword').value;
-        if (newPass !== confirm) {
-            showToast('Passwords do not match', true);
-            return;
-        }
-        if (newPass.length < 4) {
-            showToast('Password must be at least 4 characters', true);
-            return;
-        }
-        currentUser.password = newPass;
-        const userIndex = users.findIndex(u => u.id === currentUser.id);
-        if (userIndex !== -1) users[userIndex].password = newPass;
+    window.sendDirectMessage = function(to) {
+        const content = document.getElementById('directMsg')?.value.trim();
+        if (!content) return;
+        messages.push({ id: Date.now(), from: currentUser.username, to: to, content: content, timestamp: new Date().toLocaleString(), read: false });
         saveData();
-        showToast('Password changed successfully!');
+        showToast('Message sent!');
         closeModal();
     };
-
+    window.adminDeleteUser = function(username) {
+        if (confirm(`Delete ${username} permanently?`)) {
+            users = users.filter(u => u.username !== username);
+            delete userTags[username];
+            posts = posts.filter(p => p.username !== username);
+            messages = messages.filter(m => m.from !== username && m.to !== username);
+            if (currentUser?.username === username) logout();
+            saveData();
+            showToast(`${username} deleted`);
+            closeModal();
+            if (document.getElementById('membersList')) renderMembersList();
+        }
+    };
     window.adminUpdateTag = function(username) {
         const tag = document.getElementById('adminTagSelect').value;
         const glow = document.getElementById('adminGlowCheck').checked;
-        if (tag) {
-            userTags[username] = { tag: tag, glow: glow };
-        } else {
-            delete userTags[username];
-        }
+        if (tag) userTags[username] = { tag: tag, glow: glow };
+        else delete userTags[username];
         saveData();
         showToast(`Tag updated for ${username}`);
         closeModal();
         showProfile(username);
     };
-
-    window.sendMessageToUser = function(username) {
+    window.uploadAvatar = function() {
+        const file = document.getElementById('avatarUpload').files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = e => { currentUser.avatar = e.target.result; saveData(); updateNav(); showToast('Avatar updated'); closeModal(); showProfile(currentUser.username); };
+            reader.readAsDataURL(file);
+        }
+    };
+    window.changePassword = function() {
+        const newPass = document.getElementById('newPassword').value;
+        const confirm = document.getElementById('confirmPassword').value;
+        if (newPass !== confirm) { showToast('Passwords do not match', true); return; }
+        if (newPass.length < 4) { showToast('Min 4 chars', true); return; }
+        currentUser.password = newPass;
+        const idx = users.findIndex(u => u.id === currentUser.id);
+        if (idx !== -1) users[idx].password = newPass;
+        saveData();
+        showToast('Password changed');
         closeModal();
-        showModal('Send Message to ' + username, `
-            <textarea id="messageContent" rows="4" placeholder="Type your message..."></textarea>
-            <button onclick="sendMessage('${username}')">Send</button>
-        `);
     };
 
-    window.sendMessage = function(to) {
-        const content = document.getElementById('messageContent').value.trim();
-        if (!content) return;
-        messages.push({
-            id: Date.now(),
-            from: currentUser.username,
-            to: to,
-            content: content,
-            timestamp: new Date().toLocaleString(),
-            read: false
-        });
+    // Forum - Only user sees own posts
+    function renderForum(container) {
+        if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
+        container.innerHTML = `<div class="card"><div class="card-title">My Orders</div>
+            <button onclick="showNewPostForm()">+ Create New Order Post</button>
+            <div id="newPostForm" class="hidden" style="margin-top:1rem;"><textarea id="postContent" rows="3" placeholder="Payment details, transaction ID..."></textarea><input type="file" id="postImage" accept="image/*"><button onclick="submitPost()">Submit Payment Proof</button></div>
+            <div id="forumPosts"></div></div>`;
+        renderMyPosts();
+    }
+    function renderMyPosts() {
+        const container = document.getElementById('forumPosts');
+        if (!container) return;
+        const myPosts = posts.filter(p => p.userId === currentUser.id);
+        if (!myPosts.length) { container.innerHTML = '<p>No orders yet. Create one after payment.</p>'; return; }
+        container.innerHTML = myPosts.map(post => {
+            const user = users.find(u => u.id === post.userId);
+            return `<div class="post"><div class="post-header"><div class="post-user" onclick="showProfile('${post.username}')"><span class="${getUserGlowClass(user || {})}">${post.username}</span>${getUserTagDisplay(user || {})}${post.status === 'completed' ? '<span class="tag tag-prime">DELIVERED</span>' : '<span class="tag tag-member" style="background:#dc2626;">PENDING</span>'}</div><div class="post-time">${post.timestamp}</div></div><div class="post-content">${post.content.replace(/\n/g,'<br>')}</div>${post.image ? `<img src="${post.image}" class="post-image">` : ''}<div id="replies-${post.id}">${post.replies.map(r => `<div class="reply"><strong class="${getUserGlowClass(users.find(u=>u.username===r.username)||{})}" onclick="showProfile('${r.username}')">${r.username}</strong> ${getUserTagDisplay(users.find(u=>u.username===r.username)||{})}<br>${r.content}</div>`).join('')}</div>${currentUser ? `<div class="reply-box"><textarea id="reply-${post.id}" rows="2"></textarea><button onclick="addReply(${post.id})">Reply</button>${currentUser.isOwner ? `<button onclick="markDelivered(${post.id})" style="background:#10b981;">Mark Delivered & Send Key</button>` : ''}</div>` : ''}</div>`;
+        }).join('');
+    }
+    window.submitPost = function() {
+        const content = document.getElementById('postContent')?.value.trim();
+        if (!content) { showToast('Enter payment details', true); return; }
+        const file = document.getElementById('postImage').files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = e => savePost(content, e.target.result);
+            reader.readAsDataURL(file);
+        } else savePost(content, null);
+    };
+    function savePost(content, image) {
+        const newPost = { id: Date.now(), username: currentUser.username, userId: currentUser.id, content, image, timestamp: new Date().toLocaleString(), replies: [], status: 'pending' };
+        posts.unshift(newPost);
+        messages.push({ id: Date.now(), from: currentUser.username, to: 'sufyan', content: `New Order: ${content.substring(0,100)}... | Product: ${cart.map(i=>i.name).join(', ')}`, timestamp: new Date().toLocaleString(), read: false, orderId: newPost.id, orderDetails: cart.map(i=>`${i.name} x${i.quantity}`).join(', ') });
+        cart = [];
         saveData();
-        showToast('Message sent!');
+        document.getElementById('postContent').value = '';
+        document.getElementById('postImage').value = '';
+        document.getElementById('newPostForm').classList.add('hidden');
+        renderMyPosts();
+        showToast('Order placed! Admin will verify within 12 hours.');
+    }
+    window.addReply = function(postId) {
+        const text = document.getElementById(`reply-${postId}`)?.value.trim();
+        if (!text) return;
+        const post = posts.find(p => p.id === postId);
+        if (post) { post.replies.push({ username: currentUser.username, content: text, timestamp: new Date().toLocaleString() }); saveData(); renderMyPosts(); }
+    };
+    window.markDelivered = function(postId) {
+        const post = posts.find(p => p.id === postId);
+        if (post) {
+            const key = `CFG-${Math.random().toString(36).substring(2,10).toUpperCase()}`;
+            post.status = 'completed';
+            post.replies.push({ username: 'OWNER', content: `✅ Payment verified! CFG Key: ${key}\nContact Discord: sufyancounter for file.`, timestamp: new Date().toLocaleString() });
+            messages.push({ id: Date.now(), from: 'sufyan', to: post.username, content: `Order delivered! Key: ${key}`, timestamp: new Date().toLocaleString(), read: false });
+            saveData();
+            renderMyPosts();
+            showToast(`Key sent to ${post.username}`);
+        }
+    };
+    window.viewOrderPost = function(postId) {
+        const post = posts.find(p => p.id === postId);
+        if (post) showModal('Order Details', `<div class="post">${post.content.replace(/\n/g,'<br>')}${post.image ? `<img src="${post.image}" style="max-width:100%;">` : ''}<br><small>${post.timestamp} | ${post.status}</small></div>`);
+    };
+
+    // Inbox
+    function renderInbox(container) {
+        if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
+        const userMsgs = messages.filter(m => m.to === currentUser.username || m.from === currentUser.username).sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+        container.innerHTML = `<div class="card"><div class="card-title">Inbox</div><button onclick="composeMessage()">+ New Message</button><div id="inboxList">${userMsgs.length ? userMsgs.map(m => `<div class="message-item ${!m.read && m.to===currentUser.username?'message-unread':''}" onclick="viewMessage(${m.id})"><strong>${m.from===currentUser.username?'To: '+m.to:'From: '+m.from}</strong><br>${m.content.substring(0,80)}${m.orderDetails ? `<br><small style="color:#f97316;">📦 Order: ${m.orderDetails}</small>` : ''}<br><small>${m.timestamp}</small></div>`).join('') : '<p>No messages</p>'}</div></div>`;
+    }
+    window.composeMessage = function() {
+        const others = users.filter(u => u.username !== currentUser.username).map(u => u.username);
+        showModal('New Message', `<select id="msgTo">${others.map(o=>`<option value="${o}">${o}</option>`).join('')}</select><textarea id="msgContent" rows="4"></textarea><button onclick="sendComposed()">Send</button>`);
+    };
+    window.sendComposed = function() {
+        const to = document.getElementById('msgTo')?.value;
+        const content = document.getElementById('msgContent')?.value.trim();
+        if (!content) return;
+        messages.push({ id: Date.now(), from: currentUser.username, to: to, content: content, timestamp: new Date().toLocaleString(), read: false });
+        saveData();
+        showToast('Sent');
         closeModal();
+        showPage('inbox');
+    };
+    window.viewMessage = function(id) {
+        const msg = messages.find(m => m.id === id);
+        if (msg && !msg.read && msg.to === currentUser.username) msg.read = true;
+        saveData();
+        showModal('Message', `<strong>From: ${msg.from}</strong><br><strong>To: ${msg.to}</strong><br><strong>Time: ${msg.timestamp}</strong><br><br>${msg.content.replace(/\n/g,'<br>')}${msg.orderDetails ? `<br><br><strong>Order Details:</strong> ${msg.orderDetails}` : ''}<br><br><button onclick="closeModal();startChatWith('${msg.from}')">Reply</button>`);
         if (currentUser.isOwner) showPage('inbox');
     };
 
-    window.markMessageRead = function(msgId) {
-        const msg = messages.find(m => m.id === msgId);
-        if (msg) msg.read = true;
+    // Store, Cart, Login, Register, Home
+    function renderStore(container) {
+        if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
+        container.innerHTML = `<div class="card"><div class="card-title">Available Configs</div><div class="grid-3" id="productsGrid"></div></div>`;
+        document.getElementById('productsGrid').innerHTML = products.map(p => `<div class="product-card"><h3>${p.name}</h3><div class="product-price">$${p.price}</div><p>${p.description}</p><button onclick="addToCart(${p.id})">Add to Cart</button></div>`).join('');
+    }
+    window.addToCart = function(id) {
+        const p = products.find(p=>p.id===id);
+        const existing = cart.find(i=>i.id===id);
+        if (existing) existing.quantity++;
+        else cart.push({...p, quantity:1});
         saveData();
-        showPage('inbox');
+        showToast(`${p.name} added`);
     };
+    function renderCart(container) {
+        if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
+        if (!cart.length) { container.innerHTML = `<div class="card"><div class="card-title">Cart Empty</div><button onclick="showPage('store')">Store</button></div>`; return; }
+        let total = 0;
+        const items = cart.map(i => { total += i.price * i.quantity; return `<div class="cart-item"><span>${i.name} x${i.quantity}</span><span>$${i.price*i.quantity}</span><button onclick="removeFromCart(${i.id})" style="background:#3a2a2a;">Remove</button></div>`; }).join('');
+        container.innerHTML = `<div class="card"><div class="card-title">Cart</div>${items}<div class="cart-item" style="border-top:2px solid #dc2626;"><span>Total</span><span>$${total}</span></div><button onclick="showPage('checkout')">Checkout</button></div>`;
+    }
+    window.removeFromCart = function(id) { cart = cart.filter(i=>i.id!==id); saveData(); showPage('cart'); };
+    function renderCheckout(container) {
+        const total = cart.reduce((s,i)=>s+(i.price*i.quantity),0);
+        const amount = total===10?12:total===18?20:12;
+        container.innerHTML = `<div class="card"><div class="card-title">Checkout</div><p><strong>Total: $${total}</strong></p><div style="background:#0a0e16;padding:1rem;"><strong>EasyPaisa (Remitly)</strong><br>Pakistan | EasyPaisa Wallet<br>Muhammad Arshad | +92 348 8308531<br>Send $${amount} USD<br><br><strong>Litecoin (LTC)</strong><br>ltc1qplpy27p9q3rlrmv2t5srmw8hkytm6xhp663we3<br>Send $${amount} USD LTC</div><button onclick="showPage('forum')">Submit Payment Proof</button></div>`;
+    }
+    function renderLogin(container) {
+        container.innerHTML = `<div class="card"><div class="card-title">Login</div><input id="loginUsername" placeholder="Username"><input id="loginPassword" type="password"><button onclick="login()">Login</button><p><a onclick="showPage('forgot')" style="color:#dc2626;">Forgot Password?</a> | <a onclick="showPage('register')" style="color:#dc2626;">Register</a></p></div>`;
+    }
+    window.login = function() {
+        const u = document.getElementById('loginUsername').value;
+        const p = document.getElementById('loginPassword').value;
+        const user = users.find(u2=>u2.username===u && u2.password===p);
+        if (user) { currentUser = user; saveData(); updateNav(); showToast(`Welcome ${u}`); showPage('home'); }
+        else showToast('Invalid', true);
+    };
+    function renderRegister(container) {
+        container.innerHTML = `<div class="card"><div class="card-title">Register</div><input id="regUsername" placeholder="Username"><input id="regEmail" placeholder="Email"><input id="regCountry" placeholder="Country"><input id="regPassword" type="password"><button onclick="register()">Register</button></div>`;
+    }
+    window.register = async function() {
+        const fp = await FingerprintJS.load();
+        const fingerprint = (await fp.get()).visitorId;
+        if (fingerprints[fingerprint] && fingerprints[fingerprint] !== currentUser?.username) { showToast('One account per device only', true); return; }
+        const username = document.getElementById('regUsername').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const country = document.getElementById('regCountry').value.trim();
+        const password = document.getElementById('regPassword').value;
+        if (!username || !email || !country || !password) { showToast('All fields required', true); return; }
+        if (users.find(u=>u.username===username)) { showToast('Username taken', true); return; }
+        fingerprints[fingerprint] = username;
+        const isOwner = (username === 'sufyan');
+        const newUser = { id: Date.now(), username, email, country, password, isOwner, isPaid: false, registeredAt: new Date().toISOString(), avatar: null };
+        users.push(newUser);
+        currentUser = newUser;
+        saveData();
+        updateNav();
+        showToast('Registered!');
+        showPage('home');
+    };
+    function renderForgot(container) {
+        container.innerHTML = `<div class="card"><div class="card-title">Reset Password</div><input id="resetEmail" placeholder="Email"><button onclick="sendReset()">Send Reset Link</button><p><a onclick="showPage('login')">Back to Login</a></p></div>`;
+    }
+    window.sendReset = function() {
+        const email = document.getElementById('resetEmail').value;
+        const user = users.find(u=>u.email===email);
+        if (!user) { showToast('Email not found', true); return; }
+        const code = Math.random().toString(36).substring(2,8).toUpperCase();
+        user.resetCode = code;
+        user.resetExpiry = Date.now()+3600000;
+        saveData();
+        showToast(`Reset code: ${code} (check console)`, true);
+        console.log(`Reset code for ${user.username}: ${code}`);
+    };
+    function renderHome(container) {
+        const primeUsers = Object.keys(userTags).filter(u => userTags[u]?.tag === 'prime');
+        container.innerHTML = `<div class="card"><div class="card-title">Welcome to Counter Prime</div><p>Professional CFG Store & Forum</p><button onclick="showPage('store')">Store</button><button class="btn-secondary" onclick="showPage('forum')">Forum</button></div>
+        <div class="card"><div class="card-title">🏆 Prime Members +REP</div><div id="primeList">${primeUsers.length ? primeUsers.map(u => { const user = users.find(us=>us.username===u); return `<div class="member-card" style="display:inline-block; margin:5px; padding:5px 10px;" onclick="showProfile('${u}')"><span class="${getUserGlowClass(user||{})}">${u}</span> ${getUserTagDisplay(user||{})} <span style="color:#f97316;">+REP</span></div>`; }).join('') : '<p>No Prime members yet</p>'}</div></div>
+        <div class="grid-2"><div class="card"><div class="card-title">Latest Orders</div><div id="latestPosts">${posts.slice(0,5).map(p=>`<div><strong class="${getUserGlowClass(users.find(u=>u.username===p.username)||{})}" onclick="showProfile('${p.username}')">${p.username}</strong>: ${p.content.substring(0,50)}...</div>`).join('') || 'No orders'}</div></div>
+        <div class="card"><div class="card-title">Live Chat</div><div id="homeChat">${chatMessages.slice(-3).reverse().map(m=>`<div><strong onclick="showProfile('${m.username}')">${m.username}</strong>: ${m.message.substring(0,60)}</div>`).join('') || 'No messages'}<button onclick="showPage('chat')" style="margin-top:0.5rem;">Join Chat</button></div></div></div>`;
+    }
 
-    // Show Pages
     function showPage(page) {
         const content = document.getElementById('pageContent');
         if (page === 'home') renderHome(content);
@@ -696,584 +797,23 @@
         else if (page === 'forum') renderForum(content);
         else if (page === 'cart') renderCart(content);
         else if (page === 'inbox') renderInbox(content);
+        else if (page === 'members') renderMembers(content);
+        else if (page === 'chat') renderChat(content);
         else if (page === 'login') renderLogin(content);
         else if (page === 'register') renderRegister(content);
         else if (page === 'checkout') renderCheckout(content);
         else if (page === 'forgot') renderForgot(content);
     }
 
-    function renderHome(container) {
-        container.innerHTML = `
-            <div class="card">
-                <div class="card-title">Welcome to Counter Prime</div>
-                <p style="margin-bottom: 1rem;">Professional CFG Store & Community Forum. Buy Deadlock or Dota 2 configs with lifetime updates.</p>
-                <button onclick="showPage('store')">Browse Store</button>
-                <button class="btn-secondary" onclick="showPage('forum')" style="margin-left: 1rem;">Visit Forum</button>
-            </div>
-            <div class="grid-2">
-                <div class="card">
-                    <div class="card-title">Latest Orders</div>
-                    <div id="latestPosts"></div>
-                </div>
-                <div class="card">
-                    <div class="card-title">How to Buy</div>
-                    <p>1. Register an account<br>2. Add product to cart<br>3. Checkout & select payment<br>4. Submit payment proof in Forum<br>5. Wait for admin verification</p>
-                </div>
-            </div>
-        `;
-        const latestDiv = document.getElementById('latestPosts');
-        if (latestDiv) {
-            const recentPosts = [...posts].reverse().slice(0, 5);
-            latestDiv.innerHTML = recentPosts.length ? recentPosts.map(p => {
-                const user = users.find(u => u.id === p.userId);
-                return `<div style="padding: 0.5rem 0; border-bottom: 1px solid #1f2538;">
-                    <strong class="${getUserGlowClass(user || {})}" style="cursor:pointer;" onclick="showProfile('${p.username}')">${p.username}</strong>: ${p.content.substring(0, 50)}...
-                </div>`;
-            }).join('') : '<p>No posts yet.</p>';
-        }
-    }
+    function logout() { currentUser = null; saveData(); updateNav(); showToast('Logged out'); showPage('home'); }
 
-    function renderStore(container) {
-        if (!currentUser) {
-            container.innerHTML = `<div class="card"><div class="card-title">Please Login</div><button onclick="showPage('login')">Login</button></div>`;
-            return;
-        }
-        container.innerHTML = `
-            <div class="card">
-                <div class="card-title">Available Configs</div>
-                <div class="grid-3" id="productsGrid"></div>
-            </div>
-        `;
-        const grid = document.getElementById('productsGrid');
-        grid.innerHTML = products.map(p => `
-            <div class="product-card">
-                <h3>${p.name}</h3>
-                <div class="product-price">$${p.price}</div>
-                <p style="font-size: 0.8rem; color: #9ba1b8;">${p.description}</p>
-                <button onclick="addToCart(${p.id})" style="margin-top: 1rem;">Add to Cart</button>
-            </div>
-        `).join('');
-    }
-
-    window.addToCart = function(productId) {
-        const product = products.find(p => p.id === productId);
-        const existing = cart.find(item => item.id === productId);
-        if (existing) existing.quantity++;
-        else cart.push({ id: product.id, name: product.name, price: product.price, quantity: 1 });
-        saveData();
-        showToast(`${product.name} added to cart`);
-    };
-
-    function renderCart(container) {
-        if (!currentUser) {
-            container.innerHTML = `<div class="card"><div class="card-title">Please Login</div><button onclick="showPage('login')">Login</button></div>`;
-            return;
-        }
-        if (cart.length === 0) {
-            container.innerHTML = `<div class="card"><div class="card-title">Cart Empty</div><button onclick="showPage('store')">Go to Store</button></div>`;
-            return;
-        }
-        let total = 0;
-        const itemsHtml = cart.map(item => {
-            total += item.price * item.quantity;
-            return `
-                <div class="cart-item">
-                    <span>${item.name} x ${item.quantity}</span>
-                    <span>$${item.price * item.quantity}</span>
-                    <button onclick="removeFromCart(${item.id})" style="background:#3a2a2a; padding:4px 8px;">Remove</button>
-                </div>
-            `;
-        }).join('');
-        container.innerHTML = `
-            <div class="card">
-                <div class="card-title">Your Cart</div>
-                ${itemsHtml}
-                <div class="cart-item" style="font-weight: 700; border-top: 2px solid #ff4d4d;">
-                    <span>Total</span>
-                    <span>$${total}</span>
-                </div>
-                <button onclick="showPage('checkout')" style="margin-top: 1rem;">Proceed to Checkout</button>
-            </div>
-        `;
-    }
-
-    window.removeFromCart = function(id) {
-        cart = cart.filter(item => item.id !== id);
-        saveData();
-        showPage('cart');
-    };
-
-    function renderCheckout(container) {
-        if (cart.length === 0) {
-            showPage('store');
-            return;
-        }
-        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const suggestedAmount = total === 10 ? 12 : total === 18 ? 20 : 12;
-        container.innerHTML = `
-            <div class="card">
-                <div class="card-title">Checkout</div>
-                <p><strong>Total Amount: $${total}</strong></p>
-                <div style="background:#0a0e16; padding:1rem; border-radius:12px; margin:1rem 0;">
-                    <strong>Payment Options:</strong><br><br>
-                    <strong>Option 1: EasyPaisa (Remitly)</strong><br>
-                    Destination: Pakistan | EasyPaisa Mobile Wallet<br>
-                    Name: Muhammad Arshad | Mobile: +92 348 8308531<br>
-                    Send <strong>$${suggestedAmount} USD</strong> (tax included)<br><br>
-                    <strong>Option 2: Litecoin (LTC)</strong><br>
-                    Address: ltc1qplpy27p9q3rlrmv2t5srmw8hkytm6xhp663we3<br>
-                    Send exactly <strong>$${suggestedAmount} USD</strong> worth of LTC
-                </div>
-                <p>After payment, go to <strong>Forum</strong> and create a post with your transaction ID and screenshot.</p>
-                <button onclick="showPage('forum')">Go to Forum & Submit Proof</button>
-            </div>
-        `;
-    }
-
-    function renderForum(container) {
-        if (!currentUser) {
-            container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`;
-            return;
-        }
-        container.innerHTML = `
-            <div class="card">
-                <div class="card-title">Forum - Payment Proofs & Support</div>
-                <button onclick="showNewPostForm()">+ Create New Order Post</button>
-                <div id="newPostForm" class="hidden" style="margin-top: 1rem;">
-                    <textarea id="postContent" rows="3" placeholder="Write your payment details, transaction ID, and any notes..."></textarea>
-                    <input type="file" id="postImage" accept="image/*">
-                    <button onclick="submitPost()">Submit Payment Proof</button>
-                </div>
-                <div id="forumPosts" style="margin-top: 1.5rem;"></div>
-            </div>
-        `;
-        renderPosts();
-    }
-
-    window.showNewPostForm = function() {
-        const form = document.getElementById('newPostForm');
-        form.classList.toggle('hidden');
-    };
-
-    window.submitPost = function() {
-        const content = document.getElementById('postContent').value.trim();
-        const imageFile = document.getElementById('postImage').files[0];
-        if (!content) {
-            showToast('Please write your payment details', true);
-            return;
-        }
-        
-        if (imageFile) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                savePost(content, e.target.result);
-            };
-            reader.readAsDataURL(imageFile);
-        } else {
-            savePost(content, null);
-        }
-    };
-
-    function savePost(content, imageData) {
-        const newPost = {
-            id: Date.now(),
-            username: currentUser.username,
-            userId: currentUser.id,
-            content: content,
-            image: imageData,
-            timestamp: new Date().toLocaleString(),
-            replies: [],
-            status: 'pending'
-        };
-        posts.unshift(newPost);
-        saveData();
-        document.getElementById('postContent').value = '';
-        document.getElementById('postImage').value = '';
-        document.getElementById('newPostForm').classList.add('hidden');
-        renderPosts();
-        
-        // Send notification to owner
-        messages.push({
-            id: Date.now(),
-            from: currentUser.username,
-            to: 'sufyan',
-            content: `New order: ${content.substring(0, 100)}...`,
-            timestamp: new Date().toLocaleString(),
-            read: false,
-            orderId: newPost.id
-        });
-        saveData();
-        
-        showToast('Order placed. Please wait 12 hours for admin to verify.');
-    }
-
-    function renderPosts() {
-        const container = document.getElementById('forumPosts');
-        if (!container) return;
-        if (posts.length === 0) {
-            container.innerHTML = '<p>No posts yet. Create one to submit your payment proof.</p>';
-            return;
-        }
-        container.innerHTML = posts.map(post => {
-            const user = users.find(u => u.id === post.userId);
-            return `
-                <div class="post">
-                    <div class="post-header">
-                        <div class="post-user" onclick="showProfile('${post.username}')">
-                            <span class="${getUserGlowClass(user || {})}">${post.username}</span>
-                            ${getUserTagDisplay(user || {})}
-                            ${post.status === 'completed' ? '<span class="tag tag-prime" style="background:#2e7d64;">DELIVERED</span>' : '<span class="tag tag-member" style="background:#ff4d4d;">PENDING</span>'}
-                        </div>
-                        <div class="post-time">${post.timestamp}</div>
-                    </div>
-                    <div class="post-content">${post.content.replace(/\n/g, '<br>')}</div>
-                    ${post.image ? `<img src="${post.image}" class="post-image" onclick="window.open(this.src)">` : ''}
-                    <div id="replies-${post.id}">
-                        ${post.replies.map(reply => {
-                            const replyUser = users.find(u => u.username === reply.username);
-                            return `<div class="reply">
-                                <strong class="${getUserGlowClass(replyUser || {})}" style="cursor:pointer;" onclick="showProfile('${reply.username}')">${reply.username}</strong> ${getUserTagDisplay(replyUser || {})}<br>
-                                ${reply.content}
-                            </div>`;
-                        }).join('')}
-                    </div>
-                    ${currentUser ? `
-                        <div class="reply-box">
-                            <textarea id="reply-${post.id}" rows="2" placeholder="Write reply..."></textarea>
-                            <button onclick="addReply(${post.id})" style="margin-top: 0.5rem;">Reply</button>
-                            ${currentUser.isOwner ? `<button onclick="markDelivered(${post.id})" style="background:#2e7d64; margin-left: 0.5rem;">Mark as Delivered & Send Key</button>` : ''}
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }).join('');
-    }
-
-    window.addReply = function(postId) {
-        const replyText = document.getElementById(`reply-${postId}`).value.trim();
-        if (!replyText) return;
-        const post = posts.find(p => p.id === postId);
-        if (post) {
-            post.replies.push({
-                username: currentUser.username,
-                content: replyText,
-                timestamp: new Date().toLocaleString()
-            });
-            saveData();
-            renderPosts();
-        }
-    };
-
-    window.markDelivered = function(postId) {
-        const post = posts.find(p => p.id === postId);
-        if (post) {
-            const key = `CFG-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
-            post.status = 'completed';
-            post.replies.push({
-                username: 'OWNER',
-                content: `✅ Payment verified. Your CFG key: ${key}\nDownload: Contact owner on Discord: sufyancounter for file.`,
-                timestamp: new Date().toLocaleString()
-            });
-            saveData();
-            renderPosts();
-            
-            // Send message to user
-            messages.push({
-                id: Date.now(),
-                from: 'sufyan',
-                to: post.username,
-                content: `Your order has been delivered! CFG Key: ${key}`,
-                timestamp: new Date().toLocaleString(),
-                read: false
-            });
-            saveData();
-            showToast(`Key sent to ${post.username}`);
-        }
-    };
-
-    function renderInbox(container) {
-        if (!currentUser) {
-            container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`;
-            return;
-        }
-        
-        const userMessages = messages.filter(m => m.to === currentUser.username || m.from === currentUser.username);
-        userMessages.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        
-        container.innerHTML = `
-            <div class="card">
-                <div class="card-title">Inbox</div>
-                <button onclick="composeMessage()" style="margin-bottom:1rem;">+ New Message</button>
-                <div id="inboxList">
-                    ${userMessages.length ? userMessages.map(m => `
-                        <div class="message-item ${!m.read && m.to === currentUser.username ? 'message-unread' : ''}" onclick="viewMessage(${m.id})">
-                            <strong>${m.from === currentUser.username ? 'To: ' + m.to : 'From: ' + m.from}</strong><br>
-                            ${m.content.substring(0, 80)}${m.content.length > 80 ? '...' : ''}<br>
-                            <small>${m.timestamp}</small>
-                        </div>
-                    `).join('') : '<p>No messages.</p>'}
-                </div>
-            </div>
-        `;
-    }
-
-    window.composeMessage = function() {
-        const usersList = users.filter(u => u.username !== currentUser.username).map(u => u.username);
-        showModal('New Message', `
-            <select id="messageTo">
-                ${usersList.map(u => `<option value="${u}">${u}</option>`).join('')}
-            </select>
-            <textarea id="messageCompose" rows="4" placeholder="Type your message..."></textarea>
-            <button onclick="sendComposedMessage()">Send</button>
-        `);
-    };
-
-    window.sendComposedMessage = function() {
-        const to = document.getElementById('messageTo').value;
-        const content = document.getElementById('messageCompose').value.trim();
-        if (!content) return;
-        messages.push({
-            id: Date.now(),
-            from: currentUser.username,
-            to: to,
-            content: content,
-            timestamp: new Date().toLocaleString(),
-            read: false
-        });
-        saveData();
-        showToast('Message sent!');
-        closeModal();
-        showPage('inbox');
-    };
-
-    window.viewMessage = function(msgId) {
-        const msg = messages.find(m => m.id === msgId);
-        if (msg && !msg.read && msg.to === currentUser.username) {
-            msg.read = true;
-            saveData();
-        }
-        showModal('Message', `
-            <strong>From: ${msg.from}</strong><br>
-            <strong>To: ${msg.to}</strong><br>
-            <strong>Time: ${msg.timestamp}</strong><br><br>
-            ${msg.content.replace(/\n/g, '<br>')}
-            <br><br>
-            <button onclick="replyToMessage('${msg.from}')">Reply</button>
-        `);
-        if (currentUser.isOwner) showPage('inbox');
-    };
-
-    window.replyToMessage = function(to) {
-        closeModal();
-        showModal('Reply to ' + to, `
-            <textarea id="replyMsg" rows="4" placeholder="Type your reply..."></textarea>
-            <button onclick="sendReply('${to}')">Send Reply</button>
-        `);
-    };
-
-    window.sendReply = function(to) {
-        const content = document.getElementById('replyMsg').value.trim();
-        if (!content) return;
-        messages.push({
-            id: Date.now(),
-            from: currentUser.username,
-            to: to,
-            content: content,
-            timestamp: new Date().toLocaleString(),
-            read: false
-        });
-        saveData();
-        showToast('Reply sent!');
-        closeModal();
-        showPage('inbox');
-    };
-
-    function renderLogin(container) {
-        container.innerHTML = `
-            <div class="card">
-                <div class="card-title">Login</div>
-                <input type="text" id="loginUsername" placeholder="Username">
-                <input type="password" id="loginPassword" placeholder="Password">
-                <button onclick="login()">Login</button>
-                <p style="margin-top: 1rem;"><a onclick="showPage('forgot')" style="color:#ff4d4d; cursor:pointer;">Forgot Password?</a></p>
-                <p>Don't have account? <a onclick="showPage('register')" style="color:#ff4d4d; cursor:pointer;">Register</a></p>
-            </div>
-        `;
-    }
-
-    window.login = function() {
-        const username = document.getElementById('loginUsername').value;
-        const password = document.getElementById('loginPassword').value;
-        const user = users.find(u => u.username === username && u.password === password);
-        if (user) {
-            currentUser = user;
-            saveData();
-            updateNav();
-            showToast(`Welcome back, ${username}!`);
-            showPage('home');
-        } else {
-            showToast('Invalid credentials', true);
-        }
-    };
-
-    function renderRegister(container) {
-        container.innerHTML = `
-            <div class="card">
-                <div class="card-title">Register</div>
-                <input type="text" id="regUsername" placeholder="Username">
-                <input type="email" id="regEmail" placeholder="Email">
-                <input type="text" id="regCountry" placeholder="Country">
-                <input type="password" id="regPassword" placeholder="Password">
-                <button onclick="register()">Register</button>
-            </div>
-        `;
-    }
-
-    window.register = function() {
-        const username = document.getElementById('regUsername').value.trim();
-        const email = document.getElementById('regEmail').value.trim();
-        const country = document.getElementById('regCountry').value.trim();
-        const password = document.getElementById('regPassword').value;
-        
-        if (!username || !email || !country || !password) {
-            showToast('All fields required', true);
-            return;
-        }
-        if (users.find(u => u.username === username)) {
-            showToast('Username exists', true);
-            return;
-        }
-        
-        // Only sufyan gets owner tag
-        const isOwner = (username === 'sufyan');
-        const newUser = {
-            id: Date.now(),
-            username,
-            email,
-            country,
-            password,
-            isOwner: isOwner,
-            isPaid: false,
-            isPremium: false,
-            registeredAt: new Date().toISOString(),
-            avatar: null
-        };
-        users.push(newUser);
-        currentUser = newUser;
+    function init() {
+        if (!users.find(u=>u.username==='sufyan')) users.push({ id: 1, username: 'sufyan', email: 'sufyanzhin125@gmail.com', country: 'Pakistan', password: 'owner123', isOwner: true, registeredAt: new Date().toISOString(), avatar: null });
         saveData();
         updateNav();
-        showToast('Registration successful!');
         showPage('home');
-    };
-
-    function renderForgot(container) {
-        container.innerHTML = `
-            <div class="card">
-                <div class="card-title">Reset Password</div>
-                <input type="email" id="resetEmail" placeholder="Enter your registered email">
-                <button onclick="sendResetLink()">Send Reset Link</button>
-                <p style="margin-top: 1rem;"><a onclick="showPage('login')" style="color:#ff4d4d; cursor:pointer;">Back to Login</a></p>
-            </div>
-        `;
     }
-
-    window.sendResetLink = function() {
-        const email = document.getElementById('resetEmail').value.trim();
-        const user = users.find(u => u.email === email);
-        if (!user) {
-            showToast('Email not found', true);
-            return;
-        }
-        
-        const resetCode = Math.random().toString(36).substring(2, 10).toUpperCase();
-        user.resetCode = resetCode;
-        user.resetExpiry = Date.now() + 3600000;
-        saveData();
-        
-        // Send email via EmailJS
-        emailjs.send('YOUR_SERVICE_ID', 'YOUR_RESET_TEMPLATE_ID', {
-            to_email: email,
-            username: user.username,
-            reset_code: resetCode,
-            reset_link: window.location.href + `?reset=${resetCode}&user=${user.username}`
-        }).then(() => {
-            showToast('Reset link sent to your email!');
-        }).catch(() => {
-            showToast(`Reset code: ${resetCode} (Email setup required)`, true);
-        });
-        
-        showPage('login');
-    };
-
-    // Check for reset in URL
-    function checkResetUrl() {
-        const params = new URLSearchParams(window.location.search);
-        const resetCode = params.get('reset');
-        const username = params.get('user');
-        if (resetCode && username) {
-            const user = users.find(u => u.username === username);
-            if (user && user.resetCode === resetCode && Date.now() < user.resetExpiry) {
-                showModal('Reset Password', `
-                    <input type="password" id="resetNewPass" placeholder="New Password">
-                    <input type="password" id="resetConfirmPass" placeholder="Confirm Password">
-                    <button onclick="completeReset('${username}')">Reset Password</button>
-                `);
-                window.history.pushState({}, '', window.location.pathname);
-            } else {
-                showToast('Invalid or expired reset link', true);
-            }
-        }
-    }
-
-    window.completeReset = function(username) {
-        const newPass = document.getElementById('resetNewPass').value;
-        const confirm = document.getElementById('resetConfirmPass').value;
-        if (newPass !== confirm) {
-            showToast('Passwords do not match', true);
-            return;
-        }
-        const user = users.find(u => u.username === username);
-        if (user) {
-            user.password = newPass;
-            delete user.resetCode;
-            delete user.resetExpiry;
-            saveData();
-            showToast('Password reset successfully!');
-            closeModal();
-        }
-    };
-
-    window.logout = function() {
-        currentUser = null;
-        saveData();
-        updateNav();
-        showToast('Logged out');
-        showPage('home');
-    };
-
-    // Initialize default owner account
-    function initDefaultOwner() {
-        if (!users.find(u => u.username === 'sufyan')) {
-            users.push({
-                id: 1,
-                username: 'sufyan',
-                email: 'sufyanzhin125@gmail.com',
-                country: 'Pakistan',
-                password: 'owner123',
-                isOwner: true,
-                isPaid: true,
-                isPremium: true,
-                registeredAt: new Date().toISOString(),
-                avatar: null
-            });
-            saveData();
-        }
-    }
-
-    initDefaultOwner();
-    updateNav();
-    checkResetUrl();
-    showPage('home');
+    init();
 </script>
 </body>
 </html>
