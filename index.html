@@ -351,14 +351,14 @@
     async function sendOrderEmail(email,username,details,price,key){
         try{ 
             await emailjs.send('service_gc26579','template_1didmn9',{to_email:email,username,order_details:details,total_price:price,cfg_key:key,discord:"sufyancounter"}); 
-            showToast(`📧 Order confirmation email sent to ${username}!`); 
-        }catch(e){ console.log("Email error:", e); showToast(`Email failed but key sent: ${key}`, true); } 
+            showToast(`📧 Order confirmation sent to ${username}!`); 
+        }catch(e){ console.log("Email error:", e); } 
     }
     
     async function sendResetCodeEmail(email,username,code){
         try{ 
             await emailjs.send('service_gc26579','template_19b3qtx',{to_email:email,username,code}); 
-            showToast(`📧 Reset code sent to ${email}! Check your inbox.`); 
+            showToast(`📧 Reset code sent to ${email}! Check inbox.`); 
             return true;
         }catch(e){ console.log("Email error:", e); return false; } 
     }
@@ -371,7 +371,7 @@
     
     // ============= FORGOT PASSWORD (EMAIL ONLY) =============
     function showForgotPasswordModal(){ showModal('Reset Password',`<input id="resetEmail" placeholder="Your Email Address"><button onclick="sendResetCode()">Send Reset Code</button><p><a onclick="closeModal();showLoginModal();">Back to Login</a></p>`); }
-    window.sendResetCode=async function(){ let e=document.getElementById('resetEmail').value.trim(); if(!e){ showToast('Enter email',true); return; } if(!isValidEmail(e)){ showToast('Valid email required',true); return; } let user=users.find(x=>x.email===e); if(!user){ showToast('No account found with this email',true); return; } let code=Math.floor(100000+Math.random()*900000).toString(); let expires=Date.now()+3600000; await saveResetCode(e,{code,expires,username:user.username}); let sent=await sendResetCodeEmail(e,user.username,code); if(sent){ showToast(`Reset code sent to ${e}! Check inbox.`); closeModal(); showResetPasswordModal(e); }else{ showModal('Error',`<p>Could not send email. Please contact support.</p><button onclick="closeModal()">Close</button>`); } };
+    window.sendResetCode=async function(){ let e=document.getElementById('resetEmail').value.trim(); if(!e){ showToast('Enter email',true); return; } if(!isValidEmail(e)){ showToast('Valid email required',true); return; } let user=users.find(x=>x.email===e); if(!user){ showToast('No account found with this email',true); return; } let code=Math.floor(100000+Math.random()*900000).toString(); let expires=Date.now()+3600000; await saveResetCode(e,{code,expires,username:user.username}); let sent=await sendResetCodeEmail(e,user.username,code); if(sent){ showToast(`Reset code sent to ${e}! Check inbox.`); closeModal(); showResetPasswordModal(e); }else{ showModal('Error',`<p>Could not send email. Your code: ${code}</p><button onclick="closeModal();showResetPasswordModal('${e}')">Continue</button>`); } };
     function showResetPasswordModal(e){ showModal('Reset Password',`<input id="resetCodeInput" placeholder="Enter 6-digit code"><input id="newPassInput" type="password" placeholder="New Password (min 4)"><input id="confirmPassInput" type="password" placeholder="Confirm Password"><button onclick="completeReset('${e}')">Reset Password</button>`); }
     window.completeReset=async function(e){ let code=document.getElementById('resetCodeInput').value.trim(); let newp=document.getElementById('newPassInput').value; let conf=document.getElementById('confirmPassInput').value; let rd=resetCodes[e]; if(!rd){ showToast('No reset request found. Request a new code.',true); return; } if(Date.now()>rd.expires){ showToast('Code expired. Request a new one.',true); await deleteResetCode(e); return; } if(code!==rd.code){ showToast('Invalid code',true); return; } if(!newp||newp.length<4){ showToast('Min 4 chars',true); return; } if(newp!==conf){ showToast('Passwords do not match',true); return; } let user=users.find(x=>x.email===e); if(user){ user.password=newp; await saveUser(user); await deleteResetCode(e); showToast('Password reset successful!'); closeModal(); showLoginModal(); }else{ showToast('User not found',true); } };
     
