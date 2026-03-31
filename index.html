@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Counter Prime | Ultimate CFG Forum</title>
+    <title>Counter Prime | Premium CFG Forum</title>
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -12,7 +14,7 @@
         }
 
         body {
-            background: linear-gradient(135deg, #0a0c12 0%, #0f1119 50%, #0a0c12 100%);
+            background: radial-gradient(circle at 10% 20%, #0a0c12 0%, #03060c 100%);
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: #eef2ff;
             line-height: 1.5;
@@ -24,9 +26,9 @@
         ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #dc2626, #f97316); border-radius: 4px; }
 
         .navbar {
-            background: rgba(17, 20, 28, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(220, 38, 38, 0.3);
+            background: rgba(10, 12, 18, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(249, 115, 22, 0.2);
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
@@ -46,6 +48,7 @@
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
+            text-shadow: 0 0 20px rgba(249,115,22,0.3);
         }
         .logo:hover { opacity: 0.8; }
 
@@ -60,9 +63,21 @@
             text-decoration: none;
             font-size: 0.9rem;
             cursor: pointer;
-            transition: 0.2s;
+            transition: 0.3s;
+            position: relative;
         }
         .nav-links a:hover { color: #f97316; }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #dc2626, #f97316);
+            transition: width 0.3s;
+        }
+        .nav-links a:hover::after { width: 100%; }
 
         .user-info {
             display: flex;
@@ -76,36 +91,42 @@
             border-radius: 20px;
             font-size: 0.7rem;
             font-weight: 600;
+            transition: all 0.3s;
         }
-        .tag-owner { background: linear-gradient(135deg, #dc2626, #ef4444); color: white; box-shadow: 0 0 8px #dc2626; }
-        .tag-prime { background: linear-gradient(135deg, #f97316, #fb923c); color: white; box-shadow: 0 0 8px #f97316; }
-        .tag-premium { background: linear-gradient(135deg, #eab308, #facc15); color: #1a1a2e; box-shadow: 0 0 8px #eab308; }
-        .tag-vip { background: linear-gradient(135deg, #a855f7, #c084fc); color: white; box-shadow: 0 0 8px #a855f7; }
-        .tag-elite { background: linear-gradient(135deg, #06b6d4, #22d3ee); color: #1a1a2e; box-shadow: 0 0 8px #06b6d4; }
-        .tag-legend { background: linear-gradient(135deg, #3b82f6, #60a5fa); color: white; box-shadow: 0 0 8px #3b82f6; }
-        .tag-god { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; box-shadow: 0 0 8px #8b5cf6; }
-        .tag-hacker { background: linear-gradient(135deg, #10b981, #34d399); color: #1a1a2e; box-shadow: 0 0 8px #10b981; }
-        .tag-banned { background: #000000; color: white; box-shadow: 0 0 8px #000000; border: 1px solid #ff0000; }
+        .tag-owner { background: linear-gradient(135deg, #dc2626, #ef4444); color: white; box-shadow: 0 0 12px #dc2626; }
+        .tag-prime { background: linear-gradient(135deg, #f97316, #fb923c); color: white; box-shadow: 0 0 12px #f97316; }
+        .tag-premium { background: linear-gradient(135deg, #eab308, #facc15); color: #1a1a2e; box-shadow: 0 0 12px #eab308; }
+        .tag-vip { background: linear-gradient(135deg, #a855f7, #c084fc); color: white; box-shadow: 0 0 12px #a855f7; }
+        .tag-elite { background: linear-gradient(135deg, #06b6d4, #22d3ee); color: #1a1a2e; box-shadow: 0 0 12px #06b6d4; }
+        .tag-legend { background: linear-gradient(135deg, #3b82f6, #60a5fa); color: white; box-shadow: 0 0 12px #3b82f6; }
+        .tag-god { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; box-shadow: 0 0 12px #8b5cf6; }
+        .tag-hacker { background: linear-gradient(135deg, #10b981, #34d399); color: #1a1a2e; box-shadow: 0 0 12px #10b981; }
+        .tag-banned { background: #000000; color: white; box-shadow: 0 0 12px #000000; border: 1px solid #ff0000; }
         .tag-member { background: #2a2f42; color: #b0b7d0; }
 
         /* Glow Name */
         .glow-name { text-shadow: 0 0 8px currentColor; }
-        .glow-prime { color: #fb923c; text-shadow: 0 0 10px #f97316; }
-        .glow-premium { color: #facc15; text-shadow: 0 0 10px #eab308; }
-        .glow-vip { color: #c084fc; text-shadow: 0 0 10px #a855f7; }
-        .glow-elite { color: #22d3ee; text-shadow: 0 0 10px #06b6d4; }
-        .glow-legend { color: #60a5fa; text-shadow: 0 0 10px #3b82f6; }
-        .glow-god { color: #a78bfa; text-shadow: 0 0 10px #8b5cf6; }
-        .glow-hacker { color: #34d399; text-shadow: 0 0 10px #10b981; }
+        .glow-prime { color: #fb923c; text-shadow: 0 0 12px #f97316; }
+        .glow-premium { color: #facc15; text-shadow: 0 0 12px #eab308; }
+        .glow-vip { color: #c084fc; text-shadow: 0 0 12px #a855f7; }
+        .glow-elite { color: #22d3ee; text-shadow: 0 0 12px #06b6d4; }
+        .glow-legend { color: #60a5fa; text-shadow: 0 0 12px #3b82f6; }
+        .glow-god { color: #a78bfa; text-shadow: 0 0 12px #8b5cf6; }
+        .glow-hacker { color: #34d399; text-shadow: 0 0 12px #10b981; }
 
         .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
         .card {
-            background: rgba(17, 21, 31, 0.8);
-            backdrop-filter: blur(5px);
-            border-radius: 20px;
+            background: rgba(17, 21, 31, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 24px;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
-            border: 1px solid rgba(220, 38, 38, 0.2);
+            border: 1px solid rgba(249, 115, 22, 0.15);
+            transition: transform 0.3s, border-color 0.3s;
+        }
+        .card:hover {
+            border-color: rgba(249, 115, 22, 0.4);
+            transform: translateY(-2px);
         }
         .card-title {
             font-size: 1.3rem;
@@ -120,7 +141,7 @@
             background: #0a0e16;
             border: 1px solid #252c3f;
             padding: 12px 16px;
-            border-radius: 12px;
+            border-radius: 14px;
             color: white;
             font-size: 0.9rem;
             margin-bottom: 1rem;
@@ -130,34 +151,35 @@
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #f97316;
-            box-shadow: 0 0 0 2px rgba(249,115,22,0.2);
+            box-shadow: 0 0 0 3px rgba(249,115,22,0.2);
         }
         button {
             background: linear-gradient(135deg, #dc2626, #f97316);
             color: white;
             border: none;
             padding: 12px 24px;
-            border-radius: 12px;
+            border-radius: 40px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.3s;
             font-family: inherit;
         }
-        button:hover { transform: scale(0.98); opacity: 0.9; }
+        button:hover { transform: scale(0.98); opacity: 0.9; box-shadow: 0 4px 15px rgba(220,38,38,0.3); }
         .btn-secondary { background: #2a2f42; }
+        .btn-secondary:hover { background: #3a415e; }
 
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
         .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
 
         .product-card {
             background: #0a0e16;
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 1.2rem;
             text-align: center;
             border: 1px solid #1f2538;
-            transition: 0.2s;
+            transition: all 0.3s;
         }
-        .product-card:hover { border-color: #f97316; transform: translateY(-3px); }
+        .product-card:hover { border-color: #f97316; transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(249,115,22,0.2); }
         .product-price { color: #f97316; font-size: 1.5rem; font-weight: 700; margin: 0.5rem 0; }
 
         .cart-item {
@@ -169,31 +191,13 @@
 
         .post {
             background: #0a0e16;
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 1rem;
             margin-bottom: 1rem;
             border-left: 3px solid #f97316;
+            transition: all 0.3s;
         }
-        .post-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 0.5rem;
-        }
-        .post-user {
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            cursor: pointer;
-        }
-        .post-time { font-size: 0.7rem; color: #7e849b; }
-        .post-content { margin: 0.5rem 0; word-break: break-word; white-space: pre-wrap; }
-        .post-image { max-width: 100%; max-height: 250px; border-radius: 12px; margin-top: 0.5rem; cursor: pointer; }
-        .reply-box { margin-top: 0.5rem; padding-left: 1rem; border-left: 2px solid #2a2f42; }
-        .reply { background: #0f1117; padding: 0.5rem; margin-top: 0.5rem; border-radius: 8px; }
+        .post:hover { background: #11151f; }
 
         .modal {
             display: none;
@@ -203,7 +207,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(12px);
             justify-content: center;
             align-items: center;
             z-index: 1000;
@@ -216,12 +220,13 @@
         .modal-content {
             background: linear-gradient(135deg, #11151f, #0f1119);
             padding: 2rem;
-            border-radius: 24px;
+            border-radius: 28px;
             max-width: 500px;
             width: 90%;
             border: 1px solid rgba(249,115,22,0.5);
             max-height: 80vh;
             overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
         }
 
         .toast {
@@ -231,7 +236,7 @@
             background: #11151f;
             border-left: 4px solid #f97316;
             padding: 1rem 1.5rem;
-            border-radius: 12px;
+            border-radius: 14px;
             color: white;
             z-index: 1000;
             animation: slideIn 0.3s ease;
@@ -241,15 +246,14 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
-        /* Confirm Dialog */
         .confirm-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(4px);
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -257,33 +261,19 @@
         }
         .confirm-box {
             background: #11151f;
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 1.5rem;
             max-width: 400px;
             width: 90%;
             border: 1px solid #f97316;
             text-align: center;
         }
-        .confirm-box h3 {
-            color: #f97316;
-            margin-bottom: 1rem;
-        }
-        .confirm-box p {
-            margin-bottom: 1.5rem;
-            color: #eef2ff;
-        }
-        .confirm-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-        }
-        .confirm-buttons button {
-            padding: 8px 20px;
-        }
+        .confirm-box h3 { color: #f97316; margin-bottom: 1rem; }
+        .confirm-box p { margin-bottom: 1.5rem; color: #eef2ff; }
+        .confirm-buttons { display: flex; gap: 1rem; justify-content: center; }
+        .confirm-buttons button { padding: 8px 20px; }
         .confirm-yes { background: #dc2626; }
-        .confirm-yes:hover { background: #b91c1c; }
         .confirm-no { background: #2a2f42; }
-        .confirm-no:hover { background: #3a415e; }
 
         .hidden { display: none; }
         .avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #f97316; margin-bottom: 1rem; }
@@ -292,22 +282,23 @@
         .message-item {
             background: #0a0e16;
             padding: 0.75rem;
-            border-radius: 12px;
+            border-radius: 14px;
             margin-bottom: 0.5rem;
             cursor: pointer;
+            transition: all 0.2s;
         }
-        .message-item:hover { background: #1a1e2a; }
+        .message-item:hover { background: #1a1e2a; transform: translateX(3px); }
         .message-unread { border-left: 3px solid #f97316; }
 
         .member-card {
             background: #0a0e16;
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 1rem;
             text-align: center;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.3s;
         }
-        .member-card:hover { border-color: #f97316; transform: translateY(-2px); }
+        .member-card:hover { border-color: #f97316; transform: translateY(-3px); box-shadow: 0 10px 20px -5px rgba(249,115,22,0.2); }
         .online-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-left: 5px; }
         .online { background: #10b981; box-shadow: 0 0 5px #10b981; }
         .offline { background: #6b7280; }
@@ -316,7 +307,7 @@
             height: 450px;
             overflow-y: auto;
             background: #0a0e16;
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 1rem;
             margin-bottom: 1rem;
             display: flex;
@@ -325,20 +316,18 @@
 
         .chat-message {
             padding: 0.75rem;
-            border-radius: 12px;
+            border-radius: 14px;
             margin-bottom: 0.75rem;
             transition: 0.2s;
         }
-        .chat-message .username { font-weight: 600; cursor: pointer; font-size: 0.95rem; }
-        .chat-message .time { font-size: 0.65rem; color: #6b7280; margin-left: 0.5rem; }
-        .chat-message .message-text { margin-top: 0.25rem; font-size: 0.9rem; }
+        .chat-message:hover { background: #11151f; }
 
         .delete-btn {
             background: #6b7280;
             padding: 2px 10px;
             font-size: 0.7rem;
             margin-left: 0.5rem;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
         }
         .delete-btn:hover { background: #4b5563; }
@@ -348,7 +337,7 @@
             padding: 2px 8px;
             font-size: 0.65rem;
             margin-left: 8px;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             display: inline-block;
         }
@@ -401,6 +390,11 @@
 </div>
 
 <script>
+    // Initialize EmailJS - REPLACE WITH YOUR KEYS
+    (function() {
+        emailjs.init("YOUR_PUBLIC_KEY_HERE");
+    })();
+
     // ============= DATA STRUCTURE =============
     let users = JSON.parse(localStorage.getItem('users')) || [];
     let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
@@ -412,6 +406,7 @@
     let lastActivity = JSON.parse(localStorage.getItem('lastActivity')) || {};
     let userTimeouts = JSON.parse(localStorage.getItem('userTimeouts')) || {};
     let userMessageCount = JSON.parse(localStorage.getItem('userMessageCount')) || {};
+    let resetCodes = JSON.parse(localStorage.getItem('resetCodes')) || {};
 
     // Auto Rep Messages
     const autoRepMessages = [
@@ -445,6 +440,12 @@
 
     const availableTags = ['prime', 'premium', 'vip', 'elite', 'legend', 'god', 'hacker'];
 
+    // Email validation function
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
     function saveData() {
         localStorage.setItem('users', JSON.stringify(users));
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -456,6 +457,7 @@
         localStorage.setItem('lastActivity', JSON.stringify(lastActivity));
         localStorage.setItem('userTimeouts', JSON.stringify(userTimeouts));
         localStorage.setItem('userMessageCount', JSON.stringify(userMessageCount));
+        localStorage.setItem('resetCodes', JSON.stringify(resetCodes));
         updateCartCount();
         updateInboxCount();
     }
@@ -531,7 +533,6 @@
     };
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
-    // ============= CONFIRMATION DIALOG =============
     function showConfirm(message, onConfirm) {
         const overlay = document.createElement('div');
         overlay.className = 'confirm-overlay';
@@ -600,11 +601,136 @@
         return newPost.id;
     }
 
+    // ============= FORGOT PASSWORD FUNCTIONS =============
+    function showForgotPasswordModal() {
+        const modalHtml = `
+            <div style="text-align:center;">
+                <h3 style="color:#f97316; margin-bottom:1rem;">Reset Password</h3>
+                <p>Enter your registered email address. We'll send you a verification code.</p>
+                <input type="email" id="forgotEmail" placeholder="Your Email Address" style="margin-top:1rem;">
+                <button onclick="sendResetCode()" style="width:100%; margin-top:1rem;">Send Reset Code</button>
+                <p style="margin-top:1rem;"><a onclick="closeModal();showLoginModal();" style="color:#f97316; cursor:pointer;">Back to Login</a></p>
+            </div>
+        `;
+        showModal('🔐 Forgot Password', modalHtml);
+    }
+
+    window.sendResetCode = async function() {
+        const email = document.getElementById('forgotEmail')?.value.trim();
+        if (!email) {
+            showToast('Please enter your email', true);
+            return;
+        }
+        if (!isValidEmail(email)) {
+            showToast('Please enter a valid email address (e.g., name@gmail.com)', true);
+            return;
+        }
+        
+        const user = users.find(u => u.email === email);
+        if (!user) {
+            showToast('No account found with this email', true);
+            return;
+        }
+        
+        // Generate 6-digit reset code
+        const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+        resetCodes[email] = {
+            code: resetCode,
+            expires: Date.now() + 3600000, // 1 hour
+            username: user.username
+        };
+        saveData();
+        
+        // Send email via EmailJS
+        const templateParams = {
+            to_email: email,
+            username: user.username,
+            code: resetCode
+        };
+        
+        try {
+            await emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams);
+            showToast(`Reset code sent to ${email}! Check your inbox.`);
+            closeModal();
+            showResetPasswordModal(email);
+        } catch (error) {
+            console.error("Email error:", error);
+            // Fallback - show code in modal
+            showModal('Reset Code', `
+                <div style="text-align:center;">
+                    <h3 style="color:#f97316;">Your Reset Code</h3>
+                    <p style="font-size:2rem; font-weight:bold; margin:1rem 0;">${resetCode}</p>
+                    <p>Enter this code to reset your password.</p>
+                    <button onclick="closeModal();showResetPasswordModal('${email}')" style="margin-top:1rem;">Continue</button>
+                </div>
+            `);
+        }
+    };
+
+    function showResetPasswordModal(email) {
+        const modalHtml = `
+            <div style="text-align:center;">
+                <h3 style="color:#f97316;">Reset Password</h3>
+                <input type="text" id="resetCode" placeholder="Enter 6-digit code" style="margin-bottom:0.5rem;">
+                <input type="password" id="newPassword" placeholder="New Password (min 4 chars)" style="margin-bottom:0.5rem;">
+                <input type="password" id="confirmPassword" placeholder="Confirm New Password" style="margin-bottom:1rem;">
+                <button onclick="completePasswordReset('${email}')" style="width:100%;">Reset Password</button>
+            </div>
+        `;
+        showModal('🔐 Reset Password', modalHtml);
+    }
+
+    window.completePasswordReset = function(email) {
+        const code = document.getElementById('resetCode')?.value.trim();
+        const newPass = document.getElementById('newPassword')?.value;
+        const confirmPass = document.getElementById('confirmPassword')?.value;
+        
+        const resetData = resetCodes[email];
+        if (!resetData) {
+            showToast('No reset request found. Please request a new code.', true);
+            return;
+        }
+        
+        if (Date.now() > resetData.expires) {
+            showToast('Reset code has expired. Please request a new one.', true);
+            delete resetCodes[email];
+            saveData();
+            return;
+        }
+        
+        if (code !== resetData.code) {
+            showToast('Invalid verification code', true);
+            return;
+        }
+        
+        if (!newPass || newPass.length < 4) {
+            showToast('Password must be at least 4 characters', true);
+            return;
+        }
+        
+        if (newPass !== confirmPass) {
+            showToast('Passwords do not match', true);
+            return;
+        }
+        
+        const user = users.find(u => u.email === email);
+        if (user) {
+            user.password = newPass;
+            delete resetCodes[email];
+            saveData();
+            showToast('Password reset successful! You can now login.');
+            closeModal();
+            showLoginModal();
+        } else {
+            showToast('User not found', true);
+        }
+    };
+
     // ============= REGISTER MODAL =============
     window.showRegisterModal = function() {
         const modalHtml = `
             <input type="text" id="modalRegUsername" placeholder="Username" style="margin-bottom:0.8rem;">
-            <input type="email" id="modalRegEmail" placeholder="Email" style="margin-bottom:0.8rem;">
+            <input type="email" id="modalRegEmail" placeholder="Email (e.g., name@gmail.com)" style="margin-bottom:0.8rem;">
             <input type="password" id="modalRegPassword" placeholder="Password (min 4 chars)" style="margin-bottom:1rem;">
             <button onclick="modalRegister()" style="width:100%;">Create Account</button>
             <p style="margin-top:1rem; text-align:center;">Already have account? <a onclick="closeModal();showLoginModal();" style="color:#f97316; cursor:pointer;">Login</a></p>
@@ -621,9 +747,17 @@
             showToast('All fields required', true); 
             return; 
         }
+        if (!isValidEmail(email)) {
+            showToast('Please enter a valid email address (e.g., name@gmail.com)', true);
+            return;
+        }
         if (users.find(u=>u.username === username)) { 
             showToast('Username already taken', true); 
             return; 
+        }
+        if (users.find(u=>u.email === email)) {
+            showToast('Email already registered', true);
+            return;
         }
         if (password.length < 4) { 
             showToast('Password must be at least 4 characters', true); 
@@ -634,7 +768,7 @@
         const newUser = { 
             id: Date.now(), 
             username, 
-            email, 
+            email,
             country: 'Not specified', 
             password, 
             isOwner, 
@@ -656,7 +790,8 @@
             <input type="text" id="modalLoginUsername" placeholder="Username" style="margin-bottom:0.5rem;">
             <input type="password" id="modalLoginPassword" placeholder="Password" style="margin-bottom:1rem;">
             <button onclick="modalLogin()" style="width:100%;">Login</button>
-            <p style="margin-top:1rem; text-align:center;">Don't have account? <a onclick="closeModal();showRegisterModal();" style="color:#f97316; cursor:pointer;">Register</a></p>
+            <p style="margin-top:1rem; text-align:center;"><a onclick="closeModal();showForgotPasswordModal();" style="color:#f97316; cursor:pointer;">Forgot Password?</a></p>
+            <p style="margin-top:0.5rem; text-align:center;">Don't have account? <a onclick="closeModal();showRegisterModal();" style="color:#f97316; cursor:pointer;">Register</a></p>
         `);
         document.getElementById('modalLoginUsername')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') modalLogin(); });
         document.getElementById('modalLoginPassword')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') modalLogin(); });
@@ -839,12 +974,8 @@
             }
         });
     };
-    
-    window.clearAllChat = function() {
-        clearAllChatWithConfirm();
-    };
 
-    // Profile
+    // Profile - Email only visible to self
     window.showProfile = function(username) {
         const user = users.find(u => u.username === username);
         if (!user) return;
@@ -862,8 +993,16 @@
             <p>Country: ${user.country || 'Not set'}</p>
             <p>Joined: ${new Date(user.registeredAt).toLocaleDateString()}</p>
             <p>📊 Total Messages: ${messageCount}</p>
-            <p>📦 Orders: ${userOrders.length}</p>
-            <button onclick="closeModal();startChatWith('${username}')">💬 Send Message</button>`;
+            <p>📦 Orders: ${userOrders.length}</p>`;
+        
+        // Email only visible to the user themselves or owner
+        if (isSelf || isOwner) {
+            content += `<p>📧 Email: ${user.email}</p>`;
+        } else {
+            content += `<p>📧 Email: <span style="color:#6b7280;">[Hidden for privacy]</span></p>`;
+        }
+        
+        content += `<button onclick="closeModal();startChatWith('${username}')">💬 Send Message</button>`;
         
         if (isSelf) {
             content += `<hr style="margin:1rem 0;"><h3>Settings</h3>
@@ -959,7 +1098,7 @@
         closeModal();
     };
 
-    // Forum Functions (kept from original)
+    // Forum Functions
     function renderForum(container) {
         if (!checkAuthAndRedirect('forum')) { container.innerHTML = `<div class="card"><div class="card-title">My Orders</div><p>Please login to view your orders.</p></div>`; return; }
         container.innerHTML = `<div class="card"><div class="card-title">📦 My Orders</div>
@@ -1217,43 +1356,27 @@
     
     window.removeFromCart = function(id) { cart = cart.filter(i=>i.id!==id); saveData(); showPage('cart'); };
     
-    // ============= CHECKOUT WITH UPDATED AMOUNTS =============
     function renderCheckout(container) {
         if (!checkAuthAndRedirect('checkout')) { container.innerHTML = `<div class="card"><div class="card-title">Checkout</div><p>Please login to checkout.</p></div>`; return; }
         const total = cart.reduce((s,i)=>s+(i.price*i.quantity),0);
-        // Amounts based on product total
-        const remitlyAmount = total; // $10 or $18
+        const remitlyAmount = total;
         const ltcAmount = total === 10 ? 12 : total === 18 ? 20 : 12;
         const steamAmount = total === 10 ? 15 : total === 18 ? 25 : 15;
         container.innerHTML = `<div class="card"><div class="card-title">💳 Checkout</div>
             <p><strong>Total: <span style="color:#f97316;">$${total}</span></strong></p>
             <div style="background:#0a0e16;padding:1.5rem;border-radius:16px;margin:1rem 0;">
                 <h3 style="color:#f97316;">📱 Option 1: EasyPaisa (via Remitly)</h3>
-                <p>Send payment through Remitly — fast and simple.<br>
-                Select <strong>Pakistan</strong> → <strong>EasyPaisa Mobile Wallet</strong></p>
-                <p><strong>Details:</strong><br>
-                Name: Muhammad Arshad<br>
-                Mobile: +92 348 8308531<br>
-                Country: Pakistan<br>
-                Bank: EasyPaisa</p>
+                <p>Send payment through Remitly — fast and simple.<br>Select <strong>Pakistan</strong> → <strong>EasyPaisa Mobile Wallet</strong></p>
+                <p><strong>Details:</strong><br>Name: Muhammad Arshad<br>Mobile: +92 348 8308531<br>Country: Pakistan<br>Bank: EasyPaisa</p>
                 <p><strong style="color:#f97316;">⚠️ Send <span style="color:#f97316;">$${remitlyAmount} USD</span></strong></p>
-                
                 <hr style="margin:1rem 0; border-color:#2a2f42;">
-                
                 <h3 style="color:#f97316;">₿ Option 2: Litecoin (LTC)</h3>
                 <p>Send exactly <strong style="color:#f97316;">$${ltcAmount} USD</strong> worth of LTC to:</p>
                 <code style="background:#000;padding:10px;display:block;word-break:break-all;border-radius:8px;">ltc1qplpy27p9q3rlrmv2t5srmw8hkytm6xhp663we3</code>
-                
                 <hr style="margin:1rem 0; border-color:#2a2f42;">
-                
                 <h3 style="color:#f97316;">🎮 Option 3: Steam Wallet Code (US Region)</h3>
-                <p>Send <strong style="color:#f97316;">$${steamAmount} USD</strong> Steam Wallet Gift Card (US Region)<br>
-                You can easily buy from <strong>G2A.com</strong> or <strong>G2G.com</strong><br>
-                Search: "Steam Wallet Code US $${steamAmount}"</p>
-                <p><strong>Instructions:</strong><br>
-                1. Buy Steam Wallet Code from G2A/G2G<br>
-                2. Send the code to owner on Discord: <strong>sufyancounter</strong><br>
-                3. After verification, your CFG will be delivered</p>
+                <p>Send <strong style="color:#f97316;">$${steamAmount} USD</strong> Steam Wallet Gift Card (US Region)<br>Buy from <strong>G2A.com</strong> or <strong>G2G.com</strong><br>Search: "Steam Wallet Code US $${steamAmount}"</p>
+                <p><strong>Instructions:</strong><br>1. Buy Steam Wallet Code from G2A/G2G<br>2. Send code to owner on Discord: <strong>sufyancounter</strong><br>3. After verification, your CFG will be delivered</p>
                 <p><strong style="color:#f97316;">⚠️ Send <span style="color:#f97316;">$${steamAmount} USD</span> Steam Wallet Code (US Region)</strong></p>
             </div>
             <button onclick="showPage('forum')">📝 Submit Payment Proof</button>
