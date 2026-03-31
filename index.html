@@ -1217,10 +1217,12 @@
     
     window.removeFromCart = function(id) { cart = cart.filter(i=>i.id!==id); saveData(); showPage('cart'); };
     
+    // ============= CHECKOUT WITH STEAM WALLET OPTION =============
     function renderCheckout(container) {
         if (!checkAuthAndRedirect('checkout')) { container.innerHTML = `<div class="card"><div class="card-title">Checkout</div><p>Please login to checkout.</p></div>`; return; }
         const total = cart.reduce((s,i)=>s+(i.price*i.quantity),0);
         const amount = total===10?12:total===18?20:12;
+        const steamAmount = total===10?13:total===18?22:13;
         container.innerHTML = `<div class="card"><div class="card-title">💳 Checkout</div>
             <p><strong>Total: $${total}</strong></p>
             <div style="background:#0a0e16;padding:1.5rem;border-radius:16px;margin:1rem 0;">
@@ -1233,10 +1235,24 @@
                 Country: Pakistan<br>
                 Bank: EasyPaisa</p>
                 <p><strong style="color:#f97316;">⚠️ Send $${amount} USD (tax included)</strong></p>
+                
                 <hr style="margin:1rem 0; border-color:#2a2f42;">
+                
                 <h3 style="color:#f97316;">₿ Option 2: Litecoin (LTC)</h3>
                 <p>Send exactly <strong>$${amount} USD</strong> worth of LTC to:</p>
                 <code style="background:#000;padding:10px;display:block;word-break:break-all;border-radius:8px;">ltc1qplpy27p9q3rlrmv2t5srmw8hkytm6xhp663we3</code>
+                
+                <hr style="margin:1rem 0; border-color:#2a2f42;">
+                
+                <h3 style="color:#f97316;">🎮 Option 3: Steam Wallet Code (US Region)</h3>
+                <p>Send <strong>$${steamAmount} USD</strong> Steam Wallet Gift Card (US Region)<br>
+                You can easily buy from <strong>G2A.com</strong> or <strong>G2G.com</strong><br>
+                Search: "Steam Wallet Code US $${steamAmount}"</p>
+                <p><strong>Instructions:</strong><br>
+                1. Buy Steam Wallet Code from G2A/G2G<br>
+                2. Send the code to owner on Discord: <strong>sufyancounter</strong><br>
+                3. After verification, your CFG will be delivered</p>
+                <p><strong style="color:#f97316;">⚠️ Send $${steamAmount} USD Steam Wallet Code (US Region)</strong></p>
             </div>
             <button onclick="showPage('forum')">📝 Submit Payment Proof</button>
         </div>`;
