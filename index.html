@@ -241,6 +241,50 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
+        /* Confirm Dialog */
+        .confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .confirm-box {
+            background: #11151f;
+            border-radius: 20px;
+            padding: 1.5rem;
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid #f97316;
+            text-align: center;
+        }
+        .confirm-box h3 {
+            color: #f97316;
+            margin-bottom: 1rem;
+        }
+        .confirm-box p {
+            margin-bottom: 1.5rem;
+            color: #eef2ff;
+        }
+        .confirm-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        .confirm-buttons button {
+            padding: 8px 20px;
+        }
+        .confirm-yes { background: #dc2626; }
+        .confirm-yes:hover { background: #b91c1c; }
+        .confirm-no { background: #2a2f42; }
+        .confirm-no:hover { background: #3a415e; }
+
         .hidden { display: none; }
         .avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #f97316; margin-bottom: 1rem; }
         .avatar-small { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
@@ -353,7 +397,7 @@
     </div>
 
     <div class="container" id="pageContent"></div>
-    <footer>Counter Prime | Owner: sufyan | Discord: sufyancounter | Auto Backup Every Hour</footer>
+    <footer>Counter-Prime-CFG | Owner: sufyan | Discord: sufyancounter | Auto Backup Every Hour</footer>
 </div>
 
 <script>
@@ -369,7 +413,7 @@
     let userTimeouts = JSON.parse(localStorage.getItem('userTimeouts')) || {};
     let userMessageCount = JSON.parse(localStorage.getItem('userMessageCount')) || {};
 
-    // Auto Rep Messages (only reputation messages, no payment details)
+    // Auto Rep Messages
     const autoRepMessages = [
         "+REP Trusted seller! 🔥",
         "+VOUCH Legit config! 💯",
@@ -487,6 +531,30 @@
     };
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
+    // ============= CONFIRMATION DIALOG =============
+    function showConfirm(message, onConfirm) {
+        const overlay = document.createElement('div');
+        overlay.className = 'confirm-overlay';
+        overlay.innerHTML = `
+            <div class="confirm-box">
+                <h3>⚠️ Confirm Action</h3>
+                <p>${message}</p>
+                <div class="confirm-buttons">
+                    <button class="confirm-yes" id="confirmYes">Yes</button>
+                    <button class="confirm-no" id="confirmNo">No</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        
+        const yesBtn = overlay.querySelector('#confirmYes');
+        const noBtn = overlay.querySelector('#confirmNo');
+        
+        const cleanup = () => overlay.remove();
+        yesBtn.onclick = () => { cleanup(); onConfirm(true); };
+        noBtn.onclick = () => { cleanup(); onConfirm(false); };
+    }
+
     function checkAuthAndRedirect(action) {
         if (!currentUser || currentUser.isBanned) {
             showLoginModal();
@@ -501,13 +569,17 @@
             showToast('Only owner can delete reputation posts', true);
             return;
         }
-        posts = posts.filter(p => p.id !== postId);
-        saveData();
-        showToast('Reputation post deleted');
-        renderHome(document.getElementById('pageContent'));
+        showConfirm('Are you sure you want to delete this reputation post?', (confirmed) => {
+            if (confirmed) {
+                posts = posts.filter(p => p.id !== postId);
+                saveData();
+                showToast('Reputation post deleted');
+                renderHome(document.getElementById('pageContent'));
+            }
+        });
     };
 
-    // Create Auto REP Post when user places order (ONLY REP MESSAGES, NO PAYMENT DETAILS)
+    // Create Auto REP Post
     function createAutoOrderPost(username) {
         const randomMsg = autoRepMessages[Math.floor(Math.random() * autoRepMessages.length)];
         const user = users.find(u => u.username === username);
@@ -674,7 +746,7 @@
                 </div>
                 <button onclick="closeModal();showPage('members');">Manage Users</button>
                 <button onclick="downloadBackup()" style="margin-left:0.5rem;">Download Backup</button>
-                <button onclick="clearAllChat()" style="margin-left:0.5rem; background:#6b7280;">Clear All Chat</button>
+                <button onclick="clearAllChatWithConfirm()" style="margin-left:0.5rem; background:#6b7280;">Clear All Chat</button>
             </div>
         `);
     };
@@ -691,30 +763,85 @@
         showToast('Backup downloaded');
     }
 
-    // Ban/Unban
+    // Ban/Unban with Confirmation
     window.banUser = function(username) {
         if (!currentUser?.isOwner) return;
-        const user = users.find(u => u.username === username);
-        if (!user) return;
-        user.isBanned = true;
-        userTags[username] = { tag: 'banned', glow: false };
-        if (currentUser.username === username) logout();
-        saveData();
-        showToast(`${username} banned`);
-        closeModal();
-        if (document.getElementById('membersList')) renderMembersList();
+        showConfirm(`Are you sure you want to BAN ${username}?`, (confirmed) => {
+            if (confirmed) {
+                const user = users.find(u => u.username === username);
+                if (!user) return;
+                user.isBanned = true;
+                userTags[username] = { tag: 'banned', glow: false };
+                if (currentUser.username === username) logout();
+                saveData();
+                showToast(`${username} banned`);
+                closeModal();
+                if (document.getElementById('membersList')) renderMembersList();
+            }
+        });
     };
 
     window.unbanUser = function(username) {
         if (!currentUser?.isOwner) return;
-        const user = users.find(u => u.username === username);
-        if (!user) return;
-        user.isBanned = false;
-        delete userTags[username];
-        saveData();
-        showToast(`${username} unbanned`);
-        closeModal();
-        if (document.getElementById('membersList')) renderMembersList();
+        showConfirm(`Are you sure you want to UNBAN ${username}?`, (confirmed) => {
+            if (confirmed) {
+                const user = users.find(u => u.username === username);
+                if (!user) return;
+                user.isBanned = false;
+                delete userTags[username];
+                saveData();
+                showToast(`${username} unbanned`);
+                closeModal();
+                if (document.getElementById('membersList')) renderMembersList();
+            }
+        });
+    };
+    
+    window.adminDeleteUser = function(username) {
+        if (!currentUser?.isOwner) return;
+        showConfirm(`⚠️ PERMANENT ACTION!\n\nAre you sure you want to permanently DELETE ${username}?\nThis cannot be undone!`, (confirmed) => {
+            if (confirmed) {
+                users = users.filter(u => u.username !== username);
+                delete userTags[username];
+                posts = posts.filter(p => p.username !== username);
+                messages = messages.filter(m => m.from !== username && m.to !== username);
+                if (currentUser?.username === username) logout();
+                saveData();
+                showToast(`${username} deleted permanently`);
+                closeModal();
+                if (document.getElementById('membersList')) renderMembersList();
+            }
+        });
+    };
+
+    window.clearAllChatWithConfirm = function() {
+        if (!currentUser?.isOwner) return;
+        showConfirm('Are you sure you want to clear ALL chat messages?', (confirmed) => {
+            if (confirmed) {
+                chatMessages = [];
+                saveData();
+                if (document.getElementById('chatMessages')) renderChatMessages();
+                if (document.getElementById('homeChat')) renderHomeChat();
+                showToast('All chat messages cleared');
+                closeModal();
+            }
+        });
+    };
+    
+    window.clearHomeChat = function() {
+        if (!currentUser?.isOwner) return;
+        showConfirm('Are you sure you want to clear ALL chat messages?', (confirmed) => {
+            if (confirmed) {
+                chatMessages = [];
+                saveData();
+                renderHomeChat();
+                showToast('All chat messages cleared');
+            }
+        });
+    };
+    
+    window.clearAllChat = function() {
+        clearAllChatWithConfirm();
     };
 
     // Profile
@@ -776,20 +903,6 @@
         closeModal();
     };
     
-    window.adminDeleteUser = function(username) {
-        if (confirm(`Delete ${username} permanently?`)) {
-            users = users.filter(u => u.username !== username);
-            delete userTags[username];
-            posts = posts.filter(p => p.username !== username);
-            messages = messages.filter(m => m.from !== username && m.to !== username);
-            if (currentUser?.username === username) logout();
-            saveData();
-            showToast(`${username} deleted`);
-            closeModal();
-            if (document.getElementById('membersList')) renderMembersList();
-        }
-    };
-    
     window.adminUpdateTag = function(username) {
         const tag = document.getElementById('adminTagSelect').value;
         const glow = document.getElementById('adminGlowCheck').checked;
@@ -846,7 +959,7 @@
         closeModal();
     };
 
-    // Forum
+    // Forum Functions (kept from original)
     function renderForum(container) {
         if (!checkAuthAndRedirect('forum')) { container.innerHTML = `<div class="card"><div class="card-title">My Orders</div><p>Please login to view your orders.</p></div>`; return; }
         container.innerHTML = `<div class="card"><div class="card-title">📦 My Orders</div>
@@ -883,7 +996,6 @@
         const totalPrice = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
         const orderDetails = cart.map(i => `${i.name} x${i.quantity} ($${i.price * i.quantity})`).join(', ');
         
-        // Create auto rep post for the user (ONLY REP MESSAGE, NO PAYMENT DETAILS)
         createAutoOrderPost(currentUser.username);
         
         if (file) {
@@ -961,10 +1073,14 @@
     
     window.deleteMessage = function(msgId) {
         if (!currentUser?.isOwner) return;
-        messages = messages.filter(m => m.id !== msgId);
-        saveData();
-        showToast('Message deleted');
-        if (document.getElementById('inboxList')) showPage('inbox');
+        showConfirm('Are you sure you want to delete this message?', (confirmed) => {
+            if (confirmed) {
+                messages = messages.filter(m => m.id !== msgId);
+                saveData();
+                showToast('Message deleted');
+                if (document.getElementById('inboxList')) showPage('inbox');
+            }
+        });
     };
     
     window.composeMessage = function() {
@@ -1031,7 +1147,7 @@
         container.innerHTML = `<div class="card"><div class="card-title">💬 Public Live Chat</div>
             <div id="chatMessages" class="chat-container"></div>
             <div style="display:flex; gap:0.5rem;"><input type="text" id="chatInput" placeholder="Type message... (emojis allowed)" onkeypress="handleChatEnter(event)" style="flex:1;"><button onclick="sendChatMessage()">Send</button></div>
-            ${currentUser?.isOwner ? '<button onclick="clearAllChat()" style="margin-top:0.5rem; background:#6b7280;">🗑️ Clear All Chat</button>' : ''}
+            ${currentUser?.isOwner ? '<button onclick="clearAllChatWithConfirm()" style="margin-top:0.5rem; background:#6b7280;">🗑️ Clear All Chat</button>' : ''}
             </div>`;
         renderChatMessages();
         setInterval(renderChatMessages, 3000);
@@ -1065,18 +1181,14 @@
     
     window.deleteChatMessage = function(id) {
         if (!currentUser?.isOwner) return;
-        chatMessages = chatMessages.filter(m => m.id != id);
-        saveData();
-        renderChatMessages();
-        showToast('Message deleted');
-    };
-    
-    window.clearAllChat = function() { 
-        if (!currentUser?.isOwner) return;
-        chatMessages = []; 
-        saveData(); 
-        renderChatMessages(); 
-        showToast('All chat messages cleared'); 
+        showConfirm('Delete this message?', (confirmed) => {
+            if (confirmed) {
+                chatMessages = chatMessages.filter(m => m.id != id);
+                saveData();
+                renderChatMessages();
+                showToast('Message deleted');
+            }
+        });
     };
 
     // Store, Cart, Checkout
@@ -1132,7 +1244,6 @@
 
     // Home with Direct Chat
     function renderHome(container) {
-        // Only show auto rep posts (isAutoRep = true) on home page
         const repPosts = posts.filter(p => p.isAutoRep === true);
         container.innerHTML = `<div class="card"><div class="card-title">⚡ Welcome to Counter Prime</div>
             <p>Professional CFG Store & Community Forum | Lifetime Updates | Undetected</p>
@@ -1177,14 +1288,6 @@
     
     window.handleHomeChatEnter = function(e) {
         if (e.key === 'Enter') sendHomeChatMessage();
-    };
-    
-    window.clearHomeChat = function() { 
-        if (!currentUser?.isOwner) return;
-        chatMessages = []; 
-        saveData(); 
-        renderHomeChat(); 
-        showToast('All chat messages cleared'); 
     };
     
     function showPage(page) {
