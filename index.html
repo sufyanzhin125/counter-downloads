@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Counter Prime | CFG Store</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter Prime | Professional CFG Store</title>
+    <!-- EmailJS CDN -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -12,9 +14,9 @@
         }
 
         body {
-            background: #0b0e17;
+            background: #0f1117;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            color: #eef2ff;
+            color: #e8edf5;
             line-height: 1.5;
             padding: 2rem 1.5rem;
         }
@@ -31,140 +33,197 @@
         }
 
         .logo {
-            font-size: 2.8rem;
+            font-size: 2.5rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #ffffff 0%, #6c63ff 100%);
+            letter-spacing: -0.5px;
+            color: #ffffff;
+        }
+
+        .logo span {
+            background: linear-gradient(135deg, #ffffff 0%, #8b7aff 100%);
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
-            letter-spacing: -0.5px;
         }
 
         .tagline {
-            color: #8b92b0;
+            color: #7e849b;
             margin-top: 0.5rem;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
+            font-weight: 400;
+        }
+
+        .divider {
+            width: 60px;
+            height: 2px;
+            background: #2a2f42;
+            margin: 1.5rem auto 0;
+        }
+
+        /* Grid */
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.8rem;
         }
 
         /* Cards */
         .card {
-            background: #11151f;
-            border-radius: 24px;
+            background: #151922;
+            border-radius: 20px;
             padding: 1.8rem;
-            margin-bottom: 2rem;
-            border: 1px solid #1f2538;
+            border: 1px solid #212635;
             transition: all 0.2s ease;
         }
 
         .card:hover {
-            border-color: #3a415e;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            border-color: #333a52;
         }
 
         .card-title {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 600;
             margin-bottom: 1.5rem;
             color: #ffffff;
-            border-left: 4px solid #6c63ff;
-            padding-left: 1rem;
+            letter-spacing: -0.3px;
         }
 
-        /* Form elements */
-        select, textarea, input {
+        .card-title::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 18px;
+            background: #8b7aff;
+            margin-right: 10px;
+            border-radius: 2px;
+            vertical-align: middle;
+        }
+
+        /* Form Elements */
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #9ba1b8;
+            margin-bottom: 0.4rem;
+            margin-top: 1rem;
+        }
+
+        label:first-of-type {
+            margin-top: 0;
+        }
+
+        select, input, textarea {
             width: 100%;
-            background: #0a0e16;
-            border: 1px solid #252c3f;
+            background: #0d0f16;
+            border: 1px solid #282e42;
             padding: 12px 16px;
-            border-radius: 14px;
-            color: white;
-            font-size: 1rem;
-            font-family: inherit;
-            margin: 0.5rem 0 1rem 0;
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 0.9rem;
+            font-family: 'Inter', monospace;
             transition: 0.2s;
         }
 
-        select:focus, textarea:focus, input:focus {
+        select:focus, input:focus, textarea:focus {
             outline: none;
-            border-color: #6c63ff;
-            box-shadow: 0 0 0 2px rgba(108,99,255,0.2);
-        }
-
-        label {
-            font-weight: 500;
-            font-size: 0.9rem;
-            color: #b9c0d4;
+            border-color: #8b7aff;
+            box-shadow: 0 0 0 2px rgba(139,122,255,0.15);
         }
 
         button {
-            background: #6c63ff;
+            background: #8b7aff;
             color: white;
             border: none;
             padding: 14px 24px;
             border-radius: 40px;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
             width: 100%;
+            margin-top: 1.5rem;
             font-family: inherit;
         }
 
         button:hover {
-            background: #5a52e0;
+            background: #7a68f0;
             transform: scale(0.98);
         }
 
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Payment Details Box */
         .payment-detail-box {
-            background: #0a0e16;
-            border-radius: 20px;
+            background: #0d0f16;
+            border-radius: 16px;
             padding: 1.2rem;
             margin-top: 1rem;
-            border: 1px solid #1f2538;
+            border: 1px solid #212635;
         }
 
         .payment-detail-box strong {
             color: #ffffff;
             display: block;
             margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .payment-detail-box .detail-text {
+            font-size: 0.85rem;
+            color: #b4bad0;
+            line-height: 1.6;
+        }
+
+        .payment-detail-box code {
+            background: #05060a;
+            padding: 6px 10px;
+            display: inline-block;
+            margin: 8px 0;
+            font-size: 0.75rem;
+            word-break: break-all;
+            border-radius: 8px;
+            font-family: monospace;
         }
 
         .hidden {
             display: none;
         }
 
+        /* Alert & Success */
         .alert {
             background: #1e1a2f;
-            border-left: 4px solid #ff5e5e;
+            border-left: 3px solid #ff6b6b;
             padding: 1rem;
-            border-radius: 16px;
+            border-radius: 14px;
             margin-top: 1rem;
+            font-size: 0.85rem;
             color: #ffb4b4;
         }
 
         .success-box {
-            background: #0f191f;
-            border: 1px solid #2e7d64;
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin-top: 1.5rem;
+            background: #0e191f;
+            border: 1px solid #3a7c6b;
+            border-radius: 16px;
+            padding: 1.2rem;
+            margin-top: 1.2rem;
             text-align: center;
-        }
-
-        .grid-2col {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
+            font-size: 0.85rem;
         }
 
         footer {
             text-align: center;
             margin-top: 3rem;
             color: #5a637c;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
+            border-top: 1px solid #1e2332;
+            padding-top: 2rem;
         }
 
-        @media (max-width: 700px) {
+        @media (max-width: 750px) {
             body {
                 padding: 1rem;
             }
@@ -175,93 +234,102 @@
     </style>
 </head>
 <body>
+
 <div class="container">
     <div class="header">
-        <div class="logo">COUNTER PRIME</div>
-        <div class="tagline">⚡ Undetected CFG · Lifetime Updates · Pro Configs ⚡</div>
+        <div class="logo"><span>COUNTER PRIME</span></div>
+        <div class="tagline">Undetected CFG | Lifetime Updates | Professional Configs</div>
+        <div class="divider"></div>
     </div>
 
     <div class="grid-2col">
         <!-- LEFT COLUMN: Product & Payment -->
         <div>
             <div class="card">
-                <div class="card-title">🎮 1. Select Your CFG</div>
+                <div class="card-title">Select Configuration</div>
                 <label>Choose product</label>
                 <select id="cfgSelect">
-                    <option value="deadlock">🔫 DEADLOCK CFG — $10 (lifetime)</option>
-                    <option value="dota2">🗡️ DOTA 2 CFG — $10 (lifetime)</option>
-                    <option value="bundle">💀 DEADLOCK + DOTA 2 BUNDLE — $18</option>
+                    <option value="Deadlock CFG (10 USD)">Deadlock CFG - 10 USD (lifetime)</option>
+                    <option value="Dota 2 CFG (10 USD)">Dota 2 CFG - 10 USD (lifetime)</option>
+                    <option value="Bundle Deadlock + Dota 2 (18 USD)">Bundle Deadlock + Dota 2 - 18 USD</option>
                 </select>
             </div>
 
             <div class="card">
-                <div class="card-title">💳 2. Payment Method</div>
-                <label>Select payment</label>
+                <div class="card-title">Payment Method</div>
+                <label>Select payment option</label>
                 <select id="paymentMethod">
-                    <option value="easypaisa">🏦 EasyPaisa (via Remitly / Bank Transfer)</option>
-                    <option value="crypto">₿ Litecoin (LTC) — Crypto</option>
+                    <option value="EasyPaisa (Remitly)">EasyPaisa via Remitly / Bank Transfer</option>
+                    <option value="Litecoin (LTC)">Litecoin (LTC) - Crypto</option>
                 </select>
 
-                <!-- EasyPaisa details -->
+                <!-- EasyPaisa Details -->
                 <div id="easypaisaBox" class="payment-detail-box">
-                    <strong>📱 Remitly → EasyPaisa (Pakistan)</strong>
-                    <div style="font-size: 0.9rem; margin-top: 8px;">
-                        Destination country: <span style="color:#6c63ff;">PAKISTAN</span><br>
-                        Delivery option: EasyPaisa Mobile Wallet<br>
+                    <strong>Remitly to EasyPaisa (Pakistan)</strong>
+                    <div class="detail-text">
+                        Destination country: Pakistan<br>
+                        Delivery: EasyPaisa Mobile Wallet<br>
                         Account name: Muhammad Arshad<br>
-                        Mobile number: <strong>+92 348 8308531</strong><br>
-                        ⚠️ Send <strong>$12 USD</strong> (due to tax / conversion fees)<br>
-                        Bank: EasyPaisa (Pakistan)
+                        Mobile number: +92 348 8308531<br>
+                        Send exactly 12 USD (due to tax/fees)<br>
+                        Bank: EasyPaisa
                     </div>
                 </div>
 
-                <!-- Crypto details -->
+                <!-- Crypto Details -->
                 <div id="cryptoBox" class="payment-detail-box hidden">
-                    <strong>₿ Litecoin (LTC) — exact $12 USD</strong>
-                    <div style="font-size: 0.9rem; margin-top: 8px;">
-                        Send <strong>12 USD worth of LTC</strong> to this address:<br>
-                        <code style="background:#000; padding:6px; display:inline-block; margin:10px 0; word-break:break-all;">ltc1qplpy27p9q3rlrmv2t5srmw8hkytm6xhp663we3</code><br>
-                        Network: Litecoin (LTC) only.<br>
-                        After sending, you will get a Transaction ID (TXID).
+                    <strong>Litecoin (LTC) - 12 USD</strong>
+                    <div class="detail-text">
+                        Send 12 USD worth of LTC to this address:<br>
+                        <code>ltc1qplpy27p9q3rlrmv2t5srmw8hkytm6xhp663we3</code><br>
+                        Network: Litecoin (LTC) only. After sending you will get a Transaction ID (TXID).
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- RIGHT COLUMN: Payment Verification -->
+        <!-- RIGHT COLUMN: Verification Form -->
         <div class="card">
-            <div class="card-title">🔐 3. Verify Payment & Get CFG</div>
-            <p style="margin-bottom: 1rem; color:#b0b7d0;">After you complete the payment, fill the form below. I will manually verify and send you the CFG file within 12 hours.</p>
+            <div class="card-title">Payment Verification</div>
+            <p style="margin-bottom: 1rem; font-size: 0.85rem; color: #9ba1b8;">Complete your payment, then fill this form. All details will be sent to admin email for manual verification.</p>
 
-            <label>Your Discord username or Email *</label>
-            <input type="text" id="userContact" placeholder="e.g., discord: player#1234 or youremail@example.com" required>
+            <label>Discord Username or Email Address</label>
+            <input type="text" id="userContact" placeholder="e.g., player#1234 or you@example.com" required>
 
-            <label>Transaction ID / Screenshot link *</label>
-            <input type="text" id="transactionId" placeholder="Remitly transaction ID / LTC TXID / Google Drive link to screenshot">
+            <label>Transaction ID / Screenshot Link</label>
+            <input type="text" id="transactionId" placeholder="Remitly transaction ID / LTC TXID / Google Drive link" required>
 
-            <label>Extra note (optional)</label>
-            <textarea rows="2" id="userNote" placeholder="Payment date, amount sent, etc..."></textarea>
+            <label>Additional Note (optional)</label>
+            <textarea rows="2" id="userNote" placeholder="Payment date, exact amount sent, etc."></textarea>
 
-            <button id="submitPaymentBtn">✅ SUBMIT PAYMENT PROOF</button>
+            <button id="submitPaymentBtn">Submit Payment Proof</button>
 
-            <div id="resultMessage" style="margin-top: 1.5rem;"></div>
+            <div id="resultMessage" style="margin-top: 1.2rem;"></div>
         </div>
     </div>
 
     <footer>
-        © Counter Prime — Manual verification ensures no fake payments. You will receive your CFG file after payment confirmation.<br>
-        Deadlock & Dota 2 CFG | 1-click combo | Custom keybinds | All heroes scripts.
+        Counter Prime - Manual verification ensures security. You will receive your CFG file within 12 hours after payment confirmation.<br>
+        Deadlock & Dota 2 CFG | One-click combo | Custom keybinds | All heroes scripts
     </footer>
 </div>
 
 <script>
-    // Toggle EasyPaisa / Crypto visibility
+    // Initialize EmailJS with YOUR public key (replace after signing up)
+    // STEP 1: Go to https://www.emailjs.com/
+    // STEP 2: Sign up -> Get your Public Key from "Account" -> "API Keys"
+    // STEP 3: Replace 'YOUR_PUBLIC_KEY_HERE' with that key
+    (function() {
+        emailjs.init("YOUR_PUBLIC_KEY_HERE");
+    })();
+
+    // Toggle payment details
     const paymentSelect = document.getElementById('paymentMethod');
     const easyBox = document.getElementById('easypaisaBox');
     const cryptoBox = document.getElementById('cryptoBox');
 
     paymentSelect.addEventListener('change', function() {
-        if (this.value === 'easypaisa') {
+        if (this.value === 'EasyPaisa (Remitly)') {
             easyBox.classList.remove('hidden');
             cryptoBox.classList.add('hidden');
         } else {
@@ -270,64 +338,65 @@
         }
     });
 
-    // Submit payment proof
-    document.getElementById('submitPaymentBtn').addEventListener('click', function() {
+    // Submit form and send email
+    document.getElementById('submitPaymentBtn').addEventListener('click', async function() {
         const contact = document.getElementById('userContact').value.trim();
         const txid = document.getElementById('transactionId').value.trim();
         const note = document.getElementById('userNote').value.trim();
         const cfg = document.getElementById('cfgSelect').value;
-        const paymentMethod = paymentSelect.value;
+        const paymentMethod = document.getElementById('paymentMethod').value;
 
         if (!contact || !txid) {
             document.getElementById('resultMessage').innerHTML = `
                 <div class="alert">
-                    ⚠️ Error: Please fill both "Contact" and "Transaction ID / Screenshot link".
+                    Error: Please fill both Contact and Transaction ID / Screenshot Link.
                 </div>`;
             return;
         }
 
-        // Build product name
-        let productName = "";
-        if (cfg === "deadlock") productName = "Deadlock CFG ($10)";
-        else if (cfg === "dota2") productName = "Dota 2 CFG ($10)";
-        else productName = "Deadlock + Dota 2 Bundle ($18)";
+        const submitBtn = document.getElementById('submitPaymentBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Sending...";
 
-        let paymentName = paymentMethod === "easypaisa" ? "EasyPaisa (Remitly)" : "Litecoin (LTC)";
-
-        // This is the message that will be stored / shown to the user
-        const submissionData = {
-            contact: contact,
-            transactionId: txid,
-            note: note,
-            product: productName,
-            paymentMethod: paymentName,
-            timestamp: new Date().toISOString()
+        // Prepare email data
+        const emailParams = {
+            to_email: "sufyanzhin125@gmail.com",
+            user_contact: contact,
+            transaction_id: txid,
+            user_note: note || "No additional note",
+            product_name: cfg,
+            payment_method: paymentMethod,
+            timestamp: new Date().toLocaleString()
         };
 
-        // Show a unique submission reference
-        const refCode = 'CP-' + Math.random().toString(36).substring(2, 10).toUpperCase() + Date.now().toString(36).slice(-4);
-
-        document.getElementById('resultMessage').innerHTML = `
-            <div class="success-box">
-                ✅ <strong>Payment proof received!</strong><br><br>
-                <strong>Reference ID:</strong> ${refCode}<br>
-                <strong>Product:</strong> ${productName}<br>
-                <strong>Payment method:</strong> ${paymentName}<br>
-                <strong>Your contact:</strong> ${contact}<br><br>
-                📌 <strong>What happens next?</strong><br>
-                I will manually verify your payment within 12 hours.<br>
-                Once confirmed, your CFG file + instructions will be sent to your Discord / Email.<br><br>
-                🔒 <strong>Fake payments will be ignored.</strong> Keep your transaction proof safe.
-            </div>
-        `;
-
-        // Optional: Log to console (you can replace this with a backend API later)
-        console.log("NEW PAYMENT REQUEST:", submissionData);
-        console.log("Reference ID:", refCode);
-
-        // Clear sensitive fields after submit? (optional)
-        // document.getElementById('transactionId').value = "";
-        // document.getElementById('userNote').value = "";
+        try {
+            // Send email using EmailJS
+            // Replace 'YOUR_SERVICE_ID' and 'YOUR_TEMPLATE_ID' after creating them
+            await emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', emailParams);
+            
+            document.getElementById('resultMessage').innerHTML = `
+                <div class="success-box">
+                    Payment proof received successfully.<br><br>
+                    <strong>Reference ID:</strong> CP-${Math.random().toString(36).substring(2, 8).toUpperCase()}<br>
+                    <strong>Product:</strong> ${cfg}<br>
+                    <strong>Contact:</strong> ${contact}<br><br>
+                    Admin will verify your payment within 12 hours.<br>
+                    Your CFG file will be sent to your contact.
+                </div>
+            `;
+            // Clear form fields
+            document.getElementById('transactionId').value = "";
+            document.getElementById('userNote').value = "";
+        } catch (error) {
+            console.error("Email error:", error);
+            document.getElementById('resultMessage').innerHTML = `
+                <div class="alert">
+                    Error sending payment proof. Please contact admin directly on Discord.
+                </div>`;
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Submit Payment Proof";
+        }
     });
 </script>
 </body>
