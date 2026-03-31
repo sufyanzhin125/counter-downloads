@@ -82,6 +82,25 @@
         }
         .nav-links a:hover::after { width: 100%; }
 
+        /* Inbox Badge - Red Dot with Number */
+        .inbox-badge {
+            position: relative;
+        }
+        .badge-count {
+            position: absolute;
+            top: -8px;
+            right: -12px;
+            background: #dc2626;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 20px;
+            min-width: 18px;
+            text-align: center;
+            box-shadow: 0 0 5px #dc2626;
+        }
+
         .user-info {
             display: flex;
             align-items: center;
@@ -371,7 +390,7 @@
             <a onclick="showPage('store')">Store</a>
             <a onclick="showPage('forum')">Forum</a>
             <a onclick="showPage('cart')">🛒 Cart (<span id="cartCount">0</span>)</a>
-            <a onclick="showPage('inbox')">📬 Inbox (<span id="inboxCount">0</span>)</a>
+            <a onclick="showPage('inbox')" class="inbox-badge" id="inboxLink">📬 Inbox <span id="inboxBadge" class="badge-count hidden">0</span></a>
             <a onclick="showPage('members')">👥 Members</a>
             <div id="authNav">
                 <a onclick="showLoginModal()">Login</a>
@@ -448,6 +467,23 @@
         return emailRegex.test(email);
     }
 
+    // Update Inbox Badge (Red Dot with Number)
+    function updateInboxBadge() {
+        const badge = document.getElementById('inboxBadge');
+        if (!badge) return;
+        if (currentUser) {
+            const unreadCount = messages.filter(m => m.to === currentUser.username && !m.read).length;
+            if (unreadCount > 0) {
+                badge.innerText = unreadCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
+
     // ============= FIREBASE DATA FUNCTIONS =============
     async function loadAllData() {
         try {
@@ -475,16 +511,11 @@
             lastActivity = {};
             activitySnap.forEach(doc => { lastActivity[doc.id] = doc.data().timestamp; });
             
-            const resetSnap = await db.collection('resetCodes').get();
-            resetCodes = {};
-            resetSnap.forEach(doc => { resetCodes[doc.id] = doc.data(); });
-            
             updateCartCount();
-            updateInboxCount();
+            updateInboxBadge();
             return true;
         } catch (error) {
             console.error("Error loading data:", error);
-            showToast("Firebase connection error", true);
             return false;
         }
     }
@@ -540,14 +571,6 @@
         await db.collection('lastActivity').doc(username).set({ timestamp: Date.now() });
     }
     
-    async function saveResetCode(email, data) {
-        await db.collection('resetCodes').doc(email).set(data);
-    }
-    
-    async function deleteResetCode(email) {
-        await db.collection('resetCodes').doc(email).delete();
-    }
-    
     async function loadCurrentUser() {
         const savedUser = localStorage.getItem('currentUser');
         if (savedUser) {
@@ -555,6 +578,7 @@
             const userDoc = await db.collection('users').doc(userData.id).get();
             if (userDoc.exists) {
                 currentUser = { id: userDoc.id, ...userDoc.data() };
+                updateInboxBadge();
                 return true;
             }
         }
@@ -566,12 +590,6 @@
         if (el) el.innerText = cart.reduce((s, i) => s + i.quantity, 0);
     }
     
-    function updateInboxCount() {
-        const el = document.getElementById('inboxCount');
-        if (el && currentUser) el.innerText = messages.filter(m => m.to === currentUser.username && !m.read).length;
-        else if (el) el.innerText = '0';
-    }
-
     function updateLastActivity() {
         if (currentUser) { 
             lastActivity[currentUser.username] = Date.now(); 
@@ -721,7 +739,6 @@
             showToast(`Order confirmation email sent to ${username}!`);
         } catch (error) {
             console.error("Email error:", error);
-            showToast(`Email failed but key sent: ${cfgKey}`, true);
         }
     }
 
@@ -757,12 +774,11 @@
         }
         
         const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
-        await saveResetCode(email, {
+        resetCodes[email] = {
             code: resetCode,
             expires: Date.now() + 3600000,
             username: user.username
-        });
-        resetCodes[email] = { code: resetCode, expires: Date.now() + 3600000, username: user.username };
+        };
         
         const templateParams = {
             to_email: email,
@@ -814,7 +830,6 @@
         
         if (Date.now() > resetData.expires) {
             showToast('Reset code has expired. Please request a new one.', true);
-            await deleteResetCode(email);
             delete resetCodes[email];
             return;
         }
@@ -838,7 +853,6 @@
         if (user) {
             user.password = newPass;
             await saveUser(user);
-            await deleteResetCode(email);
             delete resetCodes[email];
             showToast('Password reset successful! You can now login.');
             closeModal();
@@ -904,6 +918,7 @@
         localStorage.setItem('currentUser', JSON.stringify({ id: newUser.id, username: newUser.username }));
         updateNav();
         closeModal();
+        updateInboxBadge();
         showToast(`✅ Welcome ${username}! Registration successful.`);
         showPage('home');
     };
@@ -931,6 +946,7 @@
         localStorage.setItem('currentUser', JSON.stringify({ id: user.id, username: user.username }));
         updateNav();
         closeModal();
+        updateInboxBadge();
         showToast(`Welcome ${username}!`);
         showPage('home');
     };
@@ -949,7 +965,7 @@
             document.getElementById('authNav').classList.remove('hidden');
             document.getElementById('userNav').classList.add('hidden');
         }
-        updateInboxCount();
+        updateInboxBadge();
     }
 
     // Rate Limiting
@@ -1159,6 +1175,7 @@
         const newMsg = { from: currentUser.username, to: to, content: content, timestamp: new Date().toLocaleString(), read: false };
         const saved = await saveMessage(newMsg);
         messages.push(saved);
+        updateInboxBadge();
         showToast('Message sent!');
         closeModal();
     };
@@ -1257,23 +1274,32 @@
         if (form) form.classList.toggle('hidden');
     };
     
+    // FIXED: Submit Post Function (Working)
     window.submitPost = async function() {
         const content = document.getElementById('postContent')?.value.trim();
-        if (!content) { showToast('Enter payment details', true); return; }
+        if (!content) { 
+            showToast('Enter payment details', true); 
+            return; 
+        }
         const file = document.getElementById('postImage').files[0];
         const totalPrice = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
         const orderDetails = cart.map(i => `${i.name} x${i.quantity} ($${i.price * i.quantity})`).join(', ');
         
+        // Create auto rep post
         await createAutoOrderPost(currentUser.username);
         
         if (file) {
             const reader = new FileReader();
-            reader.onload = async (e) => savePost(content, e.target.result, orderDetails, totalPrice);
+            reader.onload = async (e) => {
+                await savePostFunction(content, e.target.result, orderDetails, totalPrice);
+            };
             reader.readAsDataURL(file);
-        } else savePost(content, null, orderDetails, totalPrice);
+        } else {
+            await savePostFunction(content, null, orderDetails, totalPrice);
+        }
     };
     
-    async function savePost(content, image, orderDetails, totalPrice) {
+    async function savePostFunction(content, image, orderDetails, totalPrice) {
         const newPost = { 
             username: currentUser.username, 
             userId: currentUser.id, 
@@ -1290,6 +1316,8 @@
         };
         const saved = await savePost(newPost);
         posts.unshift(saved);
+        
+        // Send message to owner's inbox
         const newMsg = { 
             from: currentUser.username, 
             to: 'sufyan', 
@@ -1304,18 +1332,23 @@
         };
         const savedMsg = await saveMessage(newMsg);
         messages.push(savedMsg);
+        
+        // Clear cart
         cart = [];
-        saveCart();
+        updateCartCount();
+        
+        // Clear form
         document.getElementById('postContent').value = '';
         document.getElementById('postImage').value = '';
         document.getElementById('newPostForm').classList.add('hidden');
+        
+        // Refresh forum posts
         renderMyPosts();
+        
+        // Update inbox badge for owner
+        updateInboxBadge();
+        
         showToast('Order placed! Auto +REP post created on home page!');
-    }
-    
-    function saveCart() {
-        // Cart is local only, not saved to Firebase
-        updateCartCount();
     }
     
     window.addReply = async function(postId) {
@@ -1326,16 +1359,9 @@
             post.replies = post.replies || [];
             post.replies.push({ username: currentUser.username, content: text, timestamp: new Date().toLocaleString() });
             await db.collection('posts').doc(postId).update({ replies: post.replies });
-            saveDataLocal();
             renderMyPosts();
         }
     };
-    
-    function saveDataLocal() {
-        // Local cache update
-        updateCartCount();
-        updateInboxCount();
-    }
     
     window.deletePost = async function(postId) {
         const post = posts.find(p => p.id === postId);
@@ -1367,6 +1393,7 @@
             const newMsg = { from: 'sufyan', to: post.username, content: `🎮 Order Delivered!\nProduct: ${post.orderDetails || 'CFG'}\nTotal: $${post.totalPrice || '10'}\nKey: ${key}`, timestamp: new Date().toLocaleString(), read: false };
             const savedMsg = await saveMessage(newMsg);
             messages.push(savedMsg);
+            updateInboxBadge();
             renderMyPosts();
             showToast(`Key sent to ${post.username} and email confirmation sent!`);
         }
@@ -1394,6 +1421,7 @@
             if (confirmed) {
                 await deleteMessageById(msgId);
                 messages = messages.filter(m => m.id !== msgId);
+                updateInboxBadge();
                 showToast('Message deleted');
                 if (document.getElementById('inboxList')) showPage('inbox');
             }
@@ -1417,6 +1445,7 @@
         const newMsg = { from: currentUser.username, to: to, content: content, timestamp: new Date().toLocaleString(), read: false };
         const saved = await saveMessage(newMsg);
         messages.push(saved);
+        updateInboxBadge();
         showToast('Sent');
         closeModal();
         showPage('inbox');
@@ -1427,6 +1456,7 @@
         if (msg && !msg.read && msg.to === currentUser.username) {
             msg.read = true;
             await db.collection('messages').doc(id).update({ read: true });
+            updateInboxBadge();
         }
         let imageHtml = '';
         if (msg.hasImage && msg.imageData) {
@@ -1491,7 +1521,7 @@
         const msg = document.getElementById('chatInput')?.value.trim();
         if (!msg) return;
         if (!canSendMessage(currentUser.username)) return;
-        const newMsg = { id: Date.now().toString(), username: currentUser.username, message: msg, time: new Date().toLocaleTimeString(), timestampMs: Date.now() };
+        const newMsg = { username: currentUser.username, message: msg, time: new Date().toLocaleTimeString(), timestampMs: Date.now() };
         const saved = await saveChatMessage(newMsg);
         chatMessages.push(saved);
         document.getElementById('chatInput').value = '';
@@ -1524,7 +1554,7 @@
         const existing = cart.find(i=>i.id===id);
         if (existing) existing.quantity++;
         else cart.push({...p, quantity:1});
-        saveCart();
+        updateCartCount();
         showToast(`${p.name} added`);
     };
     
@@ -1536,7 +1566,7 @@
         container.innerHTML = `<div class="card"><div class="card-title">🛒 Your Cart</div>${items}<div class="cart-item" style="border-top:2px solid #f97316;"><span>Total</span><span>$${total}</span></div><button onclick="showPage('checkout')">Checkout</button></div>`;
     }
     
-    window.removeFromCart = function(id) { cart = cart.filter(i=>i.id!==id); saveCart(); showPage('cart'); };
+    window.removeFromCart = function(id) { cart = cart.filter(i=>i.id!==id); updateCartCount(); showPage('cart'); };
     
     function renderCheckout(container) {
         if (!checkAuthAndRedirect('checkout')) { container.innerHTML = `<div class="card"><div class="card-title">Checkout</div><p>Please login to checkout.</p></div>`; return; }
@@ -1601,7 +1631,7 @@
         const msg = document.getElementById('homeChatInput')?.value.trim();
         if (!msg) return;
         if (!canSendMessage(currentUser.username)) return;
-        const newMsg = { id: Date.now().toString(), username: currentUser.username, message: msg, time: new Date().toLocaleTimeString(), timestampMs: Date.now() };
+        const newMsg = { username: currentUser.username, message: msg, time: new Date().toLocaleTimeString(), timestampMs: Date.now() };
         const saved = await saveChatMessage(newMsg);
         chatMessages.push(saved);
         document.getElementById('homeChatInput').value = '';
@@ -1630,6 +1660,7 @@
         currentUser = null; 
         localStorage.removeItem('currentUser');
         updateNav(); 
+        updateInboxBadge();
         showToast('Logged out'); 
         showPage('home'); 
     }
@@ -1638,9 +1669,11 @@
         await loadAllData();
         await loadCurrentUser();
         updateNav();
+        updateInboxBadge();
         showPage('home');
         setInterval(async () => { 
             await loadAllData();
+            updateInboxBadge();
             if (document.getElementById('membersList')) renderMembersList(); 
             if (document.getElementById('chatMessages')) renderChatMessages(); 
             if (document.getElementById('homeChat')) renderHomeChat(); 
