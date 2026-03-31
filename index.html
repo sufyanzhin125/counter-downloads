@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Counter Prime | CFG Mafia</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Counter Prime | CFG Store</title>
     <style>
         * {
             margin: 0;
@@ -12,227 +12,323 @@
         }
 
         body {
-            background: radial-gradient(circle at 20% 30%, #0a0f1e, #010101);
-            font-family: 'Courier New', 'Fira Code', monospace;
-            color: #00ffcc;
-            min-height: 100vh;
-            padding: 2rem 1rem;
-        }
-
-        /* hacker scanlines effect */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(0deg, rgba(0,255,200,0.03) 0px, rgba(0,255,200,0.03) 2px, transparent 2px, transparent 8px);
-            pointer-events: none;
-            z-index: 999;
+            background: #0b0e17;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #eef2ff;
+            line-height: 1.5;
+            padding: 2rem 1.5rem;
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1280px;
             margin: 0 auto;
         }
 
-        /* glitch effect for header */
-        .glitch {
-            font-size: 3rem;
-            font-weight: bold;
+        /* Header */
+        .header {
             text-align: center;
-            text-transform: uppercase;
-            text-shadow: 0.05em 0 0 red, -0.05em -0.025em 0 #00ffcc;
-            animation: glitch 0.2s infinite alternate;
-            letter-spacing: 5px;
+            margin-bottom: 3rem;
         }
 
-        @keyframes glitch {
-            0% { transform: skew(0deg); opacity: 1; }
-            100% { transform: skew(2deg); opacity: 0.9; }
+        .logo {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #6c63ff 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
         }
 
-        .welcome-text {
-            text-align: center;
-            margin: 20px 0;
-            font-size: 1.2rem;
-            background: #000000aa;
-            padding: 10px;
-            border-left: 4px solid #00ffcc;
-            border-right: 4px solid #00ffcc;
-            width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
-            backdrop-filter: blur(5px);
+        .tagline {
+            color: #8b92b0;
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
         }
 
+        /* Cards */
         .card {
-            background: #0a0f1eee;
-            border: 1px solid #00ffcc55;
-            border-radius: 12px;
-            padding: 25px;
-            margin: 20px 0;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 0 15px rgba(0,255,200,0.2);
+            background: #11151f;
+            border-radius: 24px;
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+            border: 1px solid #1f2538;
+            transition: all 0.2s ease;
         }
 
-        select, button {
-            background: black;
-            color: #00ffcc;
-            border: 1px solid #00ffcc;
-            padding: 12px 20px;
-            font-size: 1rem;
-            font-family: monospace;
-            border-radius: 8px;
-            cursor: pointer;
+        .card:hover {
+            border-color: #3a415e;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #ffffff;
+            border-left: 4px solid #6c63ff;
+            padding-left: 1rem;
+        }
+
+        /* Form elements */
+        select, textarea, input {
             width: 100%;
-            margin: 10px 0;
+            background: #0a0e16;
+            border: 1px solid #252c3f;
+            padding: 12px 16px;
+            border-radius: 14px;
+            color: white;
+            font-size: 1rem;
+            font-family: inherit;
+            margin: 0.5rem 0 1rem 0;
+            transition: 0.2s;
+        }
+
+        select:focus, textarea:focus, input:focus {
+            outline: none;
+            border-color: #6c63ff;
+            box-shadow: 0 0 0 2px rgba(108,99,255,0.2);
+        }
+
+        label {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #b9c0d4;
+        }
+
+        button {
+            background: #6c63ff;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
+            font-family: inherit;
         }
 
         button:hover {
-            background: #00ffcc22;
-            box-shadow: 0 0 10px #00ffcc;
+            background: #5a52e0;
+            transform: scale(0.98);
         }
 
-        .payment-details {
-            background: #000000aa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-            font-size: 0.9rem;
-            word-break: break-all;
+        .payment-detail-box {
+            background: #0a0e16;
+            border-radius: 20px;
+            padding: 1.2rem;
+            margin-top: 1rem;
+            border: 1px solid #1f2538;
+        }
+
+        .payment-detail-box strong {
+            color: #ffffff;
+            display: block;
+            margin-bottom: 0.75rem;
         }
 
         .hidden {
             display: none;
         }
 
-        .key-box {
-            background: #001100;
-            border: 2px dashed #00ffcc;
-            padding: 15px;
+        .alert {
+            background: #1e1a2f;
+            border-left: 4px solid #ff5e5e;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-top: 1rem;
+            color: #ffb4b4;
+        }
+
+        .success-box {
+            background: #0f191f;
+            border: 1px solid #2e7d64;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
             text-align: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-top: 20px;
+        }
+
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
         }
 
         footer {
             text-align: center;
-            margin-top: 40px;
-            font-size: 0.7rem;
-            color: #00ffcc77;
+            margin-top: 3rem;
+            color: #5a637c;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 1rem;
+            }
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <div class="glitch">COUNTER PRIME</div>
-    <div class="welcome-text">
-        ⚡ Welcome to Counter Prime ⚡<br>
-        🔥 Full legit | No ban | 1 click combo | Custom key binds 🔥
+    <div class="header">
+        <div class="logo">COUNTER PRIME</div>
+        <div class="tagline">⚡ Undetected CFG · Lifetime Updates · Pro Configs ⚡</div>
     </div>
 
-    <div class="card">
-        <h3>🎮 SELECT YOUR CFG</h3>
-        <select id="cfgSelect">
-            <option value="deadlock">🔫 DEADLOCK CFG (10$ lifetime)</option>
-            <option value="dota2">🗡️ DOTA 2 CFG (10$ lifetime)</option>
-            <option value="both">💀 BOTH CFG + BONUS (18$)</option>
-        </select>
-    </div>
+    <div class="grid-2col">
+        <!-- LEFT COLUMN: Product & Payment -->
+        <div>
+            <div class="card">
+                <div class="card-title">🎮 1. Select Your CFG</div>
+                <label>Choose product</label>
+                <select id="cfgSelect">
+                    <option value="deadlock">🔫 DEADLOCK CFG — $10 (lifetime)</option>
+                    <option value="dota2">🗡️ DOTA 2 CFG — $10 (lifetime)</option>
+                    <option value="bundle">💀 DEADLOCK + DOTA 2 BUNDLE — $18</option>
+                </select>
+            </div>
 
-    <div class="card">
-        <h3>💸 PAYMENT METHOD</h3>
-        <select id="paymentMethod">
-            <option value="easypaisa">🏦 EasyPaisa via Remitly (Pakistan)</option>
-            <option value="crypto">₿ Crypto LTC (12$ for 10$ item)</option>
-        </select>
+            <div class="card">
+                <div class="card-title">💳 2. Payment Method</div>
+                <label>Select payment</label>
+                <select id="paymentMethod">
+                    <option value="easypaisa">🏦 EasyPaisa (via Remitly / Bank Transfer)</option>
+                    <option value="crypto">₿ Litecoin (LTC) — Crypto</option>
+                </select>
 
-        <!-- EasyPaisa Details -->
-        <div id="easypaisaDetails" class="payment-details">
-            <strong>📱 Remitly → EasyPaisa</strong><br>
-            Destination Country: <span style="color:yellow">PAKISTAN</span><br>
-            Delivery: EasyPaisa Mobile Wallet<br>
-            Name: Muhammad Arshad<br>
-            Mobile: +92 348 8308531<br>
-            ⚠️ Send <strong>12$</strong> (tax issue ke liye)<br>
-            🇵🇰 Bank: EasyPaisa
+                <!-- EasyPaisa details -->
+                <div id="easypaisaBox" class="payment-detail-box">
+                    <strong>📱 Remitly → EasyPaisa (Pakistan)</strong>
+                    <div style="font-size: 0.9rem; margin-top: 8px;">
+                        Destination country: <span style="color:#6c63ff;">PAKISTAN</span><br>
+                        Delivery option: EasyPaisa Mobile Wallet<br>
+                        Account name: Muhammad Arshad<br>
+                        Mobile number: <strong>+92 348 8308531</strong><br>
+                        ⚠️ Send <strong>$12 USD</strong> (due to tax / conversion fees)<br>
+                        Bank: EasyPaisa (Pakistan)
+                    </div>
+                </div>
+
+                <!-- Crypto details -->
+                <div id="cryptoBox" class="payment-detail-box hidden">
+                    <strong>₿ Litecoin (LTC) — exact $12 USD</strong>
+                    <div style="font-size: 0.9rem; margin-top: 8px;">
+                        Send <strong>12 USD worth of LTC</strong> to this address:<br>
+                        <code style="background:#000; padding:6px; display:inline-block; margin:10px 0; word-break:break-all;">ltc1qplpy27p9q3rlrmv2t5srmw8hkytm6xhp663we3</code><br>
+                        Network: Litecoin (LTC) only.<br>
+                        After sending, you will get a Transaction ID (TXID).
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Crypto Details -->
-        <div id="cryptoDetails" class="payment-details hidden">
-            <strong>₿ LTC (Litecoin) : 12$ only</strong><br>
-            Address: <span style="background:#000; padding:5px;">ltc1qplpy27p9q3rlrmv2t5srmw8hkytm6xhp663we3</span><br>
-            ⚡ Send exactly 12$ worth LTC<br>
-            🔗 Network: Litecoin (LTC)
-        </div>
-    </div>
+        <!-- RIGHT COLUMN: Payment Verification -->
+        <div class="card">
+            <div class="card-title">🔐 3. Verify Payment & Get CFG</div>
+            <p style="margin-bottom: 1rem; color:#b0b7d0;">After you complete the payment, fill the form below. I will manually verify and send you the CFG file within 12 hours.</p>
 
-    <div class="card">
-        <h3>✅ PAYMENT CONFIRMATION</h3>
-        <p>Payment karne ke baad neeche <strong>"I HAVE PAID"</strong> button dabao. Tujhe ek UNIQUE KEY milegi. Wo key mujhe Discord pe bhej, main verify karunga aur CFG file de dunga (Telegram / Discord).</p>
-        <button id="paidBtn">💀 I HAVE PAID 💀</button>
-        <div id="resultArea"></div>
+            <label>Your Discord username or Email *</label>
+            <input type="text" id="userContact" placeholder="e.g., discord: player#1234 or youremail@example.com" required>
+
+            <label>Transaction ID / Screenshot link *</label>
+            <input type="text" id="transactionId" placeholder="Remitly transaction ID / LTC TXID / Google Drive link to screenshot">
+
+            <label>Extra note (optional)</label>
+            <textarea rows="2" id="userNote" placeholder="Payment date, amount sent, etc..."></textarea>
+
+            <button id="submitPaymentBtn">✅ SUBMIT PAYMENT PROOF</button>
+
+            <div id="resultMessage" style="margin-top: 1.5rem;"></div>
+        </div>
     </div>
 
     <footer>
-        🔒 Anti-fake system: Manual verification required. Screenshot bhejna zaroori hai.<br>
-        Counter Prime | Deadlock + Dota 2 Cheat CFG | Lifetime updates
+        © Counter Prime — Manual verification ensures no fake payments. You will receive your CFG file after payment confirmation.<br>
+        Deadlock & Dota 2 CFG | 1-click combo | Custom keybinds | All heroes scripts.
     </footer>
 </div>
 
 <script>
-    // Roman Urdu main samjha raha hoon
-    // Payment method change pe details show/hide
+    // Toggle EasyPaisa / Crypto visibility
     const paymentSelect = document.getElementById('paymentMethod');
-    const easypaisaDiv = document.getElementById('easypaisaDetails');
-    const cryptoDiv = document.getElementById('cryptoDetails');
+    const easyBox = document.getElementById('easypaisaBox');
+    const cryptoBox = document.getElementById('cryptoBox');
 
     paymentSelect.addEventListener('change', function() {
-        if(this.value === 'easypaisa') {
-            easypaisaDiv.classList.remove('hidden');
-            cryptoDiv.classList.add('hidden');
+        if (this.value === 'easypaisa') {
+            easyBox.classList.remove('hidden');
+            cryptoBox.classList.add('hidden');
         } else {
-            easypaisaDiv.classList.add('hidden');
-            cryptoDiv.classList.remove('hidden');
+            easyBox.classList.add('hidden');
+            cryptoBox.classList.remove('hidden');
         }
     });
 
-    document.getElementById('paidBtn').addEventListener('click', function() {
+    // Submit payment proof
+    document.getElementById('submitPaymentBtn').addEventListener('click', function() {
+        const contact = document.getElementById('userContact').value.trim();
+        const txid = document.getElementById('transactionId').value.trim();
+        const note = document.getElementById('userNote').value.trim();
         const cfg = document.getElementById('cfgSelect').value;
-        const payment = paymentSelect.value;
-        
-        // Unique key generate karta hai user ke liye
-        const uniqueKey = 'CP-' + Math.random().toString(36).substring(2, 10).toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
-        
-        let productName = '';
-        if(cfg === 'deadlock') productName = 'Deadlock CFG (10$)';
-        else if(cfg === 'dota2') productName = 'Dota 2 CFG (10$)';
-        else productName = 'Both CFG (18$)';
-        
-        let paymentMethodName = (payment === 'easypaisa') ? 'EasyPaisa (Remitly)' : 'LTC Crypto';
-        
-        const message = `
-            <div class="key-box">
-                🔑 YOUR UNIQUE KEY 🔑<br>
-                <span style="font-size:1.8rem;">${uniqueKey}</span><br><br>
-                📦 Product: ${productName}<br>
-                💳 Payment: ${paymentMethodName}<br><br>
-                ⚠️ IMPORTANT:<br>
-                Ye key Discord pe mujhe bhej + payment screenshot.<br>
-                Main verify karke tujhe CFG file dunga (Google Drive / Direct).<br>
-                Fake payment ki case mein key block ho jayegi.
+        const paymentMethod = paymentSelect.value;
+
+        if (!contact || !txid) {
+            document.getElementById('resultMessage').innerHTML = `
+                <div class="alert">
+                    ⚠️ Error: Please fill both "Contact" and "Transaction ID / Screenshot link".
+                </div>`;
+            return;
+        }
+
+        // Build product name
+        let productName = "";
+        if (cfg === "deadlock") productName = "Deadlock CFG ($10)";
+        else if (cfg === "dota2") productName = "Dota 2 CFG ($10)";
+        else productName = "Deadlock + Dota 2 Bundle ($18)";
+
+        let paymentName = paymentMethod === "easypaisa" ? "EasyPaisa (Remitly)" : "Litecoin (LTC)";
+
+        // This is the message that will be stored / shown to the user
+        const submissionData = {
+            contact: contact,
+            transactionId: txid,
+            note: note,
+            product: productName,
+            paymentMethod: paymentName,
+            timestamp: new Date().toISOString()
+        };
+
+        // Show a unique submission reference
+        const refCode = 'CP-' + Math.random().toString(36).substring(2, 10).toUpperCase() + Date.now().toString(36).slice(-4);
+
+        document.getElementById('resultMessage').innerHTML = `
+            <div class="success-box">
+                ✅ <strong>Payment proof received!</strong><br><br>
+                <strong>Reference ID:</strong> ${refCode}<br>
+                <strong>Product:</strong> ${productName}<br>
+                <strong>Payment method:</strong> ${paymentName}<br>
+                <strong>Your contact:</strong> ${contact}<br><br>
+                📌 <strong>What happens next?</strong><br>
+                I will manually verify your payment within 12 hours.<br>
+                Once confirmed, your CFG file + instructions will be sent to your Discord / Email.<br><br>
+                🔒 <strong>Fake payments will be ignored.</strong> Keep your transaction proof safe.
             </div>
         `;
-        document.getElementById('resultArea').innerHTML = message;
-        
-        // Optional: yeh key tu backend mein save kar sakta hai manually
-        console.log('Generated Key:', uniqueKey);
+
+        // Optional: Log to console (you can replace this with a backend API later)
+        console.log("NEW PAYMENT REQUEST:", submissionData);
+        console.log("Reference ID:", refCode);
+
+        // Clear sensitive fields after submit? (optional)
+        // document.getElementById('transactionId').value = "";
+        // document.getElementById('userNote').value = "";
     });
 </script>
-
 </body>
 </html>
