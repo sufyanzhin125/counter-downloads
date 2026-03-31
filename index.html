@@ -299,42 +299,6 @@
         }
         .delete-btn:hover { background: #4b5563; }
 
-        /* Country Select Fix */
-        .country-wrapper {
-            margin-bottom: 1rem;
-        }
-        .country-select {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: #0a0e16;
-            border: 1px solid #252c3f;
-            border-radius: 12px;
-            padding: 0 16px;
-        }
-        .country-select .flag-icon {
-            font-size: 1.3rem;
-            line-height: 1;
-        }
-        .country-select select {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 12px 0;
-            margin-bottom: 0;
-            cursor: pointer;
-            color: white;
-        }
-        .country-select select:focus {
-            outline: none;
-            box-shadow: none;
-        }
-        .country-select select option {
-            background: #0a0e16;
-            color: white;
-            padding: 10px;
-        }
-
         footer {
             text-align: center;
             padding: 2rem;
@@ -395,25 +359,6 @@
     let lastActivity = JSON.parse(localStorage.getItem('lastActivity')) || {};
     let userTimeouts = JSON.parse(localStorage.getItem('userTimeouts')) || {};
     let userMessageCount = JSON.parse(localStorage.getItem('userMessageCount')) || {};
-
-    // Countries with Flags
-    const countries = [
-        { code: "PK", name: "Pakistan", flag: "🇵🇰" },
-        { code: "US", name: "United States", flag: "🇺🇸" },
-        { code: "GB", name: "United Kingdom", flag: "🇬🇧" },
-        { code: "IN", name: "India", flag: "🇮🇳" },
-        { code: "AE", name: "UAE", flag: "🇦🇪" },
-        { code: "SA", name: "Saudi Arabia", flag: "🇸🇦" },
-        { code: "CA", name: "Canada", flag: "🇨🇦" },
-        { code: "AU", name: "Australia", flag: "🇦🇺" },
-        { code: "DE", name: "Germany", flag: "🇩🇪" },
-        { code: "FR", name: "France", flag: "🇫🇷" },
-        { code: "TR", name: "Turkey", flag: "🇹🇷" },
-        { code: "EG", name: "Egypt", flag: "🇪🇬" },
-        { code: "BD", name: "Bangladesh", flag: "🇧🇩" },
-        { code: "MY", name: "Malaysia", flag: "🇲🇾" },
-        { code: "SG", name: "Singapore", flag: "🇸🇬" }
-    ];
 
     // Auto Rep Messages
     const autoRepMessages = [
@@ -582,20 +527,11 @@
         showToast(`Auto reputation post created for ${username}!`);
     }
 
-    // ============= REGISTER MODAL (FIXED) =============
+    // ============= REGISTER MODAL (FIXED - NO COUNTRY) =============
     window.showRegisterModal = function() {
-        const countryOptions = countries.map(c => `<option value="${c.name}" data-flag="${c.flag}">${c.flag} ${c.name}</option>`).join('');
         const modalHtml = `
             <input type="text" id="modalRegUsername" placeholder="Username" style="margin-bottom:0.8rem;">
             <input type="email" id="modalRegEmail" placeholder="Email" style="margin-bottom:0.8rem;">
-            <div class="country-wrapper">
-                <div class="country-select">
-                    <span class="flag-icon" id="selectedFlag">🇵🇰</span>
-                    <select id="modalRegCountry" onchange="updateCountryFlag()">
-                        ${countryOptions}
-                    </select>
-                </div>
-            </div>
             <input type="password" id="modalRegPassword" placeholder="Password (min 4 chars)" style="margin-bottom:1rem;">
             <button onclick="modalRegister()" style="width:100%;">Create Account</button>
             <p style="margin-top:1rem; text-align:center;">Already have account? <a onclick="closeModal();showLoginModal();" style="color:#f97316; cursor:pointer;">Login</a></p>
@@ -603,17 +539,9 @@
         showModal('📝 Create New Account', modalHtml);
     };
 
-    window.updateCountryFlag = function() {
-        const select = document.getElementById('modalRegCountry');
-        if (select) {
-            const selectedOption = select.options[select.selectedIndex];
-            const flag = selectedOption.getAttribute('data-flag') || '🇵🇰';
-            const flagSpan = document.getElementById('selectedFlag');
-            if (flagSpan) flagSpan.innerText = flag;
-        }
-    };
-
     window.modalRegister = async function() {
+        console.log("Register function called");
+        
         const fp = await FingerprintJS.load();
         const fingerprint = (await fp.get()).visitorId;
         
@@ -630,11 +558,11 @@
         
         const username = document.getElementById('modalRegUsername')?.value.trim();
         const email = document.getElementById('modalRegEmail')?.value.trim();
-        const countrySelect = document.getElementById('modalRegCountry');
-        const country = countrySelect ? countrySelect.value : 'Pakistan';
         const password = document.getElementById('modalRegPassword')?.value;
         
-        if (!username || !email || !country || !password) { 
+        console.log("Username:", username, "Email:", email, "Password length:", password?.length);
+        
+        if (!username || !email || !password) { 
             showToast('All fields required', true); 
             return; 
         }
@@ -653,7 +581,7 @@
             id: Date.now(), 
             username, 
             email, 
-            country, 
+            country: 'Not specified', 
             password, 
             isOwner, 
             isBanned: false, 
