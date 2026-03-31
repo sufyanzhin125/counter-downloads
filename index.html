@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Counter Prime | Ultimate CFG Forum</title>
     <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fingerprint.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -90,7 +89,7 @@
         .tag-banned { background: #000000; color: white; box-shadow: 0 0 8px #000000; border: 1px solid #ff0000; }
         .tag-member { background: #2a2f42; color: #b0b7d0; }
 
-        /* Glow Name & Message Colors */
+        /* Glow Name */
         .glow-name { text-shadow: 0 0 8px currentColor; }
         .glow-prime { color: #fb923c; text-shadow: 0 0 10px #f97316; }
         .glow-premium { color: #facc15; text-shadow: 0 0 10px #eab308; }
@@ -99,13 +98,6 @@
         .glow-legend { color: #60a5fa; text-shadow: 0 0 10px #3b82f6; }
         .glow-god { color: #a78bfa; text-shadow: 0 0 10px #8b5cf6; }
         .glow-hacker { color: #34d399; text-shadow: 0 0 10px #10b981; }
-
-        /* Message Color by Tag */
-        .msg-prime { border-left: 3px solid #f97316; background: rgba(249,115,22,0.1); }
-        .msg-premium { border-left: 3px solid #eab308; background: rgba(234,179,8,0.1); }
-        .msg-vip { border-left: 3px solid #a855f7; background: rgba(168,85,247,0.1); }
-        .msg-elite { border-left: 3px solid #06b6d4; background: rgba(6,182,212,0.1); }
-        .msg-owner { border-left: 3px solid #dc2626; background: rgba(220,38,38,0.1); }
 
         .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
         .card {
@@ -284,6 +276,8 @@
             border-radius: 16px;
             padding: 1rem;
             margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
         }
 
         .chat-message {
@@ -352,9 +346,6 @@
 </div>
 
 <script>
-    // Initialize EmailJS
-    (function() { emailjs.init("YOUR_PUBLIC_KEY_HERE"); })();
-
     // ============= DATA STRUCTURE =============
     let users = JSON.parse(localStorage.getItem('users')) || [];
     let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
@@ -369,7 +360,30 @@
     let userTimeouts = JSON.parse(localStorage.getItem('userTimeouts')) || {};
     let userMessageCount = JSON.parse(localStorage.getItem('userMessageCount')) || {};
 
-    // Products
+    // Auto Rep Messages
+    const autoRepMessages = [
+        "+REP Trusted seller! 🔥",
+        "+VOUCH Legit config! 💯",
+        "+REP Fast delivery! ⚡",
+        "VOUCH +1 Great service! 🌟",
+        "+REP 100% legit! ✅",
+        "Trusted member! 🤝",
+        "+VOUCH Highly recommended! 🎯",
+        "REP++ Best config ever! 🚀",
+        "Legit seller! 🔥🔥",
+        "+REP Will buy again! 💪",
+        "VOUCH! Working perfectly! 🎮",
+        "Trusted! Fast response! ⏱️",
+        "+REP Professional! 👑",
+        "VOUCH +100! 🏆",
+        "Legit and safe! 🔒",
+        "+REP A+ Service! ⭐",
+        "Trusted config master! 🧙",
+        "VOUCH! No ban! 🔥",
+        "+REP Great support! 💬",
+        "100% working! 🎯"
+    ];
+
     const products = [
         { id: 1, name: "Deadlock CFG", price: 10, description: "Full config, 1-click combo, all heroes" },
         { id: 2, name: "Dota 2 CFG", price: 10, description: "Pro scripts, custom keybinds, undetected" },
@@ -432,21 +446,6 @@
         return '<span class="tag tag-member">MEMBER</span>';
     }
 
-    function getUserTagType(username) {
-        const user = users.find(u => u.username === username);
-        if (!user) return 'member';
-        if (user.isOwner) return 'owner';
-        const tagData = userTags[username];
-        if (tagData) return tagData.tag;
-        return 'member';
-    }
-
-    function getMessageClass(username) {
-        const tag = getUserTagType(username);
-        const map = { prime: 'msg-prime', premium: 'msg-premium', vip: 'msg-vip', elite: 'msg-elite', owner: 'msg-owner' };
-        return map[tag] || '';
-    }
-
     function getUserGlowClass(user) {
         if (!user) return '';
         if (user.isBanned) return '';
@@ -496,6 +495,37 @@
         return true;
     }
 
+    // Auto Post When User Gets Tag
+    function createAutoRepPost(username, tagName) {
+        const randomMsg = autoRepMessages[Math.floor(Math.random() * autoRepMessages.length)];
+        const newPost = {
+            id: Date.now(),
+            username: username,
+            userId: users.find(u => u.username === username)?.id,
+            content: `${randomMsg} 🎉 (Tagged as ${tagName.toUpperCase()})`,
+            image: null,
+            timestamp: new Date().toLocaleString(),
+            replies: [],
+            status: 'completed',
+            orderDetails: `Auto reputation post - ${tagName.toUpperCase()} tag awarded`,
+            totalPrice: 0,
+            isAutoRep: true
+        };
+        posts.unshift(newPost);
+        saveData();
+        
+        // Also send message to owner about the auto post
+        messages.push({
+            id: Date.now(),
+            from: 'SYSTEM',
+            to: 'sufyan',
+            content: `📢 Auto reputation post created for ${username}\nTag: ${tagName.toUpperCase()}\nMessage: ${randomMsg}`,
+            timestamp: new Date().toLocaleString(),
+            read: false
+        });
+        saveData();
+    }
+
     function showLoginModal() {
         showModal('🔐 Login to Counter Prime', `
             <input type="text" id="modalLoginUsername" placeholder="Username" style="margin-bottom:0.5rem;">
@@ -524,10 +554,6 @@
         if (!user) { showToast('Username not found', true); return; }
         if (user.password !== password) { showToast('Incorrect password', true); return; }
         if (user.isBanned) { showToast('Account banned', true); return; }
-        if (user.twoFAEnabled) {
-            showModal('2FA Verification', `<input id="2faCode" placeholder="Enter 6-digit code"><button onclick="verify2FA('${username}')">Verify</button>`);
-            return;
-        }
         currentUser = user;
         saveData();
         updateNav();
@@ -563,21 +589,6 @@
         showPage('home');
     };
 
-    window.verify2FA = function(username) {
-        const code = document.getElementById('2faCode')?.value;
-        const user = users.find(u => u.username === username);
-        if (user && user.twoFACode == code) {
-            currentUser = user;
-            saveData();
-            updateNav();
-            closeModal();
-            showToast('2FA Verified');
-            showPage('home');
-        } else {
-            showToast('Invalid 2FA code', true);
-        }
-    };
-
     function updateNav() {
         if (currentUser && !isBanned(currentUser.username)) {
             document.getElementById('authNav').classList.add('hidden');
@@ -597,7 +608,8 @@
 
     // Rate Limiting
     function canSendMessage(username) {
-        const tag = getUserTagType(username);
+        const user = users.find(u => u.username === username);
+        const tag = userTags[username]?.tag || (user?.isOwner ? 'owner' : 'member');
         const now = Date.now();
         
         if (userTimeouts[username] && userTimeouts[username] > now) {
@@ -634,18 +646,19 @@
         if (!currentUser?.isOwner) { showPage('home'); return; }
         const totalOrders = posts.length;
         const totalUsers = users.length;
-        const totalRevenue = posts.filter(p => p.status === 'completed').length * 10;
+        const totalRevenue = posts.filter(p => p.status === 'completed' && !p.isAutoRep).length * 10;
         showModal('Admin Dashboard', `
             <div style="text-align:center;">
                 <h3>Welcome, ${currentUser.username}</h3>
                 <div class="grid-2" style="margin-top:1rem;">
                     <div class="card" style="padding:1rem;"><strong>Total Users</strong><br><span style="font-size:2rem;">${totalUsers}</span></div>
                     <div class="card" style="padding:1rem;"><strong>Total Orders</strong><br><span style="font-size:2rem;">${totalOrders}</span></div>
-                    <div class="card" style="padding:1rem;"><strong>Completed</strong><br><span style="font-size:2rem;">${posts.filter(p => p.status === 'completed').length}</span></div>
+                    <div class="card" style="padding:1rem;"><strong>Completed</strong><br><span style="font-size:2rem;">${posts.filter(p => p.status === 'completed' && !p.isAutoRep).length}</span></div>
                     <div class="card" style="padding:1rem;"><strong>Revenue</strong><br><span style="font-size:2rem;">$${totalRevenue}</span></div>
                 </div>
                 <button onclick="closeModal();showPage('members');">Manage Users</button>
                 <button onclick="downloadBackup()" style="margin-left:0.5rem;">Download Backup</button>
+                <button onclick="clearAllChat()" style="margin-left:0.5rem; background:#6b7280;">Clear All Chat</button>
             </div>
         `);
     };
@@ -700,7 +713,7 @@
         const isOwner = currentUser?.isOwner;
         const isSelf = currentUser?.username === username;
         const tagData = userTags[username] || {};
-        const userOrders = posts.filter(p => p.userId === user.id);
+        const userOrders = posts.filter(p => p.userId === user.id && !p.isAutoRep);
         const messageCount = messages.filter(m => m.from === username || m.to === username).length;
         
         let content = `<div style="text-align:center;">
@@ -717,8 +730,7 @@
         if (isSelf) {
             content += `<hr style="margin:1rem 0;"><h3>Settings</h3>
                 <input type="file" id="avatarUpload" accept="image/*"><button onclick="uploadAvatar()">Change Avatar</button>
-                <input type="password" id="newPassword" placeholder="New Password"><input type="password" id="confirmPassword" placeholder="Confirm"><button onclick="changePassword()">Change Password</button>
-                <button onclick="enable2FA()" style="background:#3b82f6;">Enable 2FA Email Verification</button>`;
+                <input type="password" id="newPassword" placeholder="New Password"><input type="password" id="confirmPassword" placeholder="Confirm"><button onclick="changePassword()">Change Password</button>`;
         }
         if (isOwner && !isSelf) {
             content += `<hr style="margin:1rem 0;"><h3>Admin Actions</h3>
@@ -736,23 +748,6 @@
         if (isOwner && userOrders.length) {
             document.getElementById('adminUserOrders').innerHTML = userOrders.map(o => `<div class="reply">${o.content.substring(0,100)}...<br><small>${o.timestamp} | ${o.status}</small><button onclick="closeModal();viewOrderPost(${o.id})" style="margin-left:0.5rem; padding:2px 8px;">View</button><button onclick="deletePost(${o.id})" class="delete-btn">Delete</button></div>`).join('');
         }
-    };
-
-    window.enable2FA = function() {
-        const email = currentUser.email;
-        const code = Math.floor(100000 + Math.random() * 900000);
-        currentUser.twoFACode = code;
-        currentUser.twoFAEnabled = true;
-        saveData();
-        emailjs.send('YOUR_SERVICE_ID', 'YOUR_2FA_TEMPLATE_ID', {
-            to_email: email,
-            username: currentUser.username,
-            code: code
-        }).then(() => {
-            showToast('2FA code sent to your email!');
-        }).catch(() => {
-            showModal('2FA Code', `Your 2FA code: <strong style="font-size:2rem;">${code}</strong><br>Save this code.`);
-        });
     };
 
     window.startChatWith = function(username) {
@@ -787,8 +782,18 @@
     window.adminUpdateTag = function(username) {
         const tag = document.getElementById('adminTagSelect').value;
         const glow = document.getElementById('adminGlowCheck').checked;
-        if (tag) userTags[username] = { tag: tag, glow: glow };
-        else delete userTags[username];
+        const oldTag = userTags[username]?.tag;
+        
+        if (tag) {
+            userTags[username] = { tag: tag, glow: glow };
+            // If user is getting a tag (prime, premium, etc.), create auto rep post
+            if (tag !== 'banned' && tag !== oldTag) {
+                createAutoRepPost(username, tag);
+                showToast(`Auto reputation post created for ${username}!`);
+            }
+        } else {
+            delete userTags[username];
+        }
         saveData();
         showToast(`Tag updated for ${username}`);
         closeModal();
@@ -862,7 +867,7 @@
     };
     
     function savePost(content, image, orderDetails, totalPrice) {
-        const newPost = { id: Date.now(), username: currentUser.username, userId: currentUser.id, content, image, timestamp: new Date().toLocaleString(), replies: [], status: 'pending', orderDetails, totalPrice };
+        const newPost = { id: Date.now(), username: currentUser.username, userId: currentUser.id, content, image, timestamp: new Date().toLocaleString(), replies: [], status: 'pending', orderDetails, totalPrice, isAutoRep: false };
         posts.unshift(newPost);
         messages.push({ 
             id: Date.now(), from: currentUser.username, to: 'sufyan', 
@@ -915,7 +920,11 @@
     function renderInbox(container) {
         if (!checkAuthAndRedirect('inbox')) { container.innerHTML = `<div class="card"><div class="card-title">Inbox</div><p>Please login to view messages.</p></div>`; return; }
         const userMsgs = messages.filter(m => m.to === currentUser.username || m.from === currentUser.username).sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
-        container.innerHTML = `<div class="card"><div class="card-title">📬 Inbox</div><button onclick="composeMessage()">+ New Message</button><div id="inboxList">${userMsgs.length ? userMsgs.map(m => `<div class="message-item ${!m.read && m.to===currentUser.username?'message-unread':''}" onclick="viewMessage(${m.id})"><strong>${m.from===currentUser.username?'To: '+m.to:'From: '+m.from}</strong><br>${m.content.substring(0,80)}${m.orderDetails ? `<br><small style="color:#f97316;">📦 Order: ${m.orderDetails}</small>` : ''}<br><small>${m.timestamp}</small>${currentUser?.isOwner ? `<button class="delete-btn" onclick="event.stopPropagation();deleteMessage(${m.id})">Delete</button>` : ''}</div>`).join('') : '<p>No messages</p>'}</div></div>`;
+        if (userMsgs.length === 0) {
+            container.innerHTML = `<div class="card"><div class="card-title">📬 Inbox</div><p style="text-align:center; padding:2rem;">No messages yet. Start a conversation with other members!</p><button onclick="composeMessage()">+ Send New Message</button></div>`;
+            return;
+        }
+        container.innerHTML = `<div class="card"><div class="card-title">📬 Inbox</div><button onclick="composeMessage()">+ New Message</button><div id="inboxList">${userMsgs.map(m => `<div class="message-item ${!m.read && m.to===currentUser.username?'message-unread':''}" onclick="viewMessage(${m.id})"><strong>${m.from===currentUser.username?'To: '+m.to:'From: '+m.from}</strong><br>${m.content.substring(0,80)}${m.orderDetails ? `<br><small style="color:#f97316;">📦 Order: ${m.orderDetails}</small>` : ''}<br><small>${m.timestamp}</small>${currentUser?.isOwner ? `<button class="delete-btn" onclick="event.stopPropagation();deleteMessage(${m.id})">Delete</button>` : ''}</div>`).join('')}</div></div>`;
     }
     
     window.deleteMessage = function(msgId) {
@@ -928,6 +937,7 @@
     
     window.composeMessage = function() {
         const others = users.filter(u => u.username !== currentUser.username && !u.isBanned).map(u => u.username);
+        if (others.length === 0) { showToast('No other users to message', true); return; }
         showModal('New Message', `<select id="msgTo">${others.map(o=>`<option value="${o}">${o}</option>`).join('')}</select><textarea id="msgContent" rows="4" placeholder="Type your message..." onkeypress="handleComposeEnter(event)"></textarea><button onclick="sendComposed()">Send</button>`);
     };
     
@@ -996,11 +1006,11 @@
     function renderChatMessages() {
         const container = document.getElementById('chatMessages');
         if (!container) return;
-        container.innerHTML = chatMessages.slice(-50).reverse().map(m => {
+        container.innerHTML = chatMessages.slice(-50).map(m => {
             const user = users.find(u => u.username === m.username);
-            const msgClass = getMessageClass(m.username);
-            return `<div class="chat-message ${msgClass}"><span class="username ${getUserGlowClass(user || {})}" onclick="showProfile('${m.username}')">${m.username}</span> ${getUserTagDisplay(user || {})}<span class="time">${m.time}</span><br><div class="message-text">${m.message}</div>${currentUser?.isOwner ? `<button class="delete-btn" onclick="deleteChatMessage('${m.id}')">Delete</button>` : ''}</div>`;
+            return `<div class="chat-message"><span class="username ${getUserGlowClass(user || {})}" onclick="showProfile('${m.username}')">${m.username}</span> ${getUserTagDisplay(user || {})}<span class="time">${m.time}</span><br><div class="message-text">${m.message}</div>${currentUser?.isOwner ? `<button class="delete-btn" onclick="deleteChatMessage('${m.id}')">Delete</button>` : ''}</div>`;
         }).join('');
+        // Auto scroll to bottom
         container.scrollTop = container.scrollHeight;
     }
     
@@ -1012,6 +1022,9 @@
         saveData();
         document.getElementById('chatInput').value = '';
         renderChatMessages();
+        // Scroll to bottom after send
+        const container = document.getElementById('chatMessages');
+        if (container) container.scrollTop = container.scrollHeight;
     };
     
     window.deleteChatMessage = function(id) {
@@ -1094,7 +1107,7 @@
         </div>
         <div class="grid-2">
             <div class="card"><div class="card-title">📋 Latest Orders</div>
-                <div id="latestPosts">${posts.slice(0,5).map(p=>`<div><strong class="${getUserGlowClass(users.find(u=>u.username===p.username)||{})}" onclick="showProfile('${p.username}')">${p.username}</strong>: ${p.content.substring(0,50)}...</div>`).join('') || 'No orders'}</div>
+                <div id="latestPosts">${posts.filter(p => !p.isAutoRep).slice(0,5).map(p=>`<div><strong class="${getUserGlowClass(users.find(u=>u.username===p.username)||{})}" onclick="showProfile('${p.username}')">${p.username}</strong>: ${p.content.substring(0,50)}...</div>`).join('') || 'No orders'}</div>
             </div>
             <div class="card"><div class="card-title">💬 Live Chat</div>
                 <div id="homeChat" class="chat-container" style="height:300px;"></div>
@@ -1108,10 +1121,9 @@
     function renderHomeChat() {
         const container = document.getElementById('homeChat');
         if (!container) return;
-        container.innerHTML = chatMessages.slice(-15).reverse().map(m => {
+        container.innerHTML = chatMessages.slice(-15).map(m => {
             const user = users.find(u => u.username === m.username);
-            const msgClass = getMessageClass(m.username);
-            return `<div class="chat-message ${msgClass}" style="padding:0.5rem;"><strong class="${getUserGlowClass(user || {})}" onclick="showProfile('${m.username}')">${m.username}</strong> <span style="font-size:0.65rem; color:#6b7280;">${m.time}</span><br>${m.message}</div>`;
+            return `<div class="chat-message" style="padding:0.5rem;"><strong class="${getUserGlowClass(user || {})}" onclick="showProfile('${m.username}')">${m.username}</strong> <span style="font-size:0.65rem; color:#6b7280;">${m.time}</span><br>${m.message}</div>`;
         }).join('');
         container.scrollTop = container.scrollHeight;
     }
@@ -1124,6 +1136,8 @@
         saveData();
         document.getElementById('homeChatInput').value = '';
         renderHomeChat();
+        const container = document.getElementById('homeChat');
+        if (container) container.scrollTop = container.scrollHeight;
     };
     
     window.handleHomeChatEnter = function(e) {
