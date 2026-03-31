@@ -295,8 +295,20 @@
             font-size: 0.7rem;
             margin-left: 0.5rem;
             border-radius: 6px;
+            cursor: pointer;
         }
         .delete-btn:hover { background: #4b5563; }
+
+        .rep-delete-btn {
+            background: #dc2626;
+            padding: 2px 8px;
+            font-size: 0.65rem;
+            margin-left: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .rep-delete-btn:hover { background: #b91c1c; }
 
         footer {
             text-align: center;
@@ -482,6 +494,18 @@
         }
         return true;
     }
+
+    // Delete REP Post (Owner Only)
+    window.deleteRepPost = function(postId) {
+        if (!currentUser?.isOwner) {
+            showToast('Only owner can delete reputation posts', true);
+            return;
+        }
+        posts = posts.filter(p => p.id !== postId);
+        saveData();
+        showToast('Reputation post deleted');
+        renderHome(document.getElementById('pageContent'));
+    };
 
     // Create Auto REP Post when user places order (ONLY REP MESSAGES, NO PAYMENT DETAILS)
     function createAutoOrderPost(username) {
@@ -1117,7 +1141,7 @@
         </div>
         <div class="grid-2">
             <div class="card"><div class="card-title">📋 Latest Reputation</div>
-                <div id="latestPosts">${repPosts.slice(0,10).map(p=>`<div style="padding:8px 0; border-bottom:1px solid #1f2538;"><strong class="${getUserGlowClass(users.find(u=>u.username===p.username)||{})}" onclick="showProfile('${p.username}')">${p.username}</strong>: ${p.content}<br><small style="color:#7e849b;">${p.timestamp}</small></div>`).join('') || 'No reputation posts yet'}</div>
+                <div id="latestPosts">${repPosts.slice(0,10).map(p=>`<div style="padding:8px 0; border-bottom:1px solid #1f2538; display:flex; justify-content:space-between; align-items:center;"><div><strong class="${getUserGlowClass(users.find(u=>u.username===p.username)||{})}" onclick="showProfile('${p.username}')">${p.username}</strong>: ${p.content}<br><small style="color:#7e849b;">${p.timestamp}</small></div>${currentUser?.isOwner ? `<button class="rep-delete-btn" onclick="deleteRepPost(${p.id})">Delete</button>` : ''}</div>`).join('') || 'No reputation posts yet'}</div>
             </div>
             <div class="card"><div class="card-title">💬 Live Chat</div>
                 <div id="homeChat" class="chat-container" style="height:350px;"></div>
