@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Counter Prime | Premium CFG Forum</title>
-    <!-- EmailJS for password reset -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-    <!-- FingerprintJS for IP/MAC restriction -->
     <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fingerprint.min.js"></script>
     <style>
         * {
@@ -84,6 +81,7 @@
         .tag-legend { background: linear-gradient(135deg, #3b82f6, #60a5fa); color: white; box-shadow: 0 0 8px #3b82f6; }
         .tag-god { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; box-shadow: 0 0 8px #8b5cf6; }
         .tag-hacker { background: linear-gradient(135deg, #10b981, #34d399); color: #1a1a2e; box-shadow: 0 0 8px #10b981; }
+        .tag-banned { background: #000000; color: white; box-shadow: 0 0 8px #000000; border: 1px solid #ff0000; }
         .tag-member { background: #2a2f42; color: #b0b7d0; }
 
         /* Glow Name */
@@ -186,7 +184,7 @@
             cursor: pointer;
         }
         .post-time { font-size: 0.7rem; color: #7e849b; }
-        .post-content { margin: 0.5rem 0; word-break: break-word; }
+        .post-content { margin: 0.5rem 0; word-break: break-word; white-space: pre-wrap; }
         .post-image { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 0.5rem; cursor: pointer; }
         .reply-box { margin-top: 0.5rem; padding-left: 1rem; border-left: 2px solid #2a2f42; }
         .reply { background: #0f1117; padding: 0.5rem; margin-top: 0.5rem; border-radius: 8px; }
@@ -267,6 +265,23 @@
         .chat-message .username { font-weight: 600; cursor: pointer; }
         .chat-message .time { font-size: 0.65rem; color: #6b7280; margin-left: 0.5rem; }
 
+        .chat-container {
+            height: 300px;
+            overflow-y: auto;
+            background: #0a0e16;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .delete-btn {
+            background: #6b7280;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+        }
+        .delete-btn:hover { background: #4b5563; }
+
         footer {
             text-align: center;
             padding: 2rem;
@@ -295,7 +310,6 @@
             <a onclick="showPage('cart')">Cart (<span id="cartCount">0</span>)</a>
             <a onclick="showPage('inbox')">Inbox (<span id="inboxCount">0</span>)</a>
             <a onclick="showPage('members')">Members</a>
-            <a onclick="showPage('chat')">Live Chat</a>
             <div id="authNav">
                 <a onclick="showPage('login')">Login</a>
                 <a onclick="showPage('register')">Register</a>
@@ -310,13 +324,10 @@
     </div>
 
     <div class="container" id="pageContent"></div>
-    <footer>Counter Prime | Owner: sufyan | Discord: sufyancounter</footer>
+    <footer>Counter Prime | Owner: sufyan | Discord: sufyancounter | Auto Backup Every Hour</footer>
 </div>
 
 <script>
-    // Initialize EmailJS
-    (function() { emailjs.init("YOUR_PUBLIC_KEY_HERE"); })();
-
     // ============= DATA STRUCTURE =============
     let users = JSON.parse(localStorage.getItem('users')) || [];
     let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
@@ -326,6 +337,7 @@
     let userTags = JSON.parse(localStorage.getItem('userTags')) || {};
     let chatMessages = JSON.parse(localStorage.getItem('chatMessages')) || [];
     let fingerprints = JSON.parse(localStorage.getItem('fingerprints')) || {};
+    let bannedIPs = JSON.parse(localStorage.getItem('bannedIPs')) || [];
     let lastActivity = JSON.parse(localStorage.getItem('lastActivity')) || {};
 
     // Products
@@ -335,7 +347,6 @@
         { id: 3, name: "Bundle (Both Games)", price: 18, description: "Deadlock + Dota 2 CFG, lifetime updates" }
     ];
 
-    // Available Tags for Admin
     const availableTags = ['prime', 'premium', 'vip', 'elite', 'legend', 'god', 'hacker', 'master', 'beast', 'pro', 'alpha', 'omega', 'phoenix', 'dragon', 'titan', 'immortal', 'mythic', 'radiant', 'shadow', 'storm'];
 
     function saveData() {
@@ -347,14 +358,40 @@
         localStorage.setItem('userTags', JSON.stringify(userTags));
         localStorage.setItem('chatMessages', JSON.stringify(chatMessages));
         localStorage.setItem('fingerprints', JSON.stringify(fingerprints));
+        localStorage.setItem('bannedIPs', JSON.stringify(bannedIPs));
         localStorage.setItem('lastActivity', JSON.stringify(lastActivity));
         updateCartCount();
         updateInboxCount();
     }
 
+    // Auto Backup
+    function autoBackup() {
+        const backup = {
+            users, posts, messages, userTags, chatMessages, fingerprints, bannedIPs,
+            timestamp: new Date().toISOString()
+        };
+        localStorage.setItem('counterprime_backup', JSON.stringify(backup));
+        console.log('Auto backup completed');
+    }
+    setInterval(autoBackup, 3600000);
+    
+    function downloadBackup() {
+        const backup = localStorage.getItem('counterprime_backup');
+        if (backup) {
+            const blob = new Blob([backup], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `counterprime_backup_${new Date().toISOString()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Backup downloaded');
+        } else { showToast('No backup found', true); }
+    }
+
     function updateCartCount() {
         const el = document.getElementById('cartCount');
-        if (el) el.innerText = cart.reduce((sum, i) => sum + i.quantity, 0);
+        if (el) el.innerText = cart.reduce((s, i) => s + i.quantity, 0);
     }
     function updateInboxCount() {
         const el = document.getElementById('inboxCount');
@@ -363,32 +400,37 @@
     }
 
     function updateLastActivity() {
-        if (currentUser) {
-            lastActivity[currentUser.username] = Date.now();
-            saveData();
-        }
+        if (currentUser) { lastActivity[currentUser.username] = Date.now(); saveData(); }
     }
     setInterval(updateLastActivity, 30000);
     function isOnline(username) {
         return lastActivity[username] && (Date.now() - lastActivity[username]) < 5 * 60 * 1000;
     }
 
+    function isBanned(username) {
+        const user = users.find(u => u.username === username);
+        if (user?.isBanned) return true;
+        if (user?.fingerprint && bannedIPs.includes(user.fingerprint)) return true;
+        return false;
+    }
+
     function getUserTagDisplay(user) {
-        if (user?.isOwner) return '<span class="tag tag-owner">OWNER</span>';
-        const tagData = userTags[user?.username];
+        if (!user) return '<span class="tag tag-member">MEMBER</span>';
+        if (user.isBanned) return '<span class="tag tag-banned">BANNED</span>';
+        if (user.isOwner) return '<span class="tag tag-owner">OWNER</span>';
+        const tagData = userTags[user.username];
         if (tagData) {
-            const tagMap = {
-                prime: 'tag-prime', premium: 'tag-premium', vip: 'tag-vip', elite: 'tag-elite',
-                legend: 'tag-legend', god: 'tag-god', hacker: 'tag-hacker'
-            };
+            const tagMap = { prime: 'tag-prime', premium: 'tag-premium', vip: 'tag-vip', elite: 'tag-elite', legend: 'tag-legend', god: 'tag-god', hacker: 'tag-hacker' };
             return `<span class="tag ${tagMap[tagData.tag] || 'tag-member'}">${tagData.tag.toUpperCase()}</span>`;
         }
         return '<span class="tag tag-member">MEMBER</span>';
     }
 
     function getUserGlowClass(user) {
-        if (user?.isOwner) return 'glow-name glow-prime';
-        const tagData = userTags[user?.username];
+        if (!user) return '';
+        if (user.isBanned) return '';
+        if (user.isOwner) return 'glow-name glow-prime';
+        const tagData = userTags[user.username];
         if (tagData?.glow) {
             const glowMap = { prime: 'glow-prime', premium: 'glow-premium', vip: 'glow-vip', elite: 'glow-elite', legend: 'glow-legend', god: 'glow-god', hacker: 'glow-hacker' };
             return `glow-name ${glowMap[tagData.tag] || ''}`;
@@ -426,12 +468,15 @@
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
     function updateNav() {
-        if (currentUser) {
+        if (currentUser && !isBanned(currentUser.username)) {
             document.getElementById('authNav').classList.add('hidden');
             document.getElementById('userNav').classList.remove('hidden');
             const avatar = currentUser.avatar || `https://ui-avatars.com/api/?background=dc2626&color=fff&name=${encodeURIComponent(currentUser.username)}`;
             document.getElementById('navAvatar').src = avatar;
             document.getElementById('userTag').innerHTML = `${currentUser.username} ${getUserTagDisplay(currentUser)}`;
+        } else if (currentUser && isBanned(currentUser.username)) {
+            logout();
+            showToast('Your account has been banned', true);
         } else {
             document.getElementById('authNav').classList.remove('hidden');
             document.getElementById('userNav').classList.add('hidden');
@@ -455,67 +500,57 @@
                     <div class="card" style="padding:1rem;"><strong>Revenue</strong><br><span style="font-size:2rem;">$${totalRevenue}</span></div>
                 </div>
                 <button onclick="closeModal();showPage('members');">Manage Users</button>
-                <button onclick="closeModal();showPage('forum');" style="margin-left:0.5rem;">Manage Orders</button>
+                <button onclick="closeModal();downloadBackup();" style="margin-left:0.5rem;">Download Backup</button>
             </div>
         `);
     };
 
-    // Members Page
-    function renderMembers(container) {
-        if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
-        container.innerHTML = `
-            <div class="card"><div class="card-title">Members Directory</div>
-            <input type="text" id="memberSearch" placeholder="Search members..." onkeyup="filterMembers()">
-            <div id="membersList" class="grid-3"></div></div>`;
-        renderMembersList();
-    }
-
-    function renderMembersList() {
-        const search = document.getElementById('memberSearch')?.value.toLowerCase() || '';
-        const filtered = users.filter(u => u.username.toLowerCase().includes(search));
-        document.getElementById('membersList').innerHTML = filtered.map(u => `
-            <div class="member-card" onclick="showProfile('${u.username}')">
-                <img class="avatar-small" style="width:50px;height:50px;border-radius:50%;" src="${u.avatar || `https://ui-avatars.com/api/?background=dc2626&color=fff&name=${encodeURIComponent(u.username)}`}">
-                <div class="${getUserGlowClass(u)}">${u.username}</div>
-                ${getUserTagDisplay(u)}
-                <div><span class="online-dot ${isOnline(u.username) ? 'online' : 'offline'}"></span> ${isOnline(u.username) ? 'Online' : 'Offline'}</div>
-            </div>
-        `).join('');
-    }
-    window.filterMembers = renderMembersList;
-
-    // Chat Page
-    function renderChat(container) {
-        if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
-        container.innerHTML = `
-            <div class="card"><div class="card-title">Public Live Chat</div>
-            <div id="chatMessages" style="height:400px; overflow-y:auto; background:#0a0e16; border-radius:12px; padding:1rem; margin-bottom:1rem;"></div>
-            <div style="display:flex; gap:0.5rem;"><input type="text" id="chatInput" placeholder="Type message... (emojis allowed)" style="flex:1;"><button onclick="sendChatMessage()">Send</button></div>
-            ${currentUser?.isOwner ? '<button onclick="clearAllChat()" style="margin-top:0.5rem; background:#6b7280;">Clear All Chat</button>' : ''}
-            </div>`;
-        renderChatMessages();
-        setInterval(renderChatMessages, 3000);
-    }
-
-    function renderChatMessages() {
-        const container = document.getElementById('chatMessages');
-        if (!container) return;
-        container.innerHTML = chatMessages.slice(-50).reverse().map(m => {
-            const user = users.find(u => u.username === m.username);
-            return `<div class="chat-message"><span class="username ${getUserGlowClass(user || {})}" onclick="showProfile('${m.username}')">${m.username}</span> ${getUserTagDisplay(user || {})}<span class="time">${m.time}</span><br>${m.message}</div>`;
-        }).join('');
-        container.scrollTop = container.scrollHeight;
-    }
-
-    window.sendChatMessage = function() {
-        const msg = document.getElementById('chatInput')?.value.trim();
-        if (!msg) return;
-        chatMessages.push({ username: currentUser.username, message: msg, time: new Date().toLocaleTimeString() });
+    // Ban User
+    window.banUser = function(username) {
+        if (!currentUser?.isOwner) return;
+        const user = users.find(u => u.username === username);
+        if (!user) return;
+        user.isBanned = true;
+        if (user.fingerprint) bannedIPs.push(user.fingerprint);
+        userTags[username] = { tag: 'banned', glow: false };
+        if (currentUser.username === username) logout();
         saveData();
-        document.getElementById('chatInput').value = '';
-        renderChatMessages();
+        showToast(`${username} has been banned`);
+        closeModal();
+        if (document.getElementById('membersList')) renderMembersList();
     };
-    window.clearAllChat = function() { chatMessages = []; saveData(); renderChatMessages(); showToast('Chat cleared'); };
+
+    window.unbanUser = function(username) {
+        if (!currentUser?.isOwner) return;
+        const user = users.find(u => u.username === username);
+        if (!user) return;
+        user.isBanned = false;
+        if (user.fingerprint) {
+            const index = bannedIPs.indexOf(user.fingerprint);
+            if (index !== -1) bannedIPs.splice(index, 1);
+        }
+        delete userTags[username];
+        saveData();
+        showToast(`${username} has been unbanned`);
+        closeModal();
+        if (document.getElementById('membersList')) renderMembersList();
+    };
+
+    window.deletePost = function(postId) {
+        if (!currentUser?.isOwner) return;
+        posts = posts.filter(p => p.id !== postId);
+        saveData();
+        showToast('Post deleted');
+        if (document.getElementById('forumPosts')) renderMyPosts();
+    };
+
+    window.deleteMessage = function(msgId) {
+        if (!currentUser?.isOwner) return;
+        messages = messages.filter(m => m.id !== msgId);
+        saveData();
+        showToast('Message deleted');
+        if (document.getElementById('inboxList')) showPage('inbox');
+    };
 
     // Profile
     window.showProfile = function(username) {
@@ -541,13 +576,15 @@
         if (isSelf) {
             content += `<hr style="margin:1rem 0;"><h3>Settings</h3>
                 <input type="file" id="avatarUpload" accept="image/*"><button onclick="uploadAvatar()">Change Avatar</button>
-                <input type="password" id="newPassword" placeholder="New Password"><input type="password" id="confirmPassword" placeholder="Confirm"><button onclick="changePassword()">Change Password</button>`;
+                <input type="password" id="newPassword" placeholder="New Password"><input type="password" id="confirmPassword" placeholder="Confirm"><button onclick="changePassword()">Change Password</button>
+                <button onclick="enable2FA()" style="background:#3b82f6;">Enable 2FA</button>`;
         }
         if (isOwner && !isSelf) {
             content += `<hr style="margin:1rem 0;"><h3>Admin Actions</h3>
                 <select id="adminTagSelect"><option value="">Remove Tag</option>${availableTags.map(t => `<option value="${t}" ${tagData.tag === t ? 'selected' : ''}>${t.toUpperCase()}</option>`).join('')}</select>
                 <label><input type="checkbox" id="adminGlowCheck" ${tagData.glow ? 'checked' : ''}> Enable Name Glow</label>
                 <button onclick="adminUpdateTag('${username}')">Update Tag</button>
+                ${user.isBanned ? `<button onclick="unbanUser('${username}')" style="background:#10b981;">Unban User</button>` : `<button onclick="banUser('${username}')" style="background:#000000;">Ban User</button>`}
                 <button onclick="adminDeleteUser('${username}')" style="background:#6b7280;">Delete User</button>`;
         }
         if (isOwner) {
@@ -556,14 +593,16 @@
         content += `</div>`;
         showModal(user.username + "'s Profile", content);
         if (isOwner && userOrders.length) {
-            document.getElementById('adminUserOrders').innerHTML = userOrders.map(o => `<div class="reply">${o.content.substring(0,100)}...<br><small>${o.timestamp} | ${o.status}</small><button onclick="closeModal();viewOrderPost(${o.id})" style="margin-left:0.5rem; padding:2px 8px;">View</button></div>`).join('');
+            document.getElementById('adminUserOrders').innerHTML = userOrders.map(o => `<div class="reply">${o.content.substring(0,100)}...<br><small>${o.timestamp} | ${o.status}</small><button onclick="closeModal();viewOrderPost(${o.id})" style="margin-left:0.5rem; padding:2px 8px;">View</button><button onclick="deletePost(${o.id})" class="delete-btn">Delete</button></div>`).join('');
         }
     };
 
     window.startChatWith = function(username) {
         closeModal();
         showModal(`Message ${username}`, `<textarea id="directMsg" rows="4" placeholder="Type your message..."></textarea><button onclick="sendDirectMessage('${username}')">Send</button>`);
+        document.getElementById('directMsg')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendDirectMessage(username); });
     };
+    
     window.sendDirectMessage = function(to) {
         const content = document.getElementById('directMsg')?.value.trim();
         if (!content) return;
@@ -572,6 +611,7 @@
         showToast('Message sent!');
         closeModal();
     };
+    
     window.adminDeleteUser = function(username) {
         if (confirm(`Delete ${username} permanently?`)) {
             users = users.filter(u => u.username !== username);
@@ -585,6 +625,7 @@
             if (document.getElementById('membersList')) renderMembersList();
         }
     };
+    
     window.adminUpdateTag = function(username) {
         const tag = document.getElementById('adminTagSelect').value;
         const glow = document.getElementById('adminGlowCheck').checked;
@@ -595,6 +636,7 @@
         closeModal();
         showProfile(username);
     };
+    
     window.uploadAvatar = function() {
         const file = document.getElementById('avatarUpload').files[0];
         if (file) {
@@ -603,6 +645,7 @@
             reader.readAsDataURL(file);
         }
     };
+    
     window.changePassword = function() {
         const newPass = document.getElementById('newPassword').value;
         const confirm = document.getElementById('confirmPassword').value;
@@ -615,8 +658,16 @@
         showToast('Password changed');
         closeModal();
     };
+    
+    window.enable2FA = function() {
+        const code = Math.floor(100000 + Math.random() * 900000);
+        currentUser.twoFACode = code;
+        currentUser.twoFAEnabled = true;
+        saveData();
+        showModal('2FA Setup', `Your verification code: <strong style="font-size:2rem;">${code}</strong><br>Save this code. You'll need it to login.`);
+    };
 
-    // Forum - Only user sees own posts
+    // Forum
     function renderForum(container) {
         if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
         container.innerHTML = `<div class="card"><div class="card-title">My Orders</div>
@@ -625,6 +676,7 @@
             <div id="forumPosts"></div></div>`;
         renderMyPosts();
     }
+    
     function renderMyPosts() {
         const container = document.getElementById('forumPosts');
         if (!container) return;
@@ -632,9 +684,14 @@
         if (!myPosts.length) { container.innerHTML = '<p>No orders yet. Create one after payment.</p>'; return; }
         container.innerHTML = myPosts.map(post => {
             const user = users.find(u => u.id === post.userId);
-            return `<div class="post"><div class="post-header"><div class="post-user" onclick="showProfile('${post.username}')"><span class="${getUserGlowClass(user || {})}">${post.username}</span>${getUserTagDisplay(user || {})}${post.status === 'completed' ? '<span class="tag tag-prime">DELIVERED</span>' : '<span class="tag tag-member" style="background:#dc2626;">PENDING</span>'}</div><div class="post-time">${post.timestamp}</div></div><div class="post-content">${post.content.replace(/\n/g,'<br>')}</div>${post.image ? `<img src="${post.image}" class="post-image">` : ''}<div id="replies-${post.id}">${post.replies.map(r => `<div class="reply"><strong class="${getUserGlowClass(users.find(u=>u.username===r.username)||{})}" onclick="showProfile('${r.username}')">${r.username}</strong> ${getUserTagDisplay(users.find(u=>u.username===r.username)||{})}<br>${r.content}</div>`).join('')}</div>${currentUser ? `<div class="reply-box"><textarea id="reply-${post.id}" rows="2"></textarea><button onclick="addReply(${post.id})">Reply</button>${currentUser.isOwner ? `<button onclick="markDelivered(${post.id})" style="background:#10b981;">Mark Delivered & Send Key</button>` : ''}</div>` : ''}</div>`;
+            return `<div class="post"><div class="post-header"><div class="post-user" onclick="showProfile('${post.username}')"><span class="${getUserGlowClass(user || {})}">${post.username}</span>${getUserTagDisplay(user || {})}${post.status === 'completed' ? '<span class="tag tag-prime">DELIVERED</span>' : '<span class="tag tag-member" style="background:#dc2626;">PENDING</span>'}</div><div class="post-time">${post.timestamp}</div>${currentUser?.isOwner ? `<button class="delete-btn" onclick="deletePost(${post.id})">Delete</button>` : ''}</div><div class="post-content">${post.content.replace(/\n/g,'<br>')}</div>${post.image ? `<img src="${post.image}" class="post-image" onclick="window.open(this.src)">` : ''}<div id="replies-${post.id}">${post.replies.map(r => `<div class="reply"><strong class="${getUserGlowClass(users.find(u=>u.username===r.username)||{})}" onclick="showProfile('${r.username}')">${r.username}</strong> ${getUserTagDisplay(users.find(u=>u.username===r.username)||{})}<br>${r.content}</div>`).join('')}</div>${currentUser ? `<div class="reply-box"><textarea id="reply-${post.id}" rows="2" placeholder="Write reply..." onkeypress="handleReplyEnter(event, ${post.id})"></textarea><button onclick="addReply(${post.id})">Reply</button>${currentUser.isOwner ? `<button onclick="markDelivered(${post.id})" style="background:#10b981;">Mark Delivered & Send Key</button>` : ''}</div>` : ''}</div>`;
         }).join('');
     }
+    
+    window.handleReplyEnter = function(e, postId) {
+        if (e.key === 'Enter') { e.preventDefault(); addReply(postId); }
+    };
+    
     window.submitPost = function() {
         const content = document.getElementById('postContent')?.value.trim();
         if (!content) { showToast('Enter payment details', true); return; }
@@ -645,10 +702,12 @@
             reader.readAsDataURL(file);
         } else savePost(content, null);
     };
+    
     function savePost(content, image) {
-        const newPost = { id: Date.now(), username: currentUser.username, userId: currentUser.id, content, image, timestamp: new Date().toLocaleString(), replies: [], status: 'pending' };
+        const orderDetails = cart.map(i => `${i.name} x${i.quantity}`).join(', ');
+        const newPost = { id: Date.now(), username: currentUser.username, userId: currentUser.id, content, image, timestamp: new Date().toLocaleString(), replies: [], status: 'pending', orderDetails };
         posts.unshift(newPost);
-        messages.push({ id: Date.now(), from: currentUser.username, to: 'sufyan', content: `New Order: ${content.substring(0,100)}... | Product: ${cart.map(i=>i.name).join(', ')}`, timestamp: new Date().toLocaleString(), read: false, orderId: newPost.id, orderDetails: cart.map(i=>`${i.name} x${i.quantity}`).join(', ') });
+        messages.push({ id: Date.now(), from: currentUser.username, to: 'sufyan', content: `📦 NEW ORDER\nProduct: ${orderDetails}\n\nDetails: ${content.substring(0,200)}`, timestamp: new Date().toLocaleString(), read: false, orderId: newPost.id, orderDetails: orderDetails, hasImage: !!image });
         cart = [];
         saveData();
         document.getElementById('postContent').value = '';
@@ -657,39 +716,48 @@
         renderMyPosts();
         showToast('Order placed! Admin will verify within 12 hours.');
     }
+    
     window.addReply = function(postId) {
         const text = document.getElementById(`reply-${postId}`)?.value.trim();
         if (!text) return;
         const post = posts.find(p => p.id === postId);
         if (post) { post.replies.push({ username: currentUser.username, content: text, timestamp: new Date().toLocaleString() }); saveData(); renderMyPosts(); }
     };
+    
     window.markDelivered = function(postId) {
         const post = posts.find(p => p.id === postId);
         if (post) {
             const key = `CFG-${Math.random().toString(36).substring(2,10).toUpperCase()}`;
             post.status = 'completed';
             post.replies.push({ username: 'OWNER', content: `✅ Payment verified! CFG Key: ${key}\nContact Discord: sufyancounter for file.`, timestamp: new Date().toLocaleString() });
-            messages.push({ id: Date.now(), from: 'sufyan', to: post.username, content: `Order delivered! Key: ${key}`, timestamp: new Date().toLocaleString(), read: false });
+            messages.push({ id: Date.now(), from: 'sufyan', to: post.username, content: `🎮 Order Delivered!\nProduct: ${post.orderDetails || 'CFG'}\nKey: ${key}`, timestamp: new Date().toLocaleString(), read: false });
             saveData();
             renderMyPosts();
             showToast(`Key sent to ${post.username}`);
         }
     };
+    
     window.viewOrderPost = function(postId) {
         const post = posts.find(p => p.id === postId);
-        if (post) showModal('Order Details', `<div class="post">${post.content.replace(/\n/g,'<br>')}${post.image ? `<img src="${post.image}" style="max-width:100%;">` : ''}<br><small>${post.timestamp} | ${post.status}</small></div>`);
+        if (post) showModal('Order Details', `<div class="post"><strong>Product:</strong> ${post.orderDetails || 'N/A'}<br><br>${post.content.replace(/\n/g,'<br>')}${post.image ? `<br><img src="${post.image}" style="max-width:100%;">` : ''}<br><br><small>${post.timestamp} | ${post.status}</small></div>`);
     };
 
     // Inbox
     function renderInbox(container) {
         if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
         const userMsgs = messages.filter(m => m.to === currentUser.username || m.from === currentUser.username).sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
-        container.innerHTML = `<div class="card"><div class="card-title">Inbox</div><button onclick="composeMessage()">+ New Message</button><div id="inboxList">${userMsgs.length ? userMsgs.map(m => `<div class="message-item ${!m.read && m.to===currentUser.username?'message-unread':''}" onclick="viewMessage(${m.id})"><strong>${m.from===currentUser.username?'To: '+m.to:'From: '+m.from}</strong><br>${m.content.substring(0,80)}${m.orderDetails ? `<br><small style="color:#f97316;">📦 Order: ${m.orderDetails}</small>` : ''}<br><small>${m.timestamp}</small></div>`).join('') : '<p>No messages</p>'}</div></div>`;
+        container.innerHTML = `<div class="card"><div class="card-title">Inbox</div><button onclick="composeMessage()">+ New Message</button><div id="inboxList">${userMsgs.length ? userMsgs.map(m => `<div class="message-item ${!m.read && m.to===currentUser.username?'message-unread':''}" onclick="viewMessage(${m.id})"><strong>${m.from===currentUser.username?'To: '+m.to:'From: '+m.from}</strong><br>${m.content.substring(0,80)}${m.orderDetails ? `<br><small style="color:#f97316;">📦 Order: ${m.orderDetails}</small>` : ''}<br><small>${m.timestamp}</small>${currentUser?.isOwner ? `<button class="delete-btn" onclick="event.stopPropagation();deleteMessage(${m.id})">Delete</button>` : ''}</div>`).join('') : '<p>No messages</p>'}</div></div>`;
     }
+    
     window.composeMessage = function() {
-        const others = users.filter(u => u.username !== currentUser.username).map(u => u.username);
-        showModal('New Message', `<select id="msgTo">${others.map(o=>`<option value="${o}">${o}</option>`).join('')}</select><textarea id="msgContent" rows="4"></textarea><button onclick="sendComposed()">Send</button>`);
+        const others = users.filter(u => u.username !== currentUser.username && !u.isBanned).map(u => u.username);
+        showModal('New Message', `<select id="msgTo">${others.map(o=>`<option value="${o}">${o}</option>`).join('')}</select><textarea id="msgContent" rows="4" placeholder="Type your message..." onkeypress="handleComposeEnter(event)"></textarea><button onclick="sendComposed()">Send</button>`);
     };
+    
+    window.handleComposeEnter = function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); sendComposed(); }
+    };
+    
     window.sendComposed = function() {
         const to = document.getElementById('msgTo')?.value;
         const content = document.getElementById('msgContent')?.value.trim();
@@ -700,20 +768,94 @@
         closeModal();
         showPage('inbox');
     };
+    
     window.viewMessage = function(id) {
         const msg = messages.find(m => m.id === id);
         if (msg && !msg.read && msg.to === currentUser.username) msg.read = true;
         saveData();
-        showModal('Message', `<strong>From: ${msg.from}</strong><br><strong>To: ${msg.to}</strong><br><strong>Time: ${msg.timestamp}</strong><br><br>${msg.content.replace(/\n/g,'<br>')}${msg.orderDetails ? `<br><br><strong>Order Details:</strong> ${msg.orderDetails}` : ''}<br><br><button onclick="closeModal();startChatWith('${msg.from}')">Reply</button>`);
+        showModal('Message', `<strong>From: ${msg.from}</strong><br><strong>To: ${msg.to}</strong><br><strong>Time: ${msg.timestamp}</strong><br><br>${msg.content.replace(/\n/g,'<br>')}${msg.orderDetails ? `<br><br><strong>📦 Order Details:</strong> ${msg.orderDetails}` : ''}${msg.hasImage ? `<br><br><strong>📸 Screenshot included in order post</strong>` : ''}<br><br><button onclick="closeModal();startChatWith('${msg.from}')">Reply</button>`);
         if (currentUser.isOwner) showPage('inbox');
     };
 
-    // Store, Cart, Login, Register, Home
+    // Members
+    function renderMembers(container) {
+        if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
+        container.innerHTML = `<div class="card"><div class="card-title">Members Directory</div>
+            <input type="text" id="memberSearch" placeholder="Search members..." onkeyup="filterMembers()" onkeypress="handleSearchEnter(event)">
+            <div id="membersList" class="grid-3"></div></div>`;
+        renderMembersList();
+    }
+    
+    window.handleSearchEnter = function(e) {
+        if (e.key === 'Enter') filterMembers();
+    };
+    
+    function renderMembersList() {
+        const search = document.getElementById('memberSearch')?.value.toLowerCase() || '';
+        const filtered = users.filter(u => u.username.toLowerCase().includes(search));
+        document.getElementById('membersList').innerHTML = filtered.map(u => `
+            <div class="member-card" onclick="showProfile('${u.username}')">
+                <img class="avatar-small" style="width:50px;height:50px;border-radius:50%;" src="${u.avatar || `https://ui-avatars.com/api/?background=dc2626&color=fff&name=${encodeURIComponent(u.username)}`}">
+                <div class="${getUserGlowClass(u)}">${u.username}</div>
+                ${getUserTagDisplay(u)}
+                <div><span class="online-dot ${isOnline(u.username) ? 'online' : 'offline'}"></span> ${isOnline(u.username) ? 'Online' : 'Offline'}</div>
+            </div>
+        `).join('');
+    }
+    window.filterMembers = renderMembersList;
+
+    // Chat
+    function renderChat(container) {
+        if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
+        container.innerHTML = `<div class="card"><div class="card-title">Public Live Chat</div>
+            <div id="chatMessages" class="chat-container"></div>
+            <div style="display:flex; gap:0.5rem;"><input type="text" id="chatInput" placeholder="Type message... (emojis allowed)" onkeypress="handleChatEnter(event)" style="flex:1;"><button onclick="sendChatMessage()">Send</button></div>
+            ${currentUser?.isOwner ? '<button onclick="clearAllChat()" style="margin-top:0.5rem; background:#6b7280;">Clear All Chat</button>' : ''}
+            </div>`;
+        renderChatMessages();
+        setInterval(renderChatMessages, 3000);
+    }
+    
+    window.handleChatEnter = function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); sendChatMessage(); }
+    };
+    
+    function renderChatMessages() {
+        const container = document.getElementById('chatMessages');
+        if (!container) return;
+        container.innerHTML = chatMessages.slice(-50).reverse().map(m => {
+            const user = users.find(u => u.username === m.username);
+            return `<div class="chat-message"><span class="username ${getUserGlowClass(user || {})}" onclick="showProfile('${m.username}')">${m.username}</span> ${getUserTagDisplay(user || {})}<span class="time">${m.time}</span><br>${m.message}${currentUser?.isOwner ? `<button class="delete-btn" onclick="deleteChatMessage('${m.id}')">Delete</button>` : ''}</div>`;
+        }).join('');
+        container.scrollTop = container.scrollHeight;
+    }
+    
+    window.sendChatMessage = function() {
+        const msg = document.getElementById('chatInput')?.value.trim();
+        if (!msg) return;
+        chatMessages.push({ id: Date.now(), username: currentUser.username, message: msg, time: new Date().toLocaleTimeString() });
+        saveData();
+        document.getElementById('chatInput').value = '';
+        renderChatMessages();
+    };
+    
+    window.deleteChatMessage = function(id) {
+        if (!currentUser?.isOwner) return;
+        chatMessages = chatMessages.filter(m => m.id != id);
+        saveData();
+        renderChatMessages();
+        showToast('Message deleted');
+    };
+    
+    window.clearAllChat = function() { chatMessages = []; saveData(); renderChatMessages(); showToast('Chat cleared'); };
+
+    // Store, Cart, Checkout
     function renderStore(container) {
         if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
         container.innerHTML = `<div class="card"><div class="card-title">Available Configs</div><div class="grid-3" id="productsGrid"></div></div>`;
         document.getElementById('productsGrid').innerHTML = products.map(p => `<div class="product-card"><h3>${p.name}</h3><div class="product-price">$${p.price}</div><p>${p.description}</p><button onclick="addToCart(${p.id})">Add to Cart</button></div>`).join('');
     }
+    
     window.addToCart = function(id) {
         const p = products.find(p=>p.id===id);
         const existing = cart.find(i=>i.id===id);
@@ -722,6 +864,7 @@
         saveData();
         showToast(`${p.name} added`);
     };
+    
     function renderCart(container) {
         if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
         if (!cart.length) { container.innerHTML = `<div class="card"><div class="card-title">Cart Empty</div><button onclick="showPage('store')">Store</button></div>`; return; }
@@ -729,48 +872,141 @@
         const items = cart.map(i => { total += i.price * i.quantity; return `<div class="cart-item"><span>${i.name} x${i.quantity}</span><span>$${i.price*i.quantity}</span><button onclick="removeFromCart(${i.id})" style="background:#3a2a2a;">Remove</button></div>`; }).join('');
         container.innerHTML = `<div class="card"><div class="card-title">Cart</div>${items}<div class="cart-item" style="border-top:2px solid #dc2626;"><span>Total</span><span>$${total}</span></div><button onclick="showPage('checkout')">Checkout</button></div>`;
     }
+    
     window.removeFromCart = function(id) { cart = cart.filter(i=>i.id!==id); saveData(); showPage('cart'); };
+    
     function renderCheckout(container) {
         const total = cart.reduce((s,i)=>s+(i.price*i.quantity),0);
         const amount = total===10?12:total===18?20:12;
-        container.innerHTML = `<div class="card"><div class="card-title">Checkout</div><p><strong>Total: $${total}</strong></p><div style="background:#0a0e16;padding:1rem;"><strong>EasyPaisa (Remitly)</strong><br>Pakistan | EasyPaisa Wallet<br>Muhammad Arshad | +92 348 8308531<br>Send $${amount} USD<br><br><strong>Litecoin (LTC)</strong><br>ltc1qplpy27p9q3rlrmv2t5srmw8hkytm6xhp663we3<br>Send $${amount} USD LTC</div><button onclick="showPage('forum')">Submit Payment Proof</button></div>`;
+        container.innerHTML = `<div class="card"><div class="card-title">Checkout</div>
+            <p><strong>Total: $${total}</strong></p>
+            <div style="background:#0a0e16;padding:1rem;border-radius:12px;margin:1rem 0;">
+                <h3 style="color:#dc2626;">📱 Payment Option 1: EasyPaisa (via Remitly)</h3>
+                <p>You can easily send the payment through Remitly — it's fast and simple.<br>
+                Please select <strong>Pakistan</strong> as the destination country, then choose <strong>EasyPaisa Mobile Wallet</strong> as the delivery option.</p>
+                <p><strong>Details:</strong><br>
+                Name: Muhammad Arshad<br>
+                Mobile (EasyPaisa): +92 348 8308531<br>
+                Country: Pakistan<br>
+                Bank: EasyPaisa</p>
+                <p><strong style="color:#f97316;">⚠️ Send $${amount} USD (tax included)</strong></p>
+                <hr style="margin:1rem 0; border-color:#2a2f42;">
+                <h3 style="color:#dc2626;">₿ Payment Option 2: Litecoin (LTC)</h3>
+                <p>Send exactly <strong>$${amount} USD</strong> worth of LTC to this address:</p>
+                <code style="background:#000;padding:8px;display:block;word-break:break-all;">ltc1qplpy27p9q3rlrmv2t5srmw8hkytm6xhp663we3</code>
+            </div>
+            <p>After payment, go to <strong>Forum</strong> and create a post with your transaction ID and screenshot.</p>
+            <button onclick="showPage('forum')">Submit Payment Proof</button>
+        </div>`;
     }
+
+    // Login & Register
     function renderLogin(container) {
-        container.innerHTML = `<div class="card"><div class="card-title">Login</div><input id="loginUsername" placeholder="Username"><input id="loginPassword" type="password"><button onclick="login()">Login</button><p><a onclick="showPage('forgot')" style="color:#dc2626;">Forgot Password?</a> | <a onclick="showPage('register')" style="color:#dc2626;">Register</a></p></div>`;
+        container.innerHTML = `<div class="card"><div class="card-title">Login</div>
+            <input id="loginUsername" placeholder="Username" onkeypress="handleLoginEnter(event)">
+            <input id="loginPassword" type="password" placeholder="Password" onkeypress="handleLoginEnter(event)">
+            <button onclick="login()">Login</button>
+            <p><a onclick="showPage('forgot')" style="color:#dc2626;cursor:pointer;">Forgot Password?</a> | <a onclick="showPage('register')" style="color:#dc2626;cursor:pointer;">Register</a></p>
+            <div id="loginError" style="color:#dc2626; margin-top:0.5rem;"></div>
+        </div>`;
     }
-    window.login = function() {
-        const u = document.getElementById('loginUsername').value;
-        const p = document.getElementById('loginPassword').value;
-        const user = users.find(u2=>u2.username===u && u2.password===p);
-        if (user) { currentUser = user; saveData(); updateNav(); showToast(`Welcome ${u}`); showPage('home'); }
-        else showToast('Invalid', true);
+    
+    window.handleLoginEnter = function(e) {
+        if (e.key === 'Enter') login();
     };
+    
+    window.login = function() {
+        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+        const user = users.find(u => u.username === username);
+        const errorDiv = document.getElementById('loginError');
+        if (!user) { errorDiv.innerHTML = '❌ Username not found'; return; }
+        if (user.password !== password) { errorDiv.innerHTML = '❌ Incorrect password'; return; }
+        if (user.isBanned) { errorDiv.innerHTML = '❌ This account has been banned'; return; }
+        if (user.twoFAEnabled) {
+            showModal('2FA Verification', `<input id="2faCode" placeholder="Enter 6-digit code"><button onclick="verify2FA('${username}')">Verify</button>`);
+            return;
+        }
+        currentUser = user;
+        saveData();
+        updateNav();
+        showToast(`Welcome back, ${username}!`);
+        showPage('home');
+    };
+    
+    window.verify2FA = function(username) {
+        const code = document.getElementById('2faCode').value;
+        const user = users.find(u => u.username === username);
+        if (user && user.twoFACode == code) {
+            currentUser = user;
+            saveData();
+            updateNav();
+            closeModal();
+            showToast('2FA Verified');
+            showPage('home');
+        } else {
+            showToast('Invalid 2FA code', true);
+        }
+    };
+    
     function renderRegister(container) {
-        container.innerHTML = `<div class="card"><div class="card-title">Register</div><input id="regUsername" placeholder="Username"><input id="regEmail" placeholder="Email"><input id="regCountry" placeholder="Country"><input id="regPassword" type="password"><button onclick="register()">Register</button></div>`;
+        container.innerHTML = `<div class="card"><div class="card-title">Register</div>
+            <input id="regUsername" placeholder="Username" onkeypress="handleRegisterEnter(event)">
+            <input id="regEmail" placeholder="Email" onkeypress="handleRegisterEnter(event)">
+            <input id="regCountry" placeholder="Country" onkeypress="handleRegisterEnter(event)">
+            <input id="regPassword" type="password" placeholder="Password" onkeypress="handleRegisterEnter(event)">
+            <button onclick="register()">Register</button>
+            <div id="regError" style="color:#dc2626; margin-top:0.5rem;"></div>
+        </div>`;
     }
+    
+    window.handleRegisterEnter = function(e) {
+        if (e.key === 'Enter') register();
+    };
+    
     window.register = async function() {
         const fp = await FingerprintJS.load();
         const fingerprint = (await fp.get()).visitorId;
-        if (fingerprints[fingerprint] && fingerprints[fingerprint] !== currentUser?.username) { showToast('One account per device only', true); return; }
+        const errorDiv = document.getElementById('regError');
+        
+        if (bannedIPs.includes(fingerprint)) { errorDiv.innerHTML = '❌ Your device is banned'; return; }
+        if (fingerprints[fingerprint] && !users.find(u => u.username === fingerprints[fingerprint])) {
+            errorDiv.innerHTML = '❌ One account per device only';
+            return;
+        }
+        
         const username = document.getElementById('regUsername').value.trim();
         const email = document.getElementById('regEmail').value.trim();
         const country = document.getElementById('regCountry').value.trim();
         const password = document.getElementById('regPassword').value;
-        if (!username || !email || !country || !password) { showToast('All fields required', true); return; }
-        if (users.find(u=>u.username===username)) { showToast('Username taken', true); return; }
+        
+        if (!username || !email || !country || !password) { errorDiv.innerHTML = '❌ All fields required'; return; }
+        if (users.find(u=>u.username===username)) { errorDiv.innerHTML = '❌ Username taken'; return; }
+        if (password.length < 4) { errorDiv.innerHTML = '❌ Password must be at least 4 characters'; return; }
+        
         fingerprints[fingerprint] = username;
         const isOwner = (username === 'sufyan');
-        const newUser = { id: Date.now(), username, email, country, password, isOwner, isPaid: false, registeredAt: new Date().toISOString(), avatar: null };
+        const newUser = { id: Date.now(), username, email, country, password, isOwner, isBanned: false, registeredAt: new Date().toISOString(), avatar: null, fingerprint };
         users.push(newUser);
         currentUser = newUser;
         saveData();
         updateNav();
-        showToast('Registered!');
+        showToast('Registered successfully!');
         showPage('home');
     };
+    
     function renderForgot(container) {
-        container.innerHTML = `<div class="card"><div class="card-title">Reset Password</div><input id="resetEmail" placeholder="Email"><button onclick="sendReset()">Send Reset Link</button><p><a onclick="showPage('login')">Back to Login</a></p></div>`;
+        container.innerHTML = `<div class="card"><div class="card-title">Reset Password</div>
+            <input id="resetEmail" placeholder="Email" onkeypress="handleResetEnter(event)">
+            <button onclick="sendReset()">Send Reset Link</button>
+            <p><a onclick="showPage('login')" style="color:#dc2626;cursor:pointer;">Back to Login</a></p>
+        </div>`;
     }
+    
+    window.handleResetEnter = function(e) {
+        if (e.key === 'Enter') sendReset();
+    };
+    
     window.sendReset = function() {
         const email = document.getElementById('resetEmail').value;
         const user = users.find(u=>u.email===email);
@@ -779,17 +1015,71 @@
         user.resetCode = code;
         user.resetExpiry = Date.now()+3600000;
         saveData();
-        showToast(`Reset code: ${code} (check console)`, true);
-        console.log(`Reset code for ${user.username}: ${code}`);
+        showModal('Password Reset', `Your reset code: <strong style="font-size:2rem;">${code}</strong><br><input id="newPassCode" placeholder="Enter code"><input id="newPass" type="password" placeholder="New Password"><button onclick="completeReset('${user.username}')">Reset Password</button>`);
     };
+    
+    window.completeReset = function(username) {
+        const enteredCode = document.getElementById('newPassCode').value;
+        const newPass = document.getElementById('newPass').value;
+        const user = users.find(u => u.username === username);
+        if (!user || user.resetCode !== enteredCode) { showToast('Invalid code', true); return; }
+        if (Date.now() > user.resetExpiry) { showToast('Code expired', true); return; }
+        user.password = newPass;
+        delete user.resetCode;
+        delete user.resetExpiry;
+        saveData();
+        showToast('Password reset successful');
+        closeModal();
+        showPage('login');
+    };
+    
+    // Home with Direct Chat
     function renderHome(container) {
         const primeUsers = Object.keys(userTags).filter(u => userTags[u]?.tag === 'prime');
-        container.innerHTML = `<div class="card"><div class="card-title">Welcome to Counter Prime</div><p>Professional CFG Store & Forum</p><button onclick="showPage('store')">Store</button><button class="btn-secondary" onclick="showPage('forum')">Forum</button></div>
-        <div class="card"><div class="card-title">🏆 Prime Members +REP</div><div id="primeList">${primeUsers.length ? primeUsers.map(u => { const user = users.find(us=>us.username===u); return `<div class="member-card" style="display:inline-block; margin:5px; padding:5px 10px;" onclick="showProfile('${u}')"><span class="${getUserGlowClass(user||{})}">${u}</span> ${getUserTagDisplay(user||{})} <span style="color:#f97316;">+REP</span></div>`; }).join('') : '<p>No Prime members yet</p>'}</div></div>
-        <div class="grid-2"><div class="card"><div class="card-title">Latest Orders</div><div id="latestPosts">${posts.slice(0,5).map(p=>`<div><strong class="${getUserGlowClass(users.find(u=>u.username===p.username)||{})}" onclick="showProfile('${p.username}')">${p.username}</strong>: ${p.content.substring(0,50)}...</div>`).join('') || 'No orders'}</div></div>
-        <div class="card"><div class="card-title">Live Chat</div><div id="homeChat">${chatMessages.slice(-3).reverse().map(m=>`<div><strong onclick="showProfile('${m.username}')">${m.username}</strong>: ${m.message.substring(0,60)}</div>`).join('') || 'No messages'}<button onclick="showPage('chat')" style="margin-top:0.5rem;">Join Chat</button></div></div></div>`;
+        container.innerHTML = `<div class="card"><div class="card-title">Welcome to Counter Prime</div>
+            <p>Professional CFG Store & Community Forum</p>
+            <button onclick="showPage('store')">Browse Store</button>
+            <button class="btn-secondary" onclick="showPage('forum')">My Orders</button>
+        </div>
+        <div class="card"><div class="card-title">🏆 Prime Members +REP</div>
+            <div id="primeList">${primeUsers.length ? primeUsers.map(u => { const user = users.find(us=>us.username===u); return `<div class="member-card" style="display:inline-block; margin:5px; padding:5px 10px;" onclick="showProfile('${u}')"><span class="${getUserGlowClass(user||{})}">${u}</span> ${getUserTagDisplay(user||{})} <span style="color:#f97316;">+REP</span></div>`; }).join('') : '<p>No Prime members yet</p>'}</div>
+        </div>
+        <div class="grid-2">
+            <div class="card"><div class="card-title">Latest Orders</div>
+                <div id="latestPosts">${posts.slice(0,5).map(p=>`<div><strong class="${getUserGlowClass(users.find(u=>u.username===p.username)||{})}" onclick="showProfile('${p.username}')">${p.username}</strong>: ${p.content.substring(0,50)}...</div>`).join('') || 'No orders'}</div>
+            </div>
+            <div class="card"><div class="card-title">💬 Public Live Chat</div>
+                <div id="homeChat" class="chat-container" style="height:200px;"></div>
+                <div style="display:flex; gap:0.5rem;"><input type="text" id="homeChatInput" placeholder="Type message..." onkeypress="handleHomeChatEnter(event)" style="flex:1;"><button onclick="sendHomeChatMessage()">Send</button></div>
+            </div>
+        </div>`;
+        renderHomeChat();
+        setInterval(renderHomeChat, 3000);
     }
-
+    
+    function renderHomeChat() {
+        const container = document.getElementById('homeChat');
+        if (!container) return;
+        container.innerHTML = chatMessages.slice(-10).reverse().map(m => {
+            const user = users.find(u => u.username === m.username);
+            return `<div><strong class="${getUserGlowClass(user || {})}" onclick="showProfile('${m.username}')">${m.username}</strong> ${getUserTagDisplay(user || {})}<span style="font-size:0.65rem; color:#6b7280;"> ${m.time}</span><br>${m.message}</div>`;
+        }).join('');
+        container.scrollTop = container.scrollHeight;
+    }
+    
+    window.sendHomeChatMessage = function() {
+        const msg = document.getElementById('homeChatInput')?.value.trim();
+        if (!msg) return;
+        chatMessages.push({ id: Date.now(), username: currentUser.username, message: msg, time: new Date().toLocaleTimeString() });
+        saveData();
+        document.getElementById('homeChatInput').value = '';
+        renderHomeChat();
+    };
+    
+    window.handleHomeChatEnter = function(e) {
+        if (e.key === 'Enter') sendHomeChatMessage();
+    };
+    
     function showPage(page) {
         const content = document.getElementById('pageContent');
         if (page === 'home') renderHome(content);
@@ -804,14 +1094,16 @@
         else if (page === 'checkout') renderCheckout(content);
         else if (page === 'forgot') renderForgot(content);
     }
-
+    
     function logout() { currentUser = null; saveData(); updateNav(); showToast('Logged out'); showPage('home'); }
-
+    
     function init() {
         if (!users.find(u=>u.username==='sufyan')) users.push({ id: 1, username: 'sufyan', email: 'sufyanzhin125@gmail.com', country: 'Pakistan', password: 'owner123', isOwner: true, registeredAt: new Date().toISOString(), avatar: null });
         saveData();
         updateNav();
         showPage('home');
+        setInterval(() => { if (document.getElementById('membersList')) renderMembersList(); }, 10000);
+        setInterval(() => { if (document.getElementById('chatMessages')) renderChatMessages(); if (document.getElementById('homeChat')) renderHomeChat(); }, 3000);
     }
     init();
 </script>
