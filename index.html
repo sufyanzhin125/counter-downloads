@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Counter Prime | Professional CFG Store</title>
-    <!-- EmailJS CDN -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <title>Counter Prime | Official Forum & Store</title>
     <style>
         * {
             margin: 0;
@@ -14,390 +12,768 @@
         }
 
         body {
-            background: #0f1117;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            color: #e8edf5;
+            background: #0a0c12;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #eef2ff;
             line-height: 1.5;
-            padding: 2rem 1.5rem;
         }
 
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-        }
-
-        /* Header */
-        .header {
-            text-align: center;
-            margin-bottom: 3rem;
+        /* Navigation */
+        .navbar {
+            background: #11141c;
+            border-bottom: 1px solid #1f2538;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .logo {
-            font-size: 2.5rem;
+            font-size: 1.6rem;
             font-weight: 700;
-            letter-spacing: -0.5px;
-            color: #ffffff;
+            color: #fff;
         }
 
         .logo span {
-            background: linear-gradient(135deg, #ffffff 0%, #8b7aff 100%);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
+            color: #ff4d4d;
         }
 
-        .tagline {
-            color: #7e849b;
-            margin-top: 0.5rem;
-            font-size: 0.95rem;
-            font-weight: 400;
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
-        .divider {
-            width: 60px;
-            height: 2px;
-            background: #2a2f42;
-            margin: 1.5rem auto 0;
+        .nav-links a {
+            color: #b0b7d0;
+            text-decoration: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
         }
 
-        /* Grid */
-        .grid-2col {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.8rem;
+        .nav-links a:hover {
+            color: #ff4d4d;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .tag {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .tag-owner {
+            background: #ff4d4d;
+            color: white;
+        }
+
+        .tag-paid {
+            background: #2e7d64;
+            color: white;
+        }
+
+        .tag-premium {
+            background: #d4af37;
+            color: #1a1a2e;
+        }
+
+        .tag-member {
+            background: #3a415e;
+            color: #eef2ff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
         }
 
         /* Cards */
         .card {
-            background: #151922;
-            border-radius: 20px;
-            padding: 1.8rem;
-            border: 1px solid #212635;
-            transition: all 0.2s ease;
-        }
-
-        .card:hover {
-            border-color: #333a52;
+            background: #11151f;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #1f2538;
         }
 
         .card-title {
             font-size: 1.3rem;
             font-weight: 600;
-            margin-bottom: 1.5rem;
-            color: #ffffff;
-            letter-spacing: -0.3px;
+            margin-bottom: 1rem;
+            color: #fff;
+            border-left: 3px solid #ff4d4d;
+            padding-left: 1rem;
         }
 
-        .card-title::before {
-            content: "";
-            display: inline-block;
-            width: 4px;
-            height: 18px;
-            background: #8b7aff;
-            margin-right: 10px;
-            border-radius: 2px;
-            vertical-align: middle;
-        }
-
-        /* Form Elements */
-        label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: #9ba1b8;
-            margin-bottom: 0.4rem;
-            margin-top: 1rem;
-        }
-
-        label:first-of-type {
-            margin-top: 0;
-        }
-
-        select, input, textarea {
+        /* Forms */
+        input, select, textarea {
             width: 100%;
-            background: #0d0f16;
-            border: 1px solid #282e42;
-            padding: 12px 16px;
-            border-radius: 12px;
-            color: #ffffff;
+            background: #0a0e16;
+            border: 1px solid #252c3f;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: white;
             font-size: 0.9rem;
-            font-family: 'Inter', monospace;
-            transition: 0.2s;
+            margin-bottom: 1rem;
+            font-family: inherit;
         }
 
-        select:focus, input:focus, textarea:focus {
+        input:focus, select:focus, textarea:focus {
             outline: none;
-            border-color: #8b7aff;
-            box-shadow: 0 0 0 2px rgba(139,122,255,0.15);
+            border-color: #ff4d4d;
         }
 
         button {
-            background: #8b7aff;
+            background: #ff4d4d;
             color: white;
             border: none;
-            padding: 14px 24px;
-            border-radius: 40px;
-            font-size: 0.9rem;
+            padding: 10px 20px;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
-            width: 100%;
-            margin-top: 1.5rem;
             font-family: inherit;
         }
 
         button:hover {
-            background: #7a68f0;
+            background: #e63e3e;
             transform: scale(0.98);
         }
 
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+        .btn-secondary {
+            background: #2a2f42;
         }
 
-        /* Payment Details Box */
-        .payment-detail-box {
-            background: #0d0f16;
-            border-radius: 16px;
-            padding: 1.2rem;
-            margin-top: 1rem;
-            border: 1px solid #212635;
+        .btn-secondary:hover {
+            background: #3a415e;
         }
 
-        .payment-detail-box strong {
-            color: #ffffff;
-            display: block;
-            margin-bottom: 0.75rem;
-            font-size: 0.9rem;
+        /* Grid */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
         }
 
-        .payment-detail-box .detail-text {
-            font-size: 0.85rem;
-            color: #b4bad0;
-            line-height: 1.6;
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
         }
 
-        .payment-detail-box code {
-            background: #05060a;
-            padding: 6px 10px;
-            display: inline-block;
-            margin: 8px 0;
-            font-size: 0.75rem;
-            word-break: break-all;
+        /* Product Card */
+        .product-card {
+            background: #0a0e16;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid #1f2538;
+        }
+
+        .product-price {
+            color: #ff4d4d;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        /* Cart */
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #1f2538;
+        }
+
+        /* Forum Posts */
+        .post {
+            background: #0a0e16;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 3px solid #ff4d4d;
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 0.5rem;
+        }
+
+        .post-user {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .post-time {
+            font-size: 0.7rem;
+            color: #7e849b;
+        }
+
+        .post-content {
+            margin: 0.5rem 0;
+            word-break: break-word;
+        }
+
+        .post-image {
+            max-width: 100%;
+            max-height: 200px;
             border-radius: 8px;
-            font-family: monospace;
+            margin-top: 0.5rem;
+        }
+
+        .reply-box {
+            margin-top: 0.5rem;
+            padding-left: 1rem;
+            border-left: 2px solid #2a2f42;
+        }
+
+        .reply {
+            background: #0f1117;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            border-radius: 8px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #11151f;
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid #ff4d4d;
         }
 
         .hidden {
             display: none;
         }
 
-        /* Alert & Success */
         .alert {
-            background: #1e1a2f;
-            border-left: 3px solid #ff6b6b;
-            padding: 1rem;
-            border-radius: 14px;
-            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
             font-size: 0.85rem;
+        }
+
+        .alert-error {
+            background: #2a1a1a;
+            border-left: 3px solid #ff4d4d;
             color: #ffb4b4;
         }
 
-        .success-box {
-            background: #0e191f;
-            border: 1px solid #3a7c6b;
-            border-radius: 16px;
-            padding: 1.2rem;
-            margin-top: 1.2rem;
-            text-align: center;
-            font-size: 0.85rem;
+        .alert-success {
+            background: #1a2a1a;
+            border-left: 3px solid #2e7d64;
+            color: #b4ffb4;
         }
 
         footer {
             text-align: center;
-            margin-top: 3rem;
+            padding: 2rem;
             color: #5a637c;
             font-size: 0.75rem;
-            border-top: 1px solid #1e2332;
-            padding-top: 2rem;
+            border-top: 1px solid #1f2538;
+            margin-top: 2rem;
         }
 
-        @media (max-width: 750px) {
-            body {
-                padding: 1rem;
-            }
-            .grid-2col {
+        @media (max-width: 768px) {
+            .grid-2 {
                 grid-template-columns: 1fr;
+            }
+            .navbar {
+                flex-direction: column;
+                text-align: center;
             }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <div class="logo"><span>COUNTER PRIME</span></div>
-        <div class="tagline">Undetected CFG | Lifetime Updates | Professional Configs</div>
-        <div class="divider"></div>
-    </div>
-
-    <div class="grid-2col">
-        <!-- LEFT COLUMN: Product & Payment -->
-        <div>
-            <div class="card">
-                <div class="card-title">Select Configuration</div>
-                <label>Choose product</label>
-                <select id="cfgSelect">
-                    <option value="Deadlock CFG (10 USD)">Deadlock CFG - 10 USD (lifetime)</option>
-                    <option value="Dota 2 CFG (10 USD)">Dota 2 CFG - 10 USD (lifetime)</option>
-                    <option value="Bundle Deadlock + Dota 2 (18 USD)">Bundle Deadlock + Dota 2 - 18 USD</option>
-                </select>
+<div id="app">
+    <!-- Navigation -->
+    <div class="navbar">
+        <div class="logo">COUNTER <span>PRIME</span></div>
+        <div class="nav-links">
+            <a onclick="showPage('home')">Home</a>
+            <a onclick="showPage('store')">Store</a>
+            <a onclick="showPage('forum')">Forum</a>
+            <a onclick="showPage('cart')">Cart (<span id="cartCount">0</span>)</a>
+            <div id="authNav">
+                <a onclick="showPage('login')">Login</a>
+                <a onclick="showPage('register')">Register</a>
             </div>
-
-            <div class="card">
-                <div class="card-title">Payment Method</div>
-                <label>Select payment option</label>
-                <select id="paymentMethod">
-                    <option value="EasyPaisa (Remitly)">EasyPaisa via Remitly / Bank Transfer</option>
-                    <option value="Litecoin (LTC)">Litecoin (LTC) - Crypto</option>
-                </select>
-
-                <!-- EasyPaisa Details -->
-                <div id="easypaisaBox" class="payment-detail-box">
-                    <strong>Remitly to EasyPaisa (Pakistan)</strong>
-                    <div class="detail-text">
-                        Destination country: Pakistan<br>
-                        Delivery: EasyPaisa Mobile Wallet<br>
-                        Account name: Muhammad Arshad<br>
-                        Mobile number: +92 348 8308531<br>
-                        Send exactly 12 USD (due to tax/fees)<br>
-                        Bank: EasyPaisa
-                    </div>
-                </div>
-
-                <!-- Crypto Details -->
-                <div id="cryptoBox" class="payment-detail-box hidden">
-                    <strong>Litecoin (LTC) - 12 USD</strong>
-                    <div class="detail-text">
-                        Send 12 USD worth of LTC to this address:<br>
-                        <code>ltc1qplpy27p9q3rlrmv2t5srmw8hkytm6xhp663we3</code><br>
-                        Network: Litecoin (LTC) only. After sending you will get a Transaction ID (TXID).
-                    </div>
-                </div>
+            <div id="userNav" class="user-info hidden">
+                <span id="userTag"></span>
+                <a onclick="logout()">Logout</a>
             </div>
-        </div>
-
-        <!-- RIGHT COLUMN: Verification Form -->
-        <div class="card">
-            <div class="card-title">Payment Verification</div>
-            <p style="margin-bottom: 1rem; font-size: 0.85rem; color: #9ba1b8;">Complete your payment, then fill this form. All details will be sent to admin email for manual verification.</p>
-
-            <label>Discord Username or Email Address</label>
-            <input type="text" id="userContact" placeholder="e.g., player#1234 or you@example.com" required>
-
-            <label>Transaction ID / Screenshot Link</label>
-            <input type="text" id="transactionId" placeholder="Remitly transaction ID / LTC TXID / Google Drive link" required>
-
-            <label>Additional Note (optional)</label>
-            <textarea rows="2" id="userNote" placeholder="Payment date, exact amount sent, etc."></textarea>
-
-            <button id="submitPaymentBtn">Submit Payment Proof</button>
-
-            <div id="resultMessage" style="margin-top: 1.2rem;"></div>
         </div>
     </div>
 
-    <footer>
-        Counter Prime - Manual verification ensures security. You will receive your CFG file within 12 hours after payment confirmation.<br>
-        Deadlock & Dota 2 CFG | One-click combo | Custom keybinds | All heroes scripts
-    </footer>
+    <div class="container" id="pageContent"></div>
+    <footer>Counter Prime Forum & Store | Owner: sufyan | Contact: sufyancounter on Discord</footer>
 </div>
 
 <script>
-    // Initialize EmailJS with YOUR public key (replace after signing up)
-    // STEP 1: Go to https://www.emailjs.com/
-    // STEP 2: Sign up -> Get your Public Key from "Account" -> "API Keys"
-    // STEP 3: Replace 'YOUR_PUBLIC_KEY_HERE' with that key
-    (function() {
-        emailjs.init("YOUR_PUBLIC_KEY_HERE");
-    })();
+    // ============= DATA STRUCTURE =============
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+    let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let posts = JSON.parse(localStorage.getItem('posts')) || [];
 
-    // Toggle payment details
-    const paymentSelect = document.getElementById('paymentMethod');
-    const easyBox = document.getElementById('easypaisaBox');
-    const cryptoBox = document.getElementById('cryptoBox');
+    // Products
+    const products = [
+        { id: 1, name: "Deadlock CFG", price: 10, description: "Full config, 1-click combo, all heroes" },
+        { id: 2, name: "Dota 2 CFG", price: 10, description: "Pro scripts, custom keybinds, undetected" },
+        { id: 3, name: "Bundle (Both Games)", price: 18, description: "Deadlock + Dota 2 CFG, lifetime updates" }
+    ];
 
-    paymentSelect.addEventListener('change', function() {
-        if (this.value === 'EasyPaisa (Remitly)') {
-            easyBox.classList.remove('hidden');
-            cryptoBox.classList.add('hidden');
+    // Helper Functions
+    function saveData() {
+        localStorage.setItem('users', JSON.stringify(users));
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        localStorage.setItem('cart', JSON.stringify(cart));
+        localStorage.setItem('posts', JSON.stringify(posts));
+        updateCartCount();
+    }
+
+    function updateCartCount() {
+        document.getElementById('cartCount').innerText = cart.reduce((sum, item) => sum + item.quantity, 0);
+    }
+
+    function getUserTag(user) {
+        if (user.isOwner) return '<span class="tag tag-owner">OWNER</span>';
+        if (user.isPaid) return '<span class="tag tag-paid">PAID USER</span>';
+        if (user.isPremium) return '<span class="tag tag-premium">PREMIUM</span>';
+        return '<span class="tag tag-member">MEMBER</span>';
+    }
+
+    function updateNav() {
+        if (currentUser) {
+            document.getElementById('authNav').classList.add('hidden');
+            document.getElementById('userNav').classList.remove('hidden');
+            document.getElementById('userTag').innerHTML = `${currentUser.username} ${getUserTag(currentUser)}`;
         } else {
-            easyBox.classList.add('hidden');
-            cryptoBox.classList.remove('hidden');
+            document.getElementById('authNav').classList.remove('hidden');
+            document.getElementById('userNav').classList.add('hidden');
         }
-    });
+    }
 
-    // Submit form and send email
-    document.getElementById('submitPaymentBtn').addEventListener('click', async function() {
-        const contact = document.getElementById('userContact').value.trim();
-        const txid = document.getElementById('transactionId').value.trim();
-        const note = document.getElementById('userNote').value.trim();
-        const cfg = document.getElementById('cfgSelect').value;
-        const paymentMethod = document.getElementById('paymentMethod').value;
+    // Show Page Function
+    function showPage(page) {
+        const content = document.getElementById('pageContent');
+        if (page === 'home') renderHome(content);
+        else if (page === 'store') renderStore(content);
+        else if (page === 'forum') renderForum(content);
+        else if (page === 'cart') renderCart(content);
+        else if (page === 'login') renderLogin(content);
+        else if (page === 'register') renderRegister(content);
+        else if (page === 'checkout') renderCheckout(content);
+    }
 
-        if (!contact || !txid) {
-            document.getElementById('resultMessage').innerHTML = `
-                <div class="alert">
-                    Error: Please fill both Contact and Transaction ID / Screenshot Link.
-                </div>`;
+    function renderHome(container) {
+        container.innerHTML = `
+            <div class="card">
+                <div class="card-title">Welcome to Counter Prime</div>
+                <p style="margin-bottom: 1rem;">Professional CFG Store & Community Forum. Buy Deadlock or Dota 2 configs with lifetime updates.</p>
+                <button onclick="showPage('store')">Browse Store</button>
+                <button class="btn-secondary" onclick="showPage('forum')" style="margin-left: 1rem;">Visit Forum</button>
+            </div>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">Latest Orders</div>
+                    <div id="latestPosts"></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">How to Buy</div>
+                    <p>1. Register an account<br>2. Add product to cart<br>3. Checkout & select payment<br>4. Submit payment proof in Forum<br>5. Wait 12 hours for delivery</p>
+                </div>
+            </div>
+        `;
+        const latestDiv = document.getElementById('latestPosts');
+        if (latestDiv) {
+            const recentPosts = [...posts].reverse().slice(0, 5);
+            if (recentPosts.length === 0) latestDiv.innerHTML = '<p>No posts yet.</p>';
+            else {
+                latestDiv.innerHTML = recentPosts.map(p => `
+                    <div style="padding: 0.5rem 0; border-bottom: 1px solid #1f2538;">
+                        <strong>${p.username}</strong>: ${p.content.substring(0, 50)}...
+                    </div>
+                `).join('');
+            }
+        }
+    }
+
+    function renderStore(container) {
+        if (!currentUser) {
+            container.innerHTML = `<div class="card"><div class="card-title">Please Login</div><p>You need to login to purchase.</p><button onclick="showPage('login')">Login</button></div>`;
             return;
         }
+        container.innerHTML = `
+            <div class="card">
+                <div class="card-title">Available Configs</div>
+                <div class="grid-3" id="productsGrid"></div>
+            </div>
+        `;
+        const grid = document.getElementById('productsGrid');
+        grid.innerHTML = products.map(p => `
+            <div class="product-card">
+                <h3>${p.name}</h3>
+                <div class="product-price">$${p.price}</div>
+                <p style="font-size: 0.8rem; color: #9ba1b8;">${p.description}</p>
+                <button onclick="addToCart(${p.id})" style="margin-top: 1rem;">Add to Cart</button>
+            </div>
+        `).join('');
+    }
 
-        const submitBtn = document.getElementById('submitPaymentBtn');
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Sending...";
+    window.addToCart = function(productId) {
+        const product = products.find(p => p.id === productId);
+        const existing = cart.find(item => item.id === productId);
+        if (existing) existing.quantity++;
+        else cart.push({ id: product.id, name: product.name, price: product.price, quantity: 1 });
+        saveData();
+        alert(`${product.name} added to cart`);
+        showPage('cart');
+    };
 
-        // Prepare email data
-        const emailParams = {
-            to_email: "sufyanzhin125@gmail.com",
-            user_contact: contact,
-            transaction_id: txid,
-            user_note: note || "No additional note",
-            product_name: cfg,
-            payment_method: paymentMethod,
-            timestamp: new Date().toLocaleString()
-        };
-
-        try {
-            // Send email using EmailJS
-            // Replace 'YOUR_SERVICE_ID' and 'YOUR_TEMPLATE_ID' after creating them
-            await emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', emailParams);
-            
-            document.getElementById('resultMessage').innerHTML = `
-                <div class="success-box">
-                    Payment proof received successfully.<br><br>
-                    <strong>Reference ID:</strong> CP-${Math.random().toString(36).substring(2, 8).toUpperCase()}<br>
-                    <strong>Product:</strong> ${cfg}<br>
-                    <strong>Contact:</strong> ${contact}<br><br>
-                    Admin will verify your payment within 12 hours.<br>
-                    Your CFG file will be sent to your contact.
+    function renderCart(container) {
+        if (!currentUser) {
+            container.innerHTML = `<div class="card"><div class="card-title">Please Login</div><button onclick="showPage('login')">Login</button></div>`;
+            return;
+        }
+        if (cart.length === 0) {
+            container.innerHTML = `<div class="card"><div class="card-title">Cart Empty</div><button onclick="showPage('store')">Go to Store</button></div>`;
+            return;
+        }
+        let total = 0;
+        const itemsHtml = cart.map(item => {
+            total += item.price * item.quantity;
+            return `
+                <div class="cart-item">
+                    <span>${item.name} x ${item.quantity}</span>
+                    <span>$${item.price * item.quantity}</span>
+                    <button onclick="removeFromCart(${item.id})" style="background:#3a2a2a; padding:4px 8px;">Remove</button>
                 </div>
             `;
-            // Clear form fields
-            document.getElementById('transactionId').value = "";
-            document.getElementById('userNote').value = "";
-        } catch (error) {
-            console.error("Email error:", error);
-            document.getElementById('resultMessage').innerHTML = `
-                <div class="alert">
-                    Error sending payment proof. Please contact admin directly on Discord.
-                </div>`;
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Submit Payment Proof";
+        }).join('');
+        container.innerHTML = `
+            <div class="card">
+                <div class="card-title">Your Cart</div>
+                ${itemsHtml}
+                <div class="cart-item" style="font-weight: 700; border-top: 2px solid #ff4d4d;">
+                    <span>Total</span>
+                    <span>$${total}</span>
+                </div>
+                <button onclick="showPage('checkout')" style="margin-top: 1rem;">Proceed to Checkout</button>
+            </div>
+        `;
+    }
+
+    window.removeFromCart = function(id) {
+        cart = cart.filter(item => item.id !== id);
+        saveData();
+        showPage('cart');
+    };
+
+    function renderCheckout(container) {
+        if (cart.length === 0) {
+            showPage('store');
+            return;
         }
-    });
+        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        container.innerHTML = `
+            <div class="card">
+                <div class="card-title">Checkout</div>
+                <p><strong>Total Amount: $${total}</strong></p>
+                <div class="payment-detail-box" style="background:#0a0e16; padding:1rem; border-radius:12px; margin:1rem 0;">
+                    <strong>Payment Options:</strong><br><br>
+                    <strong>Option 1: EasyPaisa (Remitly)</strong><br>
+                    Destination: Pakistan | EasyPaisa Mobile Wallet<br>
+                    Name: Muhammad Arshad | Mobile: +92 348 8308531<br>
+                    Send $${total === 10 ? '12' : total === 18 ? '20' : '12'} USD (tax included)<br><br>
+                    <strong>Option 2: Litecoin (LTC)</strong><br>
+                    Address: ltc1qplpy27p9q3rlrmv2t5srmw8hkytm6xhp663we3<br>
+                    Send exactly $${total === 10 ? '12' : total === 18 ? '20' : '12'} USD worth of LTC
+                </div>
+                <p>After payment, go to <strong>Forum</strong> and create a post with your transaction ID and screenshot.</p>
+                <button onclick="showPage('forum')">Go to Forum & Submit Proof</button>
+            </div>
+        `;
+    }
+
+    function renderForum(container) {
+        if (!currentUser) {
+            container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`;
+            return;
+        }
+        container.innerHTML = `
+            <div class="card">
+                <div class="card-title">Forum - Payment Proofs & Support</div>
+                <button onclick="showNewPostForm()">+ Create New Order Post</button>
+                <div id="newPostForm" class="hidden" style="margin-top: 1rem;">
+                    <textarea id="postContent" rows="3" placeholder="Write your payment details, transaction ID, and any notes..."></textarea>
+                    <input type="file" id="postImage" accept="image/*">
+                    <button onclick="submitPost()">Submit Payment Proof</button>
+                </div>
+                <div id="forumPosts" style="margin-top: 1.5rem;"></div>
+            </div>
+        `;
+        renderPosts();
+    }
+
+    window.showNewPostForm = function() {
+        const form = document.getElementById('newPostForm');
+        form.classList.toggle('hidden');
+    };
+
+    window.submitPost = function() {
+        const content = document.getElementById('postContent').value.trim();
+        const imageFile = document.getElementById('postImage').files[0];
+        if (!content) {
+            alert('Please write your payment details');
+            return;
+        }
+        
+        let imageData = null;
+        if (imageFile) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imageData = e.target.result;
+                savePost(content, imageData);
+            };
+            reader.readAsDataURL(imageFile);
+        } else {
+            savePost(content, null);
+        }
+    };
+
+    function savePost(content, imageData) {
+        const newPost = {
+            id: Date.now(),
+            username: currentUser.username,
+            userId: currentUser.id,
+            content: content,
+            image: imageData,
+            timestamp: new Date().toLocaleString(),
+            replies: [],
+            status: 'pending'
+        };
+        posts.unshift(newPost);
+        saveData();
+        document.getElementById('postContent').value = '';
+        document.getElementById('postImage').value = '';
+        document.getElementById('newPostForm').classList.add('hidden');
+        renderPosts();
+        
+        // Auto message for user
+        alert('Order placed. Please wait 12 hours for admin to verify. If no reply, contact discord: sufyancounter');
+    }
+
+    function renderPosts() {
+        const container = document.getElementById('forumPosts');
+        if (!container) return;
+        if (posts.length === 0) {
+            container.innerHTML = '<p>No posts yet. Create one to submit your payment proof.</p>';
+            return;
+        }
+        container.innerHTML = posts.map(post => `
+            <div class="post">
+                <div class="post-header">
+                    <div class="post-user">
+                        ${post.username} ${getUserTag(users.find(u => u.username === post.username) || {})}
+                        ${post.status === 'completed' ? '<span class="tag tag-paid" style="background:#2e7d64;">DELIVERED</span>' : '<span class="tag tag-member" style="background:#ff4d4d;">PENDING</span>'}
+                    </div>
+                    <div class="post-time">${post.timestamp}</div>
+                </div>
+                <div class="post-content">${post.content.replace(/\n/g, '<br>')}</div>
+                ${post.image ? `<img src="${post.image}" class="post-image" onclick="window.open(this.src)">` : ''}
+                <div id="replies-${post.id}">
+                    ${post.replies.map(reply => `
+                        <div class="reply">
+                            <strong>${reply.username} ${getUserTag(users.find(u => u.username === reply.username) || {})}</strong><br>
+                            ${reply.content}
+                        </div>
+                    `).join('')}
+                </div>
+                ${currentUser && (currentUser.isOwner || currentUser.username === post.username) ? `
+                    <div class="reply-box">
+                        <textarea id="reply-${post.id}" rows="2" placeholder="Write reply..."></textarea>
+                        <button onclick="addReply(${post.id})" style="margin-top: 0.5rem;">Reply</button>
+                        ${currentUser.isOwner ? `<button onclick="markDelivered(${post.id})" style="background:#2e7d64; margin-left: 0.5rem;">Mark as Delivered & Send Key</button>` : ''}
+                    </div>
+                ` : ''}
+            </div>
+        `).join('');
+    }
+
+    window.addReply = function(postId) {
+        const replyText = document.getElementById(`reply-${postId}`).value.trim();
+        if (!replyText) return;
+        const post = posts.find(p => p.id === postId);
+        if (post) {
+            post.replies.push({
+                username: currentUser.username,
+                content: replyText,
+                timestamp: new Date().toLocaleString()
+            });
+            saveData();
+            renderPosts();
+        }
+    };
+
+    window.markDelivered = function(postId) {
+        const post = posts.find(p => p.id === postId);
+        if (post) {
+            const key = `CFG-KEY-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+            post.status = 'completed';
+            post.replies.push({
+                username: 'OWNER',
+                content: `✅ Payment verified. Your CFG key: ${key}\nDownload: Contact owner on Discord: sufyancounter for file.`,
+                timestamp: new Date().toLocaleString()
+            });
+            // Mark user as paid
+            const user = users.find(u => u.username === post.username);
+            if (user) user.isPaid = true;
+            saveData();
+            renderPosts();
+            alert(`Key sent to ${post.username}`);
+        }
+    };
+
+    function renderLogin(container) {
+        container.innerHTML = `
+            <div class="card">
+                <div class="card-title">Login</div>
+                <input type="text" id="loginUsername" placeholder="Username">
+                <input type="password" id="loginPassword" placeholder="Password">
+                <button onclick="login()">Login</button>
+                <p style="margin-top: 1rem;">Don't have account? <a onclick="showPage('register')" style="color:#ff4d4d; cursor:pointer;">Register</a></p>
+            </div>
+        `;
+    }
+
+    window.login = function() {
+        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+        const user = users.find(u => u.username === username && u.password === password);
+        if (user) {
+            currentUser = user;
+            saveData();
+            updateNav();
+            showPage('home');
+        } else {
+            alert('Invalid credentials');
+        }
+    };
+
+    function renderRegister(container) {
+        container.innerHTML = `
+            <div class="card">
+                <div class="card-title">Register</div>
+                <input type="text" id="regUsername" placeholder="Username">
+                <input type="email" id="regEmail" placeholder="Email">
+                <input type="text" id="regCountry" placeholder="Country">
+                <input type="password" id="regPassword" placeholder="Password">
+                <button onclick="register()">Register</button>
+            </div>
+        `;
+    }
+
+    window.register = function() {
+        const username = document.getElementById('regUsername').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const country = document.getElementById('regCountry').value.trim();
+        const password = document.getElementById('regPassword').value;
+        
+        if (!username || !email || !country || !password) {
+            alert('All fields required');
+            return;
+        }
+        if (users.find(u => u.username === username)) {
+            alert('Username exists');
+            return;
+        }
+        
+        const isOwner = (username === 'sufyan' || email === 'sufyanzhin125@gmail.com');
+        const newUser = {
+            id: Date.now(),
+            username,
+            email,
+            country,
+            password,
+            isOwner: isOwner,
+            isPaid: false,
+            isPremium: false,
+            registeredAt: new Date().toISOString()
+        };
+        users.push(newUser);
+        currentUser = newUser;
+        saveData();
+        updateNav();
+        showPage('home');
+        alert('Registration successful!');
+    };
+
+    window.logout = function() {
+        currentUser = null;
+        saveData();
+        updateNav();
+        showPage('home');
+    };
+
+    // Initialize default owner account if none exists
+    function initDefaultOwner() {
+        if (!users.find(u => u.username === 'sufyan')) {
+            users.push({
+                id: 1,
+                username: 'sufyan',
+                email: 'sufyanzhin125@gmail.com',
+                country: 'Pakistan',
+                password: 'owner123',
+                isOwner: true,
+                isPaid: true,
+                isPremium: true,
+                registeredAt: new Date().toISOString()
+            });
+            saveData();
+        }
+    }
+
+    initDefaultOwner();
+    updateNav();
+    showPage('home');
 </script>
 </body>
 </html>
