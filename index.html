@@ -357,7 +357,7 @@
     let userTimeouts = JSON.parse(localStorage.getItem('userTimeouts')) || {};
     let userMessageCount = JSON.parse(localStorage.getItem('userMessageCount')) || {};
 
-    // Auto Rep Messages (for automatic posts when user places order)
+    // Auto Rep Messages (only reputation messages, no payment details)
     const autoRepMessages = [
         "+REP Trusted seller! 🔥",
         "+VOUCH Legit config! 💯",
@@ -483,22 +483,21 @@
         return true;
     }
 
-    // Create Auto REP Post when user places order
-    function createAutoOrderPost(username, orderDetails, totalPrice, hasImage) {
+    // Create Auto REP Post when user places order (ONLY REP MESSAGES, NO PAYMENT DETAILS)
+    function createAutoOrderPost(username) {
         const randomMsg = autoRepMessages[Math.floor(Math.random() * autoRepMessages.length)];
         const user = users.find(u => u.username === username);
         const newPost = {
             id: Date.now(),
             username: username,
             userId: user?.id,
-            content: `${randomMsg} 🎉\n\nOrder: ${orderDetails}\nTotal: $${totalPrice}\n${hasImage ? '📸 Screenshot attached' : ''}`,
+            content: randomMsg,
             image: null,
             timestamp: new Date().toLocaleString(),
             replies: [],
             status: 'completed',
-            orderDetails: orderDetails,
-            totalPrice: totalPrice,
-            isAutoRep: true
+            isAutoRep: true,
+            isOrderRep: true
         };
         posts.unshift(newPost);
         saveData();
@@ -775,7 +774,6 @@
         if (tag) {
             userTags[username] = { tag: tag, glow: glow };
             if (tag !== 'banned' && tag !== oldTag && tag !== 'member') {
-                // Auto rep post for tag
                 const randomMsg = autoRepMessages[Math.floor(Math.random() * autoRepMessages.length)];
                 const user = users.find(u => u.username === username);
                 const newPost = {
@@ -837,11 +835,11 @@
     function renderMyPosts() {
         const container = document.getElementById('forumPosts');
         if (!container) return;
-        const myPosts = posts.filter(p => p.userId === currentUser.id);
+        const myPosts = posts.filter(p => p.userId === currentUser.id && !p.isOrderRep);
         if (!myPosts.length) { container.innerHTML = '<p>No orders yet. Create one after payment.</p>'; return; }
         container.innerHTML = myPosts.map(post => {
             const user = users.find(u => u.id === post.userId);
-            return `<div class="post"><div class="post-header"><div class="post-user" onclick="showProfile('${post.username}')"><span class="${getUserGlowClass(user || {})}">${post.username}</span>${getUserTagDisplay(user || {})}${post.status === 'completed' ? '<span class="tag tag-prime">DELIVERED</span>' : '<span class="tag tag-member" style="background:#dc2626;">PENDING</span>'}</div><div class="post-time">${post.timestamp}</div>${currentUser?.isOwner ? `<button class="delete-btn" onclick="deletePost(${post.id})">Delete</button>` : ''}</div><div class="post-content">${post.content.replace(/\n/g,'<br>')}</div>${post.image ? `<img src="${post.image}" class="post-image" onclick="window.open(this.src)">` : ''}<div id="replies-${post.id}">${post.replies.map(r => `<div class="reply"><strong class="${getUserGlowClass(users.find(u=>u.username===r.username)||{})}" onclick="showProfile('${r.username}')">${r.username}</strong> ${getUserTagDisplay(users.find(u=>u.username===r.username)||{})}<br>${r.content}</div>`).join('')}</div>${currentUser ? `<div class="reply-box"><textarea id="reply-${post.id}" rows="2" placeholder="Write reply..." onkeypress="handleReplyEnter(event, ${post.id})"></textarea><button onclick="addReply(${post.id})">Reply</button>${currentUser.isOwner ? `<button onclick="markDelivered(${post.id})" style="background:#10b981;">Mark Delivered & Send Key</button>` : ''}</div>` : ''}</div>`;
+            return `<div class="post"><div class="post-header"><div class="post-user" onclick="showProfile('${post.username}')"><span class="${getUserGlowClass(user || {})}">${post.username}</span>${getUserTagDisplay(user || {})}${post.status === 'completed' ? '<span class="tag tag-prime">DELIVERED</span>' : '<span class="tag tag-member" style="background:#dc2626;">PENDING</span>'}</div><div class="post-time">${post.timestamp}</div>${currentUser?.isOwner || currentUser?.username === post.username ? `<button class="delete-btn" onclick="deletePost(${post.id})">Delete</button>` : ''}</div><div class="post-content">${post.content.replace(/\n/g,'<br>')}</div>${post.image ? `<img src="${post.image}" class="post-image" onclick="window.open(this.src)">` : ''}<div id="replies-${post.id}">${post.replies.map(r => `<div class="reply"><strong class="${getUserGlowClass(users.find(u=>u.username===r.username)||{})}" onclick="showProfile('${r.username}')">${r.username}</strong> ${getUserTagDisplay(users.find(u=>u.username===r.username)||{})}<br>${r.content}</div>`).join('')}</div>${currentUser ? `<div class="reply-box"><textarea id="reply-${post.id}" rows="2" placeholder="Write reply..." onkeypress="handleReplyEnter(event, ${post.id})"></textarea><button onclick="addReply(${post.id})">Reply</button>${currentUser.isOwner ? `<button onclick="markDelivered(${post.id})" style="background:#10b981;">Mark Delivered & Send Key</button>` : ''}</div>` : ''}</div>`;
         }).join('');
     }
     
@@ -861,18 +859,18 @@
         const totalPrice = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
         const orderDetails = cart.map(i => `${i.name} x${i.quantity} ($${i.price * i.quantity})`).join(', ');
         
-        // Create auto rep post for the user
-        const autoPostId = createAutoOrderPost(currentUser.username, orderDetails, totalPrice, !!file);
+        // Create auto rep post for the user (ONLY REP MESSAGE, NO PAYMENT DETAILS)
+        createAutoOrderPost(currentUser.username);
         
         if (file) {
             const reader = new FileReader();
-            reader.onload = e => savePost(content, e.target.result, orderDetails, totalPrice, autoPostId);
+            reader.onload = e => savePost(content, e.target.result, orderDetails, totalPrice);
             reader.readAsDataURL(file);
-        } else savePost(content, null, orderDetails, totalPrice, autoPostId);
+        } else savePost(content, null, orderDetails, totalPrice);
     };
     
-    function savePost(content, image, orderDetails, totalPrice, autoPostId) {
-        const newPost = { id: Date.now(), username: currentUser.username, userId: currentUser.id, content, image, timestamp: new Date().toLocaleString(), replies: [], status: 'pending', orderDetails, totalPrice, isAutoRep: false };
+    function savePost(content, image, orderDetails, totalPrice) {
+        const newPost = { id: Date.now(), username: currentUser.username, userId: currentUser.id, content, image, timestamp: new Date().toLocaleString(), replies: [], status: 'pending', orderDetails, totalPrice, isAutoRep: false, isOrderRep: false };
         posts.unshift(newPost);
         messages.push({ 
             id: Date.now(), from: currentUser.username, to: 'sufyan', 
@@ -896,11 +894,16 @@
     };
     
     window.deletePost = function(postId) {
-        if (!currentUser?.isOwner) return;
-        posts = posts.filter(p => p.id !== postId);
-        saveData();
-        showToast('Post deleted');
-        if (document.getElementById('forumPosts')) renderMyPosts();
+        const post = posts.find(p => p.id === postId);
+        if (!post) return;
+        if (currentUser?.isOwner || currentUser?.username === post.username) {
+            posts = posts.filter(p => p.id !== postId);
+            saveData();
+            showToast('Post deleted');
+            if (document.getElementById('forumPosts')) renderMyPosts();
+        } else {
+            showToast('You can only delete your own posts', true);
+        }
     };
     
     window.markDelivered = function(postId) {
@@ -1105,14 +1108,16 @@
 
     // Home with Direct Chat
     function renderHome(container) {
+        // Only show auto rep posts (isAutoRep = true) on home page
+        const repPosts = posts.filter(p => p.isAutoRep === true);
         container.innerHTML = `<div class="card"><div class="card-title">⚡ Welcome to Counter Prime</div>
             <p>Professional CFG Store & Community Forum | Lifetime Updates | Undetected</p>
             <button onclick="showPage('store')">Browse Store</button>
             <button class="btn-secondary" onclick="showPage('forum')">My Orders</button>
         </div>
         <div class="grid-2">
-            <div class="card"><div class="card-title">📋 Latest Activity</div>
-                <div id="latestPosts">${posts.slice(0,10).map(p=>`<div style="padding:8px 0; border-bottom:1px solid #1f2538;"><strong class="${getUserGlowClass(users.find(u=>u.username===p.username)||{})}" onclick="showProfile('${p.username}')">${p.username}</strong>: ${p.content.substring(0,80)}${p.content.length > 80 ? '...' : ''}<br><small style="color:#7e849b;">${p.timestamp}</small></div>`).join('') || 'No activity yet'}</div>
+            <div class="card"><div class="card-title">📋 Latest Reputation</div>
+                <div id="latestPosts">${repPosts.slice(0,10).map(p=>`<div style="padding:8px 0; border-bottom:1px solid #1f2538;"><strong class="${getUserGlowClass(users.find(u=>u.username===p.username)||{})}" onclick="showProfile('${p.username}')">${p.username}</strong>: ${p.content}<br><small style="color:#7e849b;">${p.timestamp}</small></div>`).join('') || 'No reputation posts yet'}</div>
             </div>
             <div class="card"><div class="card-title">💬 Live Chat</div>
                 <div id="homeChat" class="chat-container" style="height:350px;"></div>
