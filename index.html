@@ -1222,7 +1222,7 @@
         if (!checkAuthAndRedirect('checkout')) { container.innerHTML = `<div class="card"><div class="card-title">Checkout</div><p>Please login to checkout.</p></div>`; return; }
         const total = cart.reduce((s,i)=>s+(i.price*i.quantity),0);
         // Amounts based on product total
-        const remitlyAmount = total; // $10 or $18
+        const remitlyAmount = total; // $10 or $10
         const ltcAmount = total === 10 ? 12 : total === 10 ? 12 : 12;
         const steamAmount = total === 10 ? 15 : total === 10 ? 15 : 15;
         container.innerHTML = `<div class="card"><div class="card-title">💳 Checkout</div>
