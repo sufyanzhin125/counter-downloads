@@ -390,9 +390,9 @@
 </div>
 
 <script>
-    // Initialize EmailJS - REPLACE WITH YOUR KEYS
+    // Initialize EmailJS with your keys
     (function() {
-        emailjs.init("YOUR_PUBLIC_KEY_HERE");
+        emailjs.init("Csg4OWKUCevBX8W5A");
     })();
 
     // ============= DATA STRUCTURE =============
@@ -601,6 +601,26 @@
         return newPost.id;
     }
 
+    // ============= SEND ORDER CONFIRMATION EMAIL =============
+    async function sendOrderConfirmationEmail(userEmail, username, orderDetails, totalPrice, cfgKey) {
+        const templateParams = {
+            to_email: userEmail,
+            username: username,
+            order_details: orderDetails,
+            total_price: totalPrice,
+            cfg_key: cfgKey,
+            discord: "sufyancounter"
+        };
+        
+        try {
+            await emailjs.send('service_gc26579', 'template_1didmn9', templateParams);
+            showToast(`Order confirmation email sent to ${username}!`);
+        } catch (error) {
+            console.error("Email error:", error);
+            showToast(`Email failed but key sent: ${cfgKey}`, true);
+        }
+    }
+
     // ============= FORGOT PASSWORD FUNCTIONS =============
     function showForgotPasswordModal() {
         const modalHtml = `
@@ -632,16 +652,14 @@
             return;
         }
         
-        // Generate 6-digit reset code
         const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
         resetCodes[email] = {
             code: resetCode,
-            expires: Date.now() + 3600000, // 1 hour
+            expires: Date.now() + 3600000,
             username: user.username
         };
         saveData();
         
-        // Send email via EmailJS
         const templateParams = {
             to_email: email,
             username: user.username,
@@ -649,13 +667,12 @@
         };
         
         try {
-            await emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams);
+            await emailjs.send('service_gc26579', 'template_19b3qtx', templateParams);
             showToast(`Reset code sent to ${email}! Check your inbox.`);
             closeModal();
             showResetPasswordModal(email);
         } catch (error) {
             console.error("Email error:", error);
-            // Fallback - show code in modal
             showModal('Reset Code', `
                 <div style="text-align:center;">
                     <h3 style="color:#f97316;">Your Reset Code</h3>
@@ -995,7 +1012,6 @@
             <p>📊 Total Messages: ${messageCount}</p>
             <p>📦 Orders: ${userOrders.length}</p>`;
         
-        // Email only visible to the user themselves or owner
         if (isSelf || isOwner) {
             content += `<p>📧 Email: ${user.email}</p>`;
         } else {
@@ -1181,16 +1197,24 @@
         }
     };
     
-    window.markDelivered = function(postId) {
+    // UPDATED: Mark Delivered with Email Confirmation
+    window.markDelivered = async function(postId) {
         const post = posts.find(p => p.id === postId);
         if (post) {
             const key = `CFG-${Math.random().toString(36).substring(2,10).toUpperCase()}`;
             post.status = 'completed';
             post.replies.push({ username: 'OWNER', content: `✅ Payment verified! CFG Key: ${key}\nContact Discord: sufyancounter for file.`, timestamp: new Date().toLocaleString() });
+            
+            // Send email confirmation to user
+            const user = users.find(u => u.username === post.username);
+            if (user && user.email) {
+                await sendOrderConfirmationEmail(user.email, user.username, post.orderDetails || 'CFG Package', post.totalPrice || '10', key);
+            }
+            
             messages.push({ id: Date.now(), from: 'sufyan', to: post.username, content: `🎮 Order Delivered!\nProduct: ${post.orderDetails || 'CFG'}\nTotal: $${post.totalPrice || '10'}\nKey: ${key}`, timestamp: new Date().toLocaleString(), read: false });
             saveData();
             renderMyPosts();
-            showToast(`Key sent to ${post.username}`);
+            showToast(`Key sent to ${post.username} and email confirmation sent!`);
         }
     };
     
