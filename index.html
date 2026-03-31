@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Counter Prime | Premium CFG Forum</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Counter Prime | Ultimate CFG Forum</title>
     <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fingerprint.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -13,19 +14,21 @@
         }
 
         body {
-            background: #0a0c12;
+            background: linear-gradient(135deg, #0a0c12 0%, #0f1119 50%, #0a0c12 100%);
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: #eef2ff;
             line-height: 1.5;
+            min-height: 100vh;
         }
 
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #11151f; }
-        ::-webkit-scrollbar-thumb { background: #dc2626; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #dc2626, #f97316); border-radius: 4px; }
 
         .navbar {
-            background: #11141c;
-            border-bottom: 1px solid #1f2538;
+            background: rgba(17, 20, 28, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(220, 38, 38, 0.3);
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
@@ -41,8 +44,11 @@
             font-size: 1.6rem;
             font-weight: 700;
             cursor: pointer;
+            background: linear-gradient(135deg, #fff, #dc2626, #f97316);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
         }
-        .logo span { color: #dc2626; text-shadow: 0 0 10px rgba(220,38,38,0.5); }
         .logo:hover { opacity: 0.8; }
 
         .nav-links {
@@ -58,7 +64,7 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        .nav-links a:hover { color: #dc2626; }
+        .nav-links a:hover { color: #f97316; }
 
         .user-info {
             display: flex;
@@ -73,8 +79,8 @@
             font-size: 0.7rem;
             font-weight: 600;
         }
-        .tag-owner { background: #dc2626; color: white; box-shadow: 0 0 8px #dc2626; }
-        .tag-prime { background: linear-gradient(135deg, #dc2626, #f97316); color: white; box-shadow: 0 0 8px #f97316; }
+        .tag-owner { background: linear-gradient(135deg, #dc2626, #ef4444); color: white; box-shadow: 0 0 8px #dc2626; }
+        .tag-prime { background: linear-gradient(135deg, #f97316, #fb923c); color: white; box-shadow: 0 0 8px #f97316; }
         .tag-premium { background: linear-gradient(135deg, #eab308, #facc15); color: #1a1a2e; box-shadow: 0 0 8px #eab308; }
         .tag-vip { background: linear-gradient(135deg, #a855f7, #c084fc); color: white; box-shadow: 0 0 8px #a855f7; }
         .tag-elite { background: linear-gradient(135deg, #06b6d4, #22d3ee); color: #1a1a2e; box-shadow: 0 0 8px #06b6d4; }
@@ -84,89 +90,98 @@
         .tag-banned { background: #000000; color: white; box-shadow: 0 0 8px #000000; border: 1px solid #ff0000; }
         .tag-member { background: #2a2f42; color: #b0b7d0; }
 
-        /* Glow Name */
+        /* Glow Name & Message Colors */
         .glow-name { text-shadow: 0 0 8px currentColor; }
-        .glow-prime { color: #f97316; text-shadow: 0 0 10px #f97316; }
-        .glow-premium { color: #facc15; text-shadow: 0 0 10px #facc15; }
-        .glow-vip { color: #c084fc; text-shadow: 0 0 10px #c084fc; }
-        .glow-elite { color: #22d3ee; text-shadow: 0 0 10px #22d3ee; }
-        .glow-legend { color: #60a5fa; text-shadow: 0 0 10px #60a5fa; }
-        .glow-god { color: #a78bfa; text-shadow: 0 0 10px #a78bfa; }
-        .glow-hacker { color: #34d399; text-shadow: 0 0 10px #34d399; }
+        .glow-prime { color: #fb923c; text-shadow: 0 0 10px #f97316; }
+        .glow-premium { color: #facc15; text-shadow: 0 0 10px #eab308; }
+        .glow-vip { color: #c084fc; text-shadow: 0 0 10px #a855f7; }
+        .glow-elite { color: #22d3ee; text-shadow: 0 0 10px #06b6d4; }
+        .glow-legend { color: #60a5fa; text-shadow: 0 0 10px #3b82f6; }
+        .glow-god { color: #a78bfa; text-shadow: 0 0 10px #8b5cf6; }
+        .glow-hacker { color: #34d399; text-shadow: 0 0 10px #10b981; }
+
+        /* Message Color by Tag */
+        .msg-prime { border-left: 3px solid #f97316; background: rgba(249,115,22,0.1); }
+        .msg-premium { border-left: 3px solid #eab308; background: rgba(234,179,8,0.1); }
+        .msg-vip { border-left: 3px solid #a855f7; background: rgba(168,85,247,0.1); }
+        .msg-elite { border-left: 3px solid #06b6d4; background: rgba(6,182,212,0.1); }
+        .msg-owner { border-left: 3px solid #dc2626; background: rgba(220,38,38,0.1); }
 
         .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
         .card {
-            background: #11151f;
-            border-radius: 16px;
+            background: rgba(17, 21, 31, 0.8);
+            backdrop-filter: blur(5px);
+            border-radius: 20px;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
-            border: 1px solid #1f2538;
+            border: 1px solid rgba(220, 38, 38, 0.2);
         }
         .card-title {
             font-size: 1.3rem;
             font-weight: 600;
             margin-bottom: 1rem;
             color: #fff;
-            border-left: 3px solid #dc2626;
+            border-left: 3px solid #f97316;
             padding-left: 1rem;
         }
         input, select, textarea {
             width: 100%;
             background: #0a0e16;
             border: 1px solid #252c3f;
-            padding: 10px 14px;
-            border-radius: 10px;
+            padding: 12px 16px;
+            border-radius: 12px;
             color: white;
             font-size: 0.9rem;
             margin-bottom: 1rem;
             font-family: inherit;
+            transition: 0.2s;
         }
         input:focus, select:focus, textarea:focus {
             outline: none;
-            border-color: #dc2626;
+            border-color: #f97316;
+            box-shadow: 0 0 0 2px rgba(249,115,22,0.2);
         }
         button {
-            background: #dc2626;
+            background: linear-gradient(135deg, #dc2626, #f97316);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 12px 24px;
+            border-radius: 12px;
             font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
             font-family: inherit;
         }
-        button:hover { background: #b91c1c; transform: scale(0.98); }
+        button:hover { transform: scale(0.98); opacity: 0.9; }
         .btn-secondary { background: #2a2f42; }
-        .btn-secondary:hover { background: #3a415e; }
 
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
         .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
 
         .product-card {
             background: #0a0e16;
-            border-radius: 12px;
-            padding: 1rem;
+            border-radius: 16px;
+            padding: 1.2rem;
             text-align: center;
             border: 1px solid #1f2538;
             transition: 0.2s;
         }
-        .product-card:hover { border-color: #dc2626; transform: translateY(-2px); }
-        .product-price { color: #dc2626; font-size: 1.3rem; font-weight: 700; margin: 0.5rem 0; }
+        .product-card:hover { border-color: #f97316; transform: translateY(-3px); }
+        .product-price { color: #f97316; font-size: 1.5rem; font-weight: 700; margin: 0.5rem 0; }
 
         .cart-item {
             display: flex;
             justify-content: space-between;
-            padding: 0.5rem 0;
+            padding: 0.75rem 0;
             border-bottom: 1px solid #1f2538;
         }
 
         .post {
             background: #0a0e16;
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 1rem;
             margin-bottom: 1rem;
-            border-left: 3px solid #dc2626;
+            border-left: 3px solid #f97316;
         }
         .post-header {
             display: flex;
@@ -185,7 +200,7 @@
         }
         .post-time { font-size: 0.7rem; color: #7e849b; }
         .post-content { margin: 0.5rem 0; word-break: break-word; white-space: pre-wrap; }
-        .post-image { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 0.5rem; cursor: pointer; }
+        .post-image { max-width: 100%; max-height: 250px; border-radius: 12px; margin-top: 0.5rem; cursor: pointer; }
         .reply-box { margin-top: 0.5rem; padding-left: 1rem; border-left: 2px solid #2a2f42; }
         .reply { background: #0f1117; padding: 0.5rem; margin-top: 0.5rem; border-radius: 8px; }
 
@@ -196,18 +211,24 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(8px);
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         .modal-content {
-            background: #11151f;
+            background: linear-gradient(135deg, #11151f, #0f1119);
             padding: 2rem;
-            border-radius: 20px;
+            border-radius: 24px;
             max-width: 500px;
             width: 90%;
-            border: 1px solid #dc2626;
+            border: 1px solid rgba(249,115,22,0.5);
             max-height: 80vh;
             overflow-y: auto;
         }
@@ -217,7 +238,7 @@
             bottom: 20px;
             right: 20px;
             background: #11151f;
-            border-left: 4px solid #dc2626;
+            border-left: 4px solid #f97316;
             padding: 1rem 1.5rem;
             border-radius: 12px;
             color: white;
@@ -230,55 +251,57 @@
         }
 
         .hidden { display: none; }
-        .avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #dc2626; margin-bottom: 1rem; }
+        .avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #f97316; margin-bottom: 1rem; }
         .avatar-small { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
 
         .message-item {
             background: #0a0e16;
             padding: 0.75rem;
-            border-radius: 10px;
+            border-radius: 12px;
             margin-bottom: 0.5rem;
             cursor: pointer;
         }
         .message-item:hover { background: #1a1e2a; }
-        .message-unread { border-left: 3px solid #dc2626; }
+        .message-unread { border-left: 3px solid #f97316; }
 
         .member-card {
             background: #0a0e16;
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 1rem;
             text-align: center;
             cursor: pointer;
             transition: 0.2s;
         }
-        .member-card:hover { border-color: #dc2626; transform: translateY(-2px); }
+        .member-card:hover { border-color: #f97316; transform: translateY(-2px); }
         .online-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-left: 5px; }
         .online { background: #10b981; box-shadow: 0 0 5px #10b981; }
         .offline { background: #6b7280; }
 
-        .chat-message {
-            background: #0a0e16;
-            padding: 0.75rem;
-            border-radius: 10px;
-            margin-bottom: 0.5rem;
-        }
-        .chat-message .username { font-weight: 600; cursor: pointer; }
-        .chat-message .time { font-size: 0.65rem; color: #6b7280; margin-left: 0.5rem; }
-
         .chat-container {
-            height: 300px;
+            height: 450px;
             overflow-y: auto;
             background: #0a0e16;
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 1rem;
             margin-bottom: 1rem;
         }
 
+        .chat-message {
+            padding: 0.75rem;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            transition: 0.2s;
+        }
+        .chat-message .username { font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        .chat-message .time { font-size: 0.65rem; color: #6b7280; margin-left: 0.5rem; }
+        .chat-message .message-text { margin-top: 0.25rem; font-size: 0.9rem; }
+
         .delete-btn {
             background: #6b7280;
-            padding: 2px 8px;
+            padding: 2px 10px;
             font-size: 0.7rem;
             margin-left: 0.5rem;
+            border-radius: 6px;
         }
         .delete-btn:hover { background: #4b5563; }
 
@@ -294,6 +317,7 @@
         @media (max-width: 768px) {
             .grid-2 { grid-template-columns: 1fr; }
             .navbar { flex-direction: column; text-align: center; }
+            .chat-container { height: 350px; }
         }
     </style>
 </head>
@@ -302,17 +326,17 @@
 
 <div id="app">
     <div class="navbar">
-        <div class="logo" onclick="showDashboard()">COUNTER <span>PRIME</span></div>
+        <div class="logo" onclick="showDashboard()">⚡ COUNTER PRIME ⚡</div>
         <div class="nav-links">
             <a onclick="showPage('home')">Home</a>
             <a onclick="showPage('store')">Store</a>
             <a onclick="showPage('forum')">Forum</a>
-            <a onclick="showPage('cart')">Cart (<span id="cartCount">0</span>)</a>
-            <a onclick="showPage('inbox')">Inbox (<span id="inboxCount">0</span>)</a>
-            <a onclick="showPage('members')">Members</a>
+            <a onclick="showPage('cart')">🛒 Cart (<span id="cartCount">0</span>)</a>
+            <a onclick="showPage('inbox')">📬 Inbox (<span id="inboxCount">0</span>)</a>
+            <a onclick="showPage('members')">👥 Members</a>
             <div id="authNav">
-                <a onclick="showPage('login')">Login</a>
-                <a onclick="showPage('register')">Register</a>
+                <a onclick="showLoginModal()">Login</a>
+                <a onclick="showRegisterModal()">Register</a>
             </div>
             <div id="userNav" class="user-info hidden">
                 <img id="navAvatar" class="avatar-small" src="">
@@ -328,6 +352,9 @@
 </div>
 
 <script>
+    // Initialize EmailJS
+    (function() { emailjs.init("YOUR_PUBLIC_KEY_HERE"); })();
+
     // ============= DATA STRUCTURE =============
     let users = JSON.parse(localStorage.getItem('users')) || [];
     let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
@@ -339,6 +366,8 @@
     let fingerprints = JSON.parse(localStorage.getItem('fingerprints')) || {};
     let bannedIPs = JSON.parse(localStorage.getItem('bannedIPs')) || [];
     let lastActivity = JSON.parse(localStorage.getItem('lastActivity')) || {};
+    let userTimeouts = JSON.parse(localStorage.getItem('userTimeouts')) || {};
+    let userMessageCount = JSON.parse(localStorage.getItem('userMessageCount')) || {};
 
     // Products
     const products = [
@@ -347,7 +376,7 @@
         { id: 3, name: "Bundle (Both Games)", price: 18, description: "Deadlock + Dota 2 CFG, lifetime updates" }
     ];
 
-    const availableTags = ['prime', 'premium', 'vip', 'elite', 'legend', 'god', 'hacker', 'master', 'beast', 'pro', 'alpha', 'omega', 'phoenix', 'dragon', 'titan', 'immortal', 'mythic', 'radiant', 'shadow', 'storm'];
+    const availableTags = ['prime', 'premium', 'vip', 'elite', 'legend', 'god', 'hacker'];
 
     function saveData() {
         localStorage.setItem('users', JSON.stringify(users));
@@ -360,33 +389,10 @@
         localStorage.setItem('fingerprints', JSON.stringify(fingerprints));
         localStorage.setItem('bannedIPs', JSON.stringify(bannedIPs));
         localStorage.setItem('lastActivity', JSON.stringify(lastActivity));
+        localStorage.setItem('userTimeouts', JSON.stringify(userTimeouts));
+        localStorage.setItem('userMessageCount', JSON.stringify(userMessageCount));
         updateCartCount();
         updateInboxCount();
-    }
-
-    // Auto Backup
-    function autoBackup() {
-        const backup = {
-            users, posts, messages, userTags, chatMessages, fingerprints, bannedIPs,
-            timestamp: new Date().toISOString()
-        };
-        localStorage.setItem('counterprime_backup', JSON.stringify(backup));
-        console.log('Auto backup completed');
-    }
-    setInterval(autoBackup, 3600000);
-    
-    function downloadBackup() {
-        const backup = localStorage.getItem('counterprime_backup');
-        if (backup) {
-            const blob = new Blob([backup], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `counterprime_backup_${new Date().toISOString()}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast('Backup downloaded');
-        } else { showToast('No backup found', true); }
     }
 
     function updateCartCount() {
@@ -426,6 +432,21 @@
         return '<span class="tag tag-member">MEMBER</span>';
     }
 
+    function getUserTagType(username) {
+        const user = users.find(u => u.username === username);
+        if (!user) return 'member';
+        if (user.isOwner) return 'owner';
+        const tagData = userTags[username];
+        if (tagData) return tagData.tag;
+        return 'member';
+    }
+
+    function getMessageClass(username) {
+        const tag = getUserTagType(username);
+        const map = { prime: 'msg-prime', premium: 'msg-premium', vip: 'msg-vip', elite: 'msg-elite', owner: 'msg-owner' };
+        return map[tag] || '';
+    }
+
     function getUserGlowClass(user) {
         if (!user) return '';
         if (user.isBanned) return '';
@@ -453,7 +474,7 @@
             modal = document.createElement('div');
             modal.id = 'globalModal';
             modal.className = 'modal';
-            modal.innerHTML = `<div class="modal-content"><div id="modalTitle" style="font-size:1.3rem; font-weight:600; margin-bottom:1rem; color:#dc2626;"></div><div id="modalBody"></div><button onclick="closeModal()">Close</button></div>`;
+            modal.innerHTML = `<div class="modal-content"><div id="modalTitle" style="font-size:1.3rem; font-weight:600; margin-bottom:1rem; background:linear-gradient(135deg,#dc2626,#f97316); background-clip:text; -webkit-background-clip:text; color:transparent;"></div><div id="modalBody"></div><button onclick="closeModal()" style="margin-top:1rem;">Close</button></div>`;
             document.body.appendChild(modal);
         }
         document.getElementById('modalTitle').innerText = title;
@@ -467,11 +488,101 @@
     };
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
+    function checkAuthAndRedirect(action) {
+        if (!currentUser || isBanned(currentUser.username)) {
+            showLoginModal();
+            return false;
+        }
+        return true;
+    }
+
+    function showLoginModal() {
+        showModal('🔐 Login to Counter Prime', `
+            <input type="text" id="modalLoginUsername" placeholder="Username" style="margin-bottom:0.5rem;">
+            <input type="password" id="modalLoginPassword" placeholder="Password" style="margin-bottom:1rem;">
+            <button onclick="modalLogin()" style="width:100%;">Login</button>
+            <p style="margin-top:1rem; text-align:center;">Don't have account? <a onclick="closeModal();showRegisterModal();" style="color:#f97316; cursor:pointer;">Register</a></p>
+        `);
+        document.getElementById('modalLoginUsername')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') modalLogin(); });
+        document.getElementById('modalLoginPassword')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') modalLogin(); });
+    }
+
+    function showRegisterModal() {
+        showModal('📝 Register New Account', `
+            <input type="text" id="modalRegUsername" placeholder="Username" style="margin-bottom:0.5rem;">
+            <input type="email" id="modalRegEmail" placeholder="Email" style="margin-bottom:0.5rem;">
+            <input type="text" id="modalRegCountry" placeholder="Country" style="margin-bottom:0.5rem;">
+            <input type="password" id="modalRegPassword" placeholder="Password (min 4 chars)" style="margin-bottom:1rem;">
+            <button onclick="modalRegister()" style="width:100%;">Register</button>
+        `);
+    }
+
+    window.modalLogin = function() {
+        const username = document.getElementById('modalLoginUsername')?.value;
+        const password = document.getElementById('modalLoginPassword')?.value;
+        const user = users.find(u => u.username === username);
+        if (!user) { showToast('Username not found', true); return; }
+        if (user.password !== password) { showToast('Incorrect password', true); return; }
+        if (user.isBanned) { showToast('Account banned', true); return; }
+        if (user.twoFAEnabled) {
+            showModal('2FA Verification', `<input id="2faCode" placeholder="Enter 6-digit code"><button onclick="verify2FA('${username}')">Verify</button>`);
+            return;
+        }
+        currentUser = user;
+        saveData();
+        updateNav();
+        closeModal();
+        showToast(`Welcome ${username}!`);
+        showPage('home');
+    };
+
+    window.modalRegister = async function() {
+        const fp = await FingerprintJS.load();
+        const fingerprint = (await fp.get()).visitorId;
+        if (bannedIPs.includes(fingerprint)) { showToast('Device banned', true); closeModal(); return; }
+        if (fingerprints[fingerprint]) { showToast('One account per device', true); closeModal(); return; }
+        
+        const username = document.getElementById('modalRegUsername')?.value.trim();
+        const email = document.getElementById('modalRegEmail')?.value.trim();
+        const country = document.getElementById('modalRegCountry')?.value.trim();
+        const password = document.getElementById('modalRegPassword')?.value;
+        
+        if (!username || !email || !country || !password) { showToast('All fields required', true); return; }
+        if (users.find(u=>u.username===username)) { showToast('Username taken', true); return; }
+        if (password.length < 4) { showToast('Password min 4 chars', true); return; }
+        
+        fingerprints[fingerprint] = username;
+        const isOwner = (username === 'sufyan');
+        const newUser = { id: Date.now(), username, email, country, password, isOwner, isBanned: false, registeredAt: new Date().toISOString(), avatar: null, fingerprint };
+        users.push(newUser);
+        currentUser = newUser;
+        saveData();
+        updateNav();
+        closeModal();
+        showToast('Registered! Welcome!');
+        showPage('home');
+    };
+
+    window.verify2FA = function(username) {
+        const code = document.getElementById('2faCode')?.value;
+        const user = users.find(u => u.username === username);
+        if (user && user.twoFACode == code) {
+            currentUser = user;
+            saveData();
+            updateNav();
+            closeModal();
+            showToast('2FA Verified');
+            showPage('home');
+        } else {
+            showToast('Invalid 2FA code', true);
+        }
+    };
+
     function updateNav() {
         if (currentUser && !isBanned(currentUser.username)) {
             document.getElementById('authNav').classList.add('hidden');
             document.getElementById('userNav').classList.remove('hidden');
-            const avatar = currentUser.avatar || `https://ui-avatars.com/api/?background=dc2626&color=fff&name=${encodeURIComponent(currentUser.username)}`;
+            const avatar = currentUser.avatar || `https://ui-avatars.com/api/?background=f97316&color=fff&name=${encodeURIComponent(currentUser.username)}`;
             document.getElementById('navAvatar').src = avatar;
             document.getElementById('userTag').innerHTML = `${currentUser.username} ${getUserTagDisplay(currentUser)}`;
         } else if (currentUser && isBanned(currentUser.username)) {
@@ -482,6 +593,40 @@
             document.getElementById('userNav').classList.add('hidden');
         }
         updateInboxCount();
+    }
+
+    // Rate Limiting
+    function canSendMessage(username) {
+        const tag = getUserTagType(username);
+        const now = Date.now();
+        
+        if (userTimeouts[username] && userTimeouts[username] > now) {
+            const remaining = Math.ceil((userTimeouts[username] - now) / 1000);
+            showToast(`Timeout: Wait ${remaining} seconds`, true);
+            return false;
+        }
+        
+        if (!userMessageCount[username]) userMessageCount[username] = [];
+        userMessageCount[username] = userMessageCount[username].filter(t => now - t < 5000);
+        
+        if (tag === 'member') {
+            if (userMessageCount[username].length >= 1) {
+                showToast('Please wait 5 seconds between messages', true);
+                return false;
+            }
+        } else {
+            if (userMessageCount[username].length >= 5) {
+                userTimeouts[username] = now + 120000;
+                userMessageCount[username] = [];
+                saveData();
+                showToast('Spam detected! 2 minute timeout', true);
+                return false;
+            }
+        }
+        
+        userMessageCount[username].push(now);
+        saveData();
+        return true;
     }
 
     // Dashboard
@@ -500,12 +645,24 @@
                     <div class="card" style="padding:1rem;"><strong>Revenue</strong><br><span style="font-size:2rem;">$${totalRevenue}</span></div>
                 </div>
                 <button onclick="closeModal();showPage('members');">Manage Users</button>
-                <button onclick="closeModal();downloadBackup();" style="margin-left:0.5rem;">Download Backup</button>
+                <button onclick="downloadBackup()" style="margin-left:0.5rem;">Download Backup</button>
             </div>
         `);
     };
 
-    // Ban User
+    function downloadBackup() {
+        const backup = { users, posts, messages, userTags, chatMessages, fingerprints, bannedIPs, timestamp: new Date().toISOString() };
+        const blob = new Blob([JSON.stringify(backup)], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `counterprime_backup_${new Date().toISOString()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Backup downloaded');
+    }
+
+    // Ban/Unban
     window.banUser = function(username) {
         if (!currentUser?.isOwner) return;
         const user = users.find(u => u.username === username);
@@ -515,7 +672,7 @@
         userTags[username] = { tag: 'banned', glow: false };
         if (currentUser.username === username) logout();
         saveData();
-        showToast(`${username} has been banned`);
+        showToast(`${username} banned`);
         closeModal();
         if (document.getElementById('membersList')) renderMembersList();
     };
@@ -531,25 +688,9 @@
         }
         delete userTags[username];
         saveData();
-        showToast(`${username} has been unbanned`);
+        showToast(`${username} unbanned`);
         closeModal();
         if (document.getElementById('membersList')) renderMembersList();
-    };
-
-    window.deletePost = function(postId) {
-        if (!currentUser?.isOwner) return;
-        posts = posts.filter(p => p.id !== postId);
-        saveData();
-        showToast('Post deleted');
-        if (document.getElementById('forumPosts')) renderMyPosts();
-    };
-
-    window.deleteMessage = function(msgId) {
-        if (!currentUser?.isOwner) return;
-        messages = messages.filter(m => m.id !== msgId);
-        saveData();
-        showToast('Message deleted');
-        if (document.getElementById('inboxList')) showPage('inbox');
     };
 
     // Profile
@@ -563,7 +704,7 @@
         const messageCount = messages.filter(m => m.from === username || m.to === username).length;
         
         let content = `<div style="text-align:center;">
-            <img class="avatar" src="${user.avatar || `https://ui-avatars.com/api/?background=dc2626&color=fff&name=${encodeURIComponent(user.username)}`}">
+            <img class="avatar" src="${user.avatar || `https://ui-avatars.com/api/?background=f97316&color=fff&name=${encodeURIComponent(user.username)}`}">
             <h2 class="${getUserGlowClass(user)}">${user.username}</h2>
             ${getUserTagDisplay(user)}<br>
             <div><span class="online-dot ${isOnline(username) ? 'online' : 'offline'}"></span> ${isOnline(username) ? 'Online' : 'Offline'}</div>
@@ -577,14 +718,14 @@
             content += `<hr style="margin:1rem 0;"><h3>Settings</h3>
                 <input type="file" id="avatarUpload" accept="image/*"><button onclick="uploadAvatar()">Change Avatar</button>
                 <input type="password" id="newPassword" placeholder="New Password"><input type="password" id="confirmPassword" placeholder="Confirm"><button onclick="changePassword()">Change Password</button>
-                <button onclick="enable2FA()" style="background:#3b82f6;">Enable 2FA</button>`;
+                <button onclick="enable2FA()" style="background:#3b82f6;">Enable 2FA Email Verification</button>`;
         }
         if (isOwner && !isSelf) {
             content += `<hr style="margin:1rem 0;"><h3>Admin Actions</h3>
                 <select id="adminTagSelect"><option value="">Remove Tag</option>${availableTags.map(t => `<option value="${t}" ${tagData.tag === t ? 'selected' : ''}>${t.toUpperCase()}</option>`).join('')}</select>
                 <label><input type="checkbox" id="adminGlowCheck" ${tagData.glow ? 'checked' : ''}> Enable Name Glow</label>
                 <button onclick="adminUpdateTag('${username}')">Update Tag</button>
-                ${user.isBanned ? `<button onclick="unbanUser('${username}')" style="background:#10b981;">Unban User</button>` : `<button onclick="banUser('${username}')" style="background:#000000;">Ban User</button>`}
+                ${user.isBanned ? `<button onclick="unbanUser('${username}')" style="background:#10b981;">Unban User</button>` : `<button onclick="banUser('${username}')" style="background:#000;">Ban User</button>`}
                 <button onclick="adminDeleteUser('${username}')" style="background:#6b7280;">Delete User</button>`;
         }
         if (isOwner) {
@@ -595,6 +736,23 @@
         if (isOwner && userOrders.length) {
             document.getElementById('adminUserOrders').innerHTML = userOrders.map(o => `<div class="reply">${o.content.substring(0,100)}...<br><small>${o.timestamp} | ${o.status}</small><button onclick="closeModal();viewOrderPost(${o.id})" style="margin-left:0.5rem; padding:2px 8px;">View</button><button onclick="deletePost(${o.id})" class="delete-btn">Delete</button></div>`).join('');
         }
+    };
+
+    window.enable2FA = function() {
+        const email = currentUser.email;
+        const code = Math.floor(100000 + Math.random() * 900000);
+        currentUser.twoFACode = code;
+        currentUser.twoFAEnabled = true;
+        saveData();
+        emailjs.send('YOUR_SERVICE_ID', 'YOUR_2FA_TEMPLATE_ID', {
+            to_email: email,
+            username: currentUser.username,
+            code: code
+        }).then(() => {
+            showToast('2FA code sent to your email!');
+        }).catch(() => {
+            showModal('2FA Code', `Your 2FA code: <strong style="font-size:2rem;">${code}</strong><br>Save this code.`);
+        });
     };
 
     window.startChatWith = function(username) {
@@ -658,19 +816,11 @@
         showToast('Password changed');
         closeModal();
     };
-    
-    window.enable2FA = function() {
-        const code = Math.floor(100000 + Math.random() * 900000);
-        currentUser.twoFACode = code;
-        currentUser.twoFAEnabled = true;
-        saveData();
-        showModal('2FA Setup', `Your verification code: <strong style="font-size:2rem;">${code}</strong><br>Save this code. You'll need it to login.`);
-    };
 
     // Forum
     function renderForum(container) {
-        if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
-        container.innerHTML = `<div class="card"><div class="card-title">My Orders</div>
+        if (!checkAuthAndRedirect('forum')) { container.innerHTML = `<div class="card"><div class="card-title">My Orders</div><p>Please login to view your orders.</p></div>`; return; }
+        container.innerHTML = `<div class="card"><div class="card-title">📦 My Orders</div>
             <button onclick="showNewPostForm()">+ Create New Order Post</button>
             <div id="newPostForm" class="hidden" style="margin-top:1rem;"><textarea id="postContent" rows="3" placeholder="Payment details, transaction ID..."></textarea><input type="file" id="postImage" accept="image/*"><button onclick="submitPost()">Submit Payment Proof</button></div>
             <div id="forumPosts"></div></div>`;
@@ -692,22 +842,33 @@
         if (e.key === 'Enter') { e.preventDefault(); addReply(postId); }
     };
     
+    window.showNewPostForm = function() {
+        const form = document.getElementById('newPostForm');
+        if (form) form.classList.toggle('hidden');
+    };
+    
     window.submitPost = function() {
         const content = document.getElementById('postContent')?.value.trim();
         if (!content) { showToast('Enter payment details', true); return; }
         const file = document.getElementById('postImage').files[0];
+        const totalPrice = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+        const orderDetails = cart.map(i => `${i.name} x${i.quantity} ($${i.price * i.quantity})`).join(', ');
+        
         if (file) {
             const reader = new FileReader();
-            reader.onload = e => savePost(content, e.target.result);
+            reader.onload = e => savePost(content, e.target.result, orderDetails, totalPrice);
             reader.readAsDataURL(file);
-        } else savePost(content, null);
+        } else savePost(content, null, orderDetails, totalPrice);
     };
     
-    function savePost(content, image) {
-        const orderDetails = cart.map(i => `${i.name} x${i.quantity}`).join(', ');
-        const newPost = { id: Date.now(), username: currentUser.username, userId: currentUser.id, content, image, timestamp: new Date().toLocaleString(), replies: [], status: 'pending', orderDetails };
+    function savePost(content, image, orderDetails, totalPrice) {
+        const newPost = { id: Date.now(), username: currentUser.username, userId: currentUser.id, content, image, timestamp: new Date().toLocaleString(), replies: [], status: 'pending', orderDetails, totalPrice };
         posts.unshift(newPost);
-        messages.push({ id: Date.now(), from: currentUser.username, to: 'sufyan', content: `📦 NEW ORDER\nProduct: ${orderDetails}\n\nDetails: ${content.substring(0,200)}`, timestamp: new Date().toLocaleString(), read: false, orderId: newPost.id, orderDetails: orderDetails, hasImage: !!image });
+        messages.push({ 
+            id: Date.now(), from: currentUser.username, to: 'sufyan', 
+            content: `🛍️ NEW ORDER!\n\nProduct: ${orderDetails}\nTotal: $${totalPrice}\n\nPayment Details:\n${content.substring(0,300)}${content.length > 300 ? '...' : ''}\n\n${image ? '📸 Screenshot attached in order post' : 'No screenshot'}`,
+            timestamp: new Date().toLocaleString(), read: false, orderId: newPost.id, orderDetails: orderDetails, totalPrice: totalPrice, hasImage: !!image 
+        });
         cart = [];
         saveData();
         document.getElementById('postContent').value = '';
@@ -724,13 +885,21 @@
         if (post) { post.replies.push({ username: currentUser.username, content: text, timestamp: new Date().toLocaleString() }); saveData(); renderMyPosts(); }
     };
     
+    window.deletePost = function(postId) {
+        if (!currentUser?.isOwner) return;
+        posts = posts.filter(p => p.id !== postId);
+        saveData();
+        showToast('Post deleted');
+        if (document.getElementById('forumPosts')) renderMyPosts();
+    };
+    
     window.markDelivered = function(postId) {
         const post = posts.find(p => p.id === postId);
         if (post) {
             const key = `CFG-${Math.random().toString(36).substring(2,10).toUpperCase()}`;
             post.status = 'completed';
             post.replies.push({ username: 'OWNER', content: `✅ Payment verified! CFG Key: ${key}\nContact Discord: sufyancounter for file.`, timestamp: new Date().toLocaleString() });
-            messages.push({ id: Date.now(), from: 'sufyan', to: post.username, content: `🎮 Order Delivered!\nProduct: ${post.orderDetails || 'CFG'}\nKey: ${key}`, timestamp: new Date().toLocaleString(), read: false });
+            messages.push({ id: Date.now(), from: 'sufyan', to: post.username, content: `🎮 Order Delivered!\nProduct: ${post.orderDetails || 'CFG'}\nTotal: $${post.totalPrice || '10'}\nKey: ${key}`, timestamp: new Date().toLocaleString(), read: false });
             saveData();
             renderMyPosts();
             showToast(`Key sent to ${post.username}`);
@@ -739,15 +908,23 @@
     
     window.viewOrderPost = function(postId) {
         const post = posts.find(p => p.id === postId);
-        if (post) showModal('Order Details', `<div class="post"><strong>Product:</strong> ${post.orderDetails || 'N/A'}<br><br>${post.content.replace(/\n/g,'<br>')}${post.image ? `<br><img src="${post.image}" style="max-width:100%;">` : ''}<br><br><small>${post.timestamp} | ${post.status}</small></div>`);
+        if (post) showModal('Order Details', `<div class="post"><strong>Product:</strong> ${post.orderDetails || 'N/A'}<br><strong>Total:</strong> $${post.totalPrice || '10'}<br><br>${post.content.replace(/\n/g,'<br>')}${post.image ? `<br><img src="${post.image}" style="max-width:100%;">` : ''}<br><br><small>${post.timestamp} | ${post.status}</small></div>`);
     };
 
     // Inbox
     function renderInbox(container) {
-        if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
+        if (!checkAuthAndRedirect('inbox')) { container.innerHTML = `<div class="card"><div class="card-title">Inbox</div><p>Please login to view messages.</p></div>`; return; }
         const userMsgs = messages.filter(m => m.to === currentUser.username || m.from === currentUser.username).sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
-        container.innerHTML = `<div class="card"><div class="card-title">Inbox</div><button onclick="composeMessage()">+ New Message</button><div id="inboxList">${userMsgs.length ? userMsgs.map(m => `<div class="message-item ${!m.read && m.to===currentUser.username?'message-unread':''}" onclick="viewMessage(${m.id})"><strong>${m.from===currentUser.username?'To: '+m.to:'From: '+m.from}</strong><br>${m.content.substring(0,80)}${m.orderDetails ? `<br><small style="color:#f97316;">📦 Order: ${m.orderDetails}</small>` : ''}<br><small>${m.timestamp}</small>${currentUser?.isOwner ? `<button class="delete-btn" onclick="event.stopPropagation();deleteMessage(${m.id})">Delete</button>` : ''}</div>`).join('') : '<p>No messages</p>'}</div></div>`;
+        container.innerHTML = `<div class="card"><div class="card-title">📬 Inbox</div><button onclick="composeMessage()">+ New Message</button><div id="inboxList">${userMsgs.length ? userMsgs.map(m => `<div class="message-item ${!m.read && m.to===currentUser.username?'message-unread':''}" onclick="viewMessage(${m.id})"><strong>${m.from===currentUser.username?'To: '+m.to:'From: '+m.from}</strong><br>${m.content.substring(0,80)}${m.orderDetails ? `<br><small style="color:#f97316;">📦 Order: ${m.orderDetails}</small>` : ''}<br><small>${m.timestamp}</small>${currentUser?.isOwner ? `<button class="delete-btn" onclick="event.stopPropagation();deleteMessage(${m.id})">Delete</button>` : ''}</div>`).join('') : '<p>No messages</p>'}</div></div>`;
     }
+    
+    window.deleteMessage = function(msgId) {
+        if (!currentUser?.isOwner) return;
+        messages = messages.filter(m => m.id !== msgId);
+        saveData();
+        showToast('Message deleted');
+        if (document.getElementById('inboxList')) showPage('inbox');
+    };
     
     window.composeMessage = function() {
         const others = users.filter(u => u.username !== currentUser.username && !u.isBanned).map(u => u.username);
@@ -773,29 +950,25 @@
         const msg = messages.find(m => m.id === id);
         if (msg && !msg.read && msg.to === currentUser.username) msg.read = true;
         saveData();
-        showModal('Message', `<strong>From: ${msg.from}</strong><br><strong>To: ${msg.to}</strong><br><strong>Time: ${msg.timestamp}</strong><br><br>${msg.content.replace(/\n/g,'<br>')}${msg.orderDetails ? `<br><br><strong>📦 Order Details:</strong> ${msg.orderDetails}` : ''}${msg.hasImage ? `<br><br><strong>📸 Screenshot included in order post</strong>` : ''}<br><br><button onclick="closeModal();startChatWith('${msg.from}')">Reply</button>`);
+        showModal('Message', `<strong>From: ${msg.from}</strong><br><strong>To: ${msg.to}</strong><br><strong>Time: ${msg.timestamp}</strong><br><br>${msg.content.replace(/\n/g,'<br>')}${msg.orderDetails ? `<br><br><strong>📦 Order Details:</strong> ${msg.orderDetails}<br><strong>💰 Total: $${msg.totalPrice || '10'}</strong>` : ''}${msg.hasImage ? `<br><br><strong>📸 Screenshot included in order post</strong>` : ''}<br><br><button onclick="closeModal();startChatWith('${msg.from}')">Reply</button>`);
         if (currentUser.isOwner) showPage('inbox');
     };
 
     // Members
     function renderMembers(container) {
-        if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
-        container.innerHTML = `<div class="card"><div class="card-title">Members Directory</div>
-            <input type="text" id="memberSearch" placeholder="Search members..." onkeyup="filterMembers()" onkeypress="handleSearchEnter(event)">
+        if (!checkAuthAndRedirect('members')) { container.innerHTML = `<div class="card"><div class="card-title">Members</div><p>Please login to view members.</p></div>`; return; }
+        container.innerHTML = `<div class="card"><div class="card-title">👥 Members Directory</div>
+            <input type="text" id="memberSearch" placeholder="Search members..." onkeyup="filterMembers()">
             <div id="membersList" class="grid-3"></div></div>`;
         renderMembersList();
     }
-    
-    window.handleSearchEnter = function(e) {
-        if (e.key === 'Enter') filterMembers();
-    };
     
     function renderMembersList() {
         const search = document.getElementById('memberSearch')?.value.toLowerCase() || '';
         const filtered = users.filter(u => u.username.toLowerCase().includes(search));
         document.getElementById('membersList').innerHTML = filtered.map(u => `
             <div class="member-card" onclick="showProfile('${u.username}')">
-                <img class="avatar-small" style="width:50px;height:50px;border-radius:50%;" src="${u.avatar || `https://ui-avatars.com/api/?background=dc2626&color=fff&name=${encodeURIComponent(u.username)}`}">
+                <img class="avatar-small" style="width:50px;height:50px;border-radius:50%;" src="${u.avatar || `https://ui-avatars.com/api/?background=f97316&color=fff&name=${encodeURIComponent(u.username)}`}">
                 <div class="${getUserGlowClass(u)}">${u.username}</div>
                 ${getUserTagDisplay(u)}
                 <div><span class="online-dot ${isOnline(u.username) ? 'online' : 'offline'}"></span> ${isOnline(u.username) ? 'Online' : 'Offline'}</div>
@@ -806,8 +979,8 @@
 
     // Chat
     function renderChat(container) {
-        if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
-        container.innerHTML = `<div class="card"><div class="card-title">Public Live Chat</div>
+        if (!checkAuthAndRedirect('chat')) { container.innerHTML = `<div class="card"><div class="card-title">Live Chat</div><p>Please login to join chat.</p></div>`; return; }
+        container.innerHTML = `<div class="card"><div class="card-title">💬 Public Live Chat</div>
             <div id="chatMessages" class="chat-container"></div>
             <div style="display:flex; gap:0.5rem;"><input type="text" id="chatInput" placeholder="Type message... (emojis allowed)" onkeypress="handleChatEnter(event)" style="flex:1;"><button onclick="sendChatMessage()">Send</button></div>
             ${currentUser?.isOwner ? '<button onclick="clearAllChat()" style="margin-top:0.5rem; background:#6b7280;">Clear All Chat</button>' : ''}
@@ -825,7 +998,8 @@
         if (!container) return;
         container.innerHTML = chatMessages.slice(-50).reverse().map(m => {
             const user = users.find(u => u.username === m.username);
-            return `<div class="chat-message"><span class="username ${getUserGlowClass(user || {})}" onclick="showProfile('${m.username}')">${m.username}</span> ${getUserTagDisplay(user || {})}<span class="time">${m.time}</span><br>${m.message}${currentUser?.isOwner ? `<button class="delete-btn" onclick="deleteChatMessage('${m.id}')">Delete</button>` : ''}</div>`;
+            const msgClass = getMessageClass(m.username);
+            return `<div class="chat-message ${msgClass}"><span class="username ${getUserGlowClass(user || {})}" onclick="showProfile('${m.username}')">${m.username}</span> ${getUserTagDisplay(user || {})}<span class="time">${m.time}</span><br><div class="message-text">${m.message}</div>${currentUser?.isOwner ? `<button class="delete-btn" onclick="deleteChatMessage('${m.id}')">Delete</button>` : ''}</div>`;
         }).join('');
         container.scrollTop = container.scrollHeight;
     }
@@ -833,6 +1007,7 @@
     window.sendChatMessage = function() {
         const msg = document.getElementById('chatInput')?.value.trim();
         if (!msg) return;
+        if (!canSendMessage(currentUser.username)) return;
         chatMessages.push({ id: Date.now(), username: currentUser.username, message: msg, time: new Date().toLocaleTimeString() });
         saveData();
         document.getElementById('chatInput').value = '';
@@ -847,12 +1022,18 @@
         showToast('Message deleted');
     };
     
-    window.clearAllChat = function() { chatMessages = []; saveData(); renderChatMessages(); showToast('Chat cleared'); };
+    window.clearAllChat = function() { 
+        if (!currentUser?.isOwner) return;
+        chatMessages = []; 
+        saveData(); 
+        renderChatMessages(); 
+        showToast('Chat cleared'); 
+    };
 
     // Store, Cart, Checkout
     function renderStore(container) {
-        if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
-        container.innerHTML = `<div class="card"><div class="card-title">Available Configs</div><div class="grid-3" id="productsGrid"></div></div>`;
+        if (!checkAuthAndRedirect('store')) { container.innerHTML = `<div class="card"><div class="card-title">Store</div><p>Please login to purchase.</p></div>`; return; }
+        container.innerHTML = `<div class="card"><div class="card-title">🛒 Available Configs</div><div class="grid-3" id="productsGrid"></div></div>`;
         document.getElementById('productsGrid').innerHTML = products.map(p => `<div class="product-card"><h3>${p.name}</h3><div class="product-price">$${p.price}</div><p>${p.description}</p><button onclick="addToCart(${p.id})">Add to Cart</button></div>`).join('');
     }
     
@@ -866,190 +1047,57 @@
     };
     
     function renderCart(container) {
-        if (!currentUser) { container.innerHTML = `<div class="card"><div class="card-title">Login Required</div><button onclick="showPage('login')">Login</button></div>`; return; }
-        if (!cart.length) { container.innerHTML = `<div class="card"><div class="card-title">Cart Empty</div><button onclick="showPage('store')">Store</button></div>`; return; }
+        if (!checkAuthAndRedirect('cart')) { container.innerHTML = `<div class="card"><div class="card-title">Cart</div><p>Please login to view cart.</p></div>`; return; }
+        if (!cart.length) { container.innerHTML = `<div class="card"><div class="card-title">Cart Empty</div><button onclick="showPage('store')">Browse Store</button></div>`; return; }
         let total = 0;
         const items = cart.map(i => { total += i.price * i.quantity; return `<div class="cart-item"><span>${i.name} x${i.quantity}</span><span>$${i.price*i.quantity}</span><button onclick="removeFromCart(${i.id})" style="background:#3a2a2a;">Remove</button></div>`; }).join('');
-        container.innerHTML = `<div class="card"><div class="card-title">Cart</div>${items}<div class="cart-item" style="border-top:2px solid #dc2626;"><span>Total</span><span>$${total}</span></div><button onclick="showPage('checkout')">Checkout</button></div>`;
+        container.innerHTML = `<div class="card"><div class="card-title">🛒 Your Cart</div>${items}<div class="cart-item" style="border-top:2px solid #f97316;"><span>Total</span><span>$${total}</span></div><button onclick="showPage('checkout')">Checkout</button></div>`;
     }
     
     window.removeFromCart = function(id) { cart = cart.filter(i=>i.id!==id); saveData(); showPage('cart'); };
     
     function renderCheckout(container) {
+        if (!checkAuthAndRedirect('checkout')) { container.innerHTML = `<div class="card"><div class="card-title">Checkout</div><p>Please login to checkout.</p></div>`; return; }
         const total = cart.reduce((s,i)=>s+(i.price*i.quantity),0);
         const amount = total===10?12:total===18?20:12;
-        container.innerHTML = `<div class="card"><div class="card-title">Checkout</div>
+        container.innerHTML = `<div class="card"><div class="card-title">💳 Checkout</div>
             <p><strong>Total: $${total}</strong></p>
-            <div style="background:#0a0e16;padding:1rem;border-radius:12px;margin:1rem 0;">
-                <h3 style="color:#dc2626;">📱 Payment Option 1: EasyPaisa (via Remitly)</h3>
-                <p>You can easily send the payment through Remitly — it's fast and simple.<br>
-                Please select <strong>Pakistan</strong> as the destination country, then choose <strong>EasyPaisa Mobile Wallet</strong> as the delivery option.</p>
+            <div style="background:#0a0e16;padding:1.5rem;border-radius:16px;margin:1rem 0;">
+                <h3 style="color:#f97316;">📱 Option 1: EasyPaisa (via Remitly)</h3>
+                <p>Send payment through Remitly — fast and simple.<br>
+                Select <strong>Pakistan</strong> → <strong>EasyPaisa Mobile Wallet</strong></p>
                 <p><strong>Details:</strong><br>
                 Name: Muhammad Arshad<br>
-                Mobile (EasyPaisa): +92 348 8308531<br>
+                Mobile: +92 348 8308531<br>
                 Country: Pakistan<br>
                 Bank: EasyPaisa</p>
                 <p><strong style="color:#f97316;">⚠️ Send $${amount} USD (tax included)</strong></p>
                 <hr style="margin:1rem 0; border-color:#2a2f42;">
-                <h3 style="color:#dc2626;">₿ Payment Option 2: Litecoin (LTC)</h3>
-                <p>Send exactly <strong>$${amount} USD</strong> worth of LTC to this address:</p>
-                <code style="background:#000;padding:8px;display:block;word-break:break-all;">ltc1qplpy27p9q3rlrmv2t5srmw8hkytm6xhp663we3</code>
+                <h3 style="color:#f97316;">₿ Option 2: Litecoin (LTC)</h3>
+                <p>Send exactly <strong>$${amount} USD</strong> worth of LTC to:</p>
+                <code style="background:#000;padding:10px;display:block;word-break:break-all;border-radius:8px;">ltc1qplpy27p9q3rlrmv2t5srmw8hkytm6xhp663we3</code>
             </div>
-            <p>After payment, go to <strong>Forum</strong> and create a post with your transaction ID and screenshot.</p>
-            <button onclick="showPage('forum')">Submit Payment Proof</button>
+            <button onclick="showPage('forum')">📝 Submit Payment Proof</button>
         </div>`;
     }
 
-    // Login & Register
-    function renderLogin(container) {
-        container.innerHTML = `<div class="card"><div class="card-title">Login</div>
-            <input id="loginUsername" placeholder="Username" onkeypress="handleLoginEnter(event)">
-            <input id="loginPassword" type="password" placeholder="Password" onkeypress="handleLoginEnter(event)">
-            <button onclick="login()">Login</button>
-            <p><a onclick="showPage('forgot')" style="color:#dc2626;cursor:pointer;">Forgot Password?</a> | <a onclick="showPage('register')" style="color:#dc2626;cursor:pointer;">Register</a></p>
-            <div id="loginError" style="color:#dc2626; margin-top:0.5rem;"></div>
-        </div>`;
-    }
-    
-    window.handleLoginEnter = function(e) {
-        if (e.key === 'Enter') login();
-    };
-    
-    window.login = function() {
-        const username = document.getElementById('loginUsername').value;
-        const password = document.getElementById('loginPassword').value;
-        const user = users.find(u => u.username === username);
-        const errorDiv = document.getElementById('loginError');
-        if (!user) { errorDiv.innerHTML = '❌ Username not found'; return; }
-        if (user.password !== password) { errorDiv.innerHTML = '❌ Incorrect password'; return; }
-        if (user.isBanned) { errorDiv.innerHTML = '❌ This account has been banned'; return; }
-        if (user.twoFAEnabled) {
-            showModal('2FA Verification', `<input id="2faCode" placeholder="Enter 6-digit code"><button onclick="verify2FA('${username}')">Verify</button>`);
-            return;
-        }
-        currentUser = user;
-        saveData();
-        updateNav();
-        showToast(`Welcome back, ${username}!`);
-        showPage('home');
-    };
-    
-    window.verify2FA = function(username) {
-        const code = document.getElementById('2faCode').value;
-        const user = users.find(u => u.username === username);
-        if (user && user.twoFACode == code) {
-            currentUser = user;
-            saveData();
-            updateNav();
-            closeModal();
-            showToast('2FA Verified');
-            showPage('home');
-        } else {
-            showToast('Invalid 2FA code', true);
-        }
-    };
-    
-    function renderRegister(container) {
-        container.innerHTML = `<div class="card"><div class="card-title">Register</div>
-            <input id="regUsername" placeholder="Username" onkeypress="handleRegisterEnter(event)">
-            <input id="regEmail" placeholder="Email" onkeypress="handleRegisterEnter(event)">
-            <input id="regCountry" placeholder="Country" onkeypress="handleRegisterEnter(event)">
-            <input id="regPassword" type="password" placeholder="Password" onkeypress="handleRegisterEnter(event)">
-            <button onclick="register()">Register</button>
-            <div id="regError" style="color:#dc2626; margin-top:0.5rem;"></div>
-        </div>`;
-    }
-    
-    window.handleRegisterEnter = function(e) {
-        if (e.key === 'Enter') register();
-    };
-    
-    window.register = async function() {
-        const fp = await FingerprintJS.load();
-        const fingerprint = (await fp.get()).visitorId;
-        const errorDiv = document.getElementById('regError');
-        
-        if (bannedIPs.includes(fingerprint)) { errorDiv.innerHTML = '❌ Your device is banned'; return; }
-        if (fingerprints[fingerprint] && !users.find(u => u.username === fingerprints[fingerprint])) {
-            errorDiv.innerHTML = '❌ One account per device only';
-            return;
-        }
-        
-        const username = document.getElementById('regUsername').value.trim();
-        const email = document.getElementById('regEmail').value.trim();
-        const country = document.getElementById('regCountry').value.trim();
-        const password = document.getElementById('regPassword').value;
-        
-        if (!username || !email || !country || !password) { errorDiv.innerHTML = '❌ All fields required'; return; }
-        if (users.find(u=>u.username===username)) { errorDiv.innerHTML = '❌ Username taken'; return; }
-        if (password.length < 4) { errorDiv.innerHTML = '❌ Password must be at least 4 characters'; return; }
-        
-        fingerprints[fingerprint] = username;
-        const isOwner = (username === 'sufyan');
-        const newUser = { id: Date.now(), username, email, country, password, isOwner, isBanned: false, registeredAt: new Date().toISOString(), avatar: null, fingerprint };
-        users.push(newUser);
-        currentUser = newUser;
-        saveData();
-        updateNav();
-        showToast('Registered successfully!');
-        showPage('home');
-    };
-    
-    function renderForgot(container) {
-        container.innerHTML = `<div class="card"><div class="card-title">Reset Password</div>
-            <input id="resetEmail" placeholder="Email" onkeypress="handleResetEnter(event)">
-            <button onclick="sendReset()">Send Reset Link</button>
-            <p><a onclick="showPage('login')" style="color:#dc2626;cursor:pointer;">Back to Login</a></p>
-        </div>`;
-    }
-    
-    window.handleResetEnter = function(e) {
-        if (e.key === 'Enter') sendReset();
-    };
-    
-    window.sendReset = function() {
-        const email = document.getElementById('resetEmail').value;
-        const user = users.find(u=>u.email===email);
-        if (!user) { showToast('Email not found', true); return; }
-        const code = Math.random().toString(36).substring(2,8).toUpperCase();
-        user.resetCode = code;
-        user.resetExpiry = Date.now()+3600000;
-        saveData();
-        showModal('Password Reset', `Your reset code: <strong style="font-size:2rem;">${code}</strong><br><input id="newPassCode" placeholder="Enter code"><input id="newPass" type="password" placeholder="New Password"><button onclick="completeReset('${user.username}')">Reset Password</button>`);
-    };
-    
-    window.completeReset = function(username) {
-        const enteredCode = document.getElementById('newPassCode').value;
-        const newPass = document.getElementById('newPass').value;
-        const user = users.find(u => u.username === username);
-        if (!user || user.resetCode !== enteredCode) { showToast('Invalid code', true); return; }
-        if (Date.now() > user.resetExpiry) { showToast('Code expired', true); return; }
-        user.password = newPass;
-        delete user.resetCode;
-        delete user.resetExpiry;
-        saveData();
-        showToast('Password reset successful');
-        closeModal();
-        showPage('login');
-    };
-    
     // Home with Direct Chat
     function renderHome(container) {
         const primeUsers = Object.keys(userTags).filter(u => userTags[u]?.tag === 'prime');
-        container.innerHTML = `<div class="card"><div class="card-title">Welcome to Counter Prime</div>
-            <p>Professional CFG Store & Community Forum</p>
+        container.innerHTML = `<div class="card"><div class="card-title">⚡ Welcome to Counter Prime</div>
+            <p>Professional CFG Store & Community Forum | Lifetime Updates | Undetected</p>
             <button onclick="showPage('store')">Browse Store</button>
             <button class="btn-secondary" onclick="showPage('forum')">My Orders</button>
         </div>
         <div class="card"><div class="card-title">🏆 Prime Members +REP</div>
-            <div id="primeList">${primeUsers.length ? primeUsers.map(u => { const user = users.find(us=>us.username===u); return `<div class="member-card" style="display:inline-block; margin:5px; padding:5px 10px;" onclick="showProfile('${u}')"><span class="${getUserGlowClass(user||{})}">${u}</span> ${getUserTagDisplay(user||{})} <span style="color:#f97316;">+REP</span></div>`; }).join('') : '<p>No Prime members yet</p>'}</div>
+            <div id="primeList">${primeUsers.length ? primeUsers.map(u => { const user = users.find(us=>us.username===u); return `<div class="member-card" style="display:inline-block; margin:5px; padding:5px 12px;" onclick="showProfile('${u}')"><span class="${getUserGlowClass(user||{})}">${u}</span> ${getUserTagDisplay(user||{})} <span style="color:#f97316;">+REP</span></div>`; }).join('') : '<p>No Prime members yet</p>'}</div>
         </div>
         <div class="grid-2">
-            <div class="card"><div class="card-title">Latest Orders</div>
+            <div class="card"><div class="card-title">📋 Latest Orders</div>
                 <div id="latestPosts">${posts.slice(0,5).map(p=>`<div><strong class="${getUserGlowClass(users.find(u=>u.username===p.username)||{})}" onclick="showProfile('${p.username}')">${p.username}</strong>: ${p.content.substring(0,50)}...</div>`).join('') || 'No orders'}</div>
             </div>
-            <div class="card"><div class="card-title">💬 Public Live Chat</div>
-                <div id="homeChat" class="chat-container" style="height:200px;"></div>
+            <div class="card"><div class="card-title">💬 Live Chat</div>
+                <div id="homeChat" class="chat-container" style="height:300px;"></div>
                 <div style="display:flex; gap:0.5rem;"><input type="text" id="homeChatInput" placeholder="Type message..." onkeypress="handleHomeChatEnter(event)" style="flex:1;"><button onclick="sendHomeChatMessage()">Send</button></div>
             </div>
         </div>`;
@@ -1060,9 +1108,10 @@
     function renderHomeChat() {
         const container = document.getElementById('homeChat');
         if (!container) return;
-        container.innerHTML = chatMessages.slice(-10).reverse().map(m => {
+        container.innerHTML = chatMessages.slice(-15).reverse().map(m => {
             const user = users.find(u => u.username === m.username);
-            return `<div><strong class="${getUserGlowClass(user || {})}" onclick="showProfile('${m.username}')">${m.username}</strong> ${getUserTagDisplay(user || {})}<span style="font-size:0.65rem; color:#6b7280;"> ${m.time}</span><br>${m.message}</div>`;
+            const msgClass = getMessageClass(m.username);
+            return `<div class="chat-message ${msgClass}" style="padding:0.5rem;"><strong class="${getUserGlowClass(user || {})}" onclick="showProfile('${m.username}')">${m.username}</strong> <span style="font-size:0.65rem; color:#6b7280;">${m.time}</span><br>${m.message}</div>`;
         }).join('');
         container.scrollTop = container.scrollHeight;
     }
@@ -1070,6 +1119,7 @@
     window.sendHomeChatMessage = function() {
         const msg = document.getElementById('homeChatInput')?.value.trim();
         if (!msg) return;
+        if (!canSendMessage(currentUser.username)) return;
         chatMessages.push({ id: Date.now(), username: currentUser.username, message: msg, time: new Date().toLocaleTimeString() });
         saveData();
         document.getElementById('homeChatInput').value = '';
@@ -1089,10 +1139,7 @@
         else if (page === 'inbox') renderInbox(content);
         else if (page === 'members') renderMembers(content);
         else if (page === 'chat') renderChat(content);
-        else if (page === 'login') renderLogin(content);
-        else if (page === 'register') renderRegister(content);
         else if (page === 'checkout') renderCheckout(content);
-        else if (page === 'forgot') renderForgot(content);
     }
     
     function logout() { currentUser = null; saveData(); updateNav(); showToast('Logged out'); showPage('home'); }
@@ -1102,8 +1149,7 @@
         saveData();
         updateNav();
         showPage('home');
-        setInterval(() => { if (document.getElementById('membersList')) renderMembersList(); }, 10000);
-        setInterval(() => { if (document.getElementById('chatMessages')) renderChatMessages(); if (document.getElementById('homeChat')) renderHomeChat(); }, 3000);
+        setInterval(() => { if (document.getElementById('membersList')) renderMembersList(); if (document.getElementById('chatMessages')) renderChatMessages(); if (document.getElementById('homeChat')) renderHomeChat(); }, 5000);
     }
     init();
 </script>
