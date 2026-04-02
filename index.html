@@ -6,6 +6,7 @@
     <title>Counter Prime | Premium CFG Forum</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -175,8 +176,57 @@
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
+        .confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .confirm-box {
+            background: #11151f;
+            border-radius: 24px;
+            padding: 1.5rem;
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid #f97316;
+            text-align: center;
+        }
+        .confirm-box h3 { color: #f97316; margin-bottom: 1rem; }
+        .confirm-buttons { display: flex; gap: 1rem; justify-content: center; }
+        .confirm-yes { background: #dc2626; }
+        .confirm-no { background: #2a2f42; }
         .hidden { display: none; }
+        .avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #f97316; margin-bottom: 1rem; }
         .avatar-small { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+        .message-item {
+            background: #0a0e16;
+            padding: 0.75rem;
+            border-radius: 14px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .message-item:hover { background: #1a1e2a; transform: translateX(3px); }
+        .message-unread { border-left: 3px solid #f97316; }
+        .member-card {
+            background: #0a0e16;
+            border-radius: 20px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .member-card:hover { border-color: #f97316; transform: translateY(-3px); }
+        .online-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-left: 5px; }
+        .online { background: #10b981; box-shadow: 0 0 5px #10b981; }
+        .offline { background: #6b7280; }
         .chat-container {
             height: 450px;
             overflow-y: auto;
@@ -186,8 +236,10 @@
             margin-bottom: 1rem;
         }
         .chat-message { padding: 0.75rem; border-radius: 14px; margin-bottom: 0.75rem; }
+        .delete-btn { background: #6b7280; padding: 2px 10px; font-size: 0.7rem; margin-left: 0.5rem; border-radius: 8px; cursor: pointer; }
+        .rep-delete-btn { background: #dc2626; padding: 2px 8px; font-size: 0.65rem; margin-left: 8px; border-radius: 6px; cursor: pointer; display: inline-block; }
         footer { text-align: center; padding: 2rem; color: #5a637c; font-size: 0.75rem; border-top: 1px solid #1f2538; margin-top: 2rem; }
-        @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } .navbar { flex-direction: column; text-align: center; } }
+        @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } .navbar { flex-direction: column; text-align: center; } .chat-container { height: 350px; } }
     </style>
 </head>
 <body>
@@ -199,7 +251,7 @@
             <a onclick="showPage('store')">Store</a>
             <a onclick="showPage('forum')">Forum</a>
             <a onclick="showPage('cart')">🛒 Cart (<span id="cartCount">0</span>)</a>
-            <a onclick="showPage('inbox')" class="inbox-badge">📬 Inbox <span id="inboxBadge" class="badge-count hidden">0</span></a>
+            <a onclick="showPage('inbox')" class="inbox-badge" id="inboxLink">📬 Inbox <span id="inboxBadge" class="badge-count hidden">0</span></a>
             <a onclick="showPage('members')">👥 Members</a>
             <div id="authNav"><a onclick="showLoginModal()">Login</a><a onclick="showRegisterModal()">Register</a></div>
             <div id="userNav" class="user-info hidden">
@@ -209,23 +261,27 @@
         </div>
     </div>
     <div class="container" id="pageContent"></div>
-    <footer>Counter-Prime-CFG | Owner: sufyan | Discord: sufyancounter</footer>
+    <footer>Counter-Prime-CFG | Owner: sufyan | Discord: sufyancounter | Firebase Cloud</footer>
 </div>
 
 <script>
-    // Firebase Config
+    // ============= FIREBASE CONFIG =============
     const firebaseConfig = {
         apiKey: "AIzaSyBiT6KqM3HRSDkRrWx5wOmQCgfD7TD_Jz8",
         authDomain: "counterprime-c1f95.firebaseapp.com",
         projectId: "counterprime-c1f95",
         storageBucket: "counterprime-c1f95.firebasestorage.app",
         messagingSenderId: "1012703022142",
-        appId: "1:1012703022142:web:bbc9d4c71904e44b5c556f"
+        appId: "1:1012703022142:web:bbc9d4c71904e44b5c556f",
+        measurementId: "G-B8XJKGCH25"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    
+    // ============= EMAILJS =============
+    (function() { emailjs.init("Csg4OWKUCevBX8W5A"); })();
 
-    // Global Data
+    // ============= GLOBAL DATA =============
     let users = [];
     let currentUser = null;
     let cart = [];
@@ -233,439 +289,139 @@
     let messages = [];
     let userTags = {};
     let chatMessages = [];
+    let lastActivity = {};
+    let userTimeouts = {};
+    let userMessageCount = {};
 
-    const products = [
-        { id: 1, name: "Deadlock CFG", price: 10, description: "Full config, 1-click combo" },
-        { id: 2, name: "Dota 2 CFG", price: 10, description: "Pro scripts, custom keybinds" },
-        { id: 3, name: "Bundle (Both Games)", price: 18, description: "Deadlock + Dota 2 CFG" }
-    ];
+    // ============= CONSTANTS =============
+    const autoRepMessages = ["+REP Trusted seller! 🔥","+VOUCH Legit config! 💯","+REP Fast delivery! ⚡","VOUCH +1 Great service! 🌟","+REP 100% legit! ✅","Trusted member! 🤝","+VOUCH Highly recommended! 🎯","REP++ Best config ever! 🚀","Legit seller! 🔥🔥","+REP Will buy again! 💪","VOUCH! Working perfectly! 🎮","Trusted! Fast response! ⏱️","+REP Professional! 👑","VOUCH +100! 🏆","Legit and safe! 🔒","+REP A+ Service! ⭐","Trusted config master! 🧙","VOUCH! No ban! 🔥","+REP Great support! 💬","100% working! 🎯"];
+    const products = [{ id: 1, name: "Deadlock CFG", price: 10, description: "Full config, 1-click combo" },{ id: 2, name: "Dota 2 CFG", price: 10, description: "Pro scripts, custom keybinds" },{ id: 3, name: "Bundle (Both Games)", price: 18, description: "Deadlock + Dota 2 CFG" }];
+    const availableTags = ['prime','premium','vip','elite','legend','god','hacker'];
 
-    // Helper Functions
-    function showToast(msg, isErr = false) {
-        let t = document.createElement('div');
-        t.className = 'toast';
-        t.style.borderLeftColor = isErr ? '#dc2626' : '#10b981';
-        t.innerHTML = msg;
-        document.body.appendChild(t);
-        setTimeout(() => t.remove(), 3000);
-    }
+    // ============= HELPER FUNCTIONS =============
+    function isValidEmail(e) { return /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/.test(e); }
+    function showToast(msg, isErr = false) { let t = document.createElement('div'); t.className = 'toast'; t.style.borderLeftColor = isErr ? '#dc2626' : '#10b981'; t.innerHTML = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
+    function showModal(title, html) { let m = document.getElementById('globalModal'); if(!m){ m=document.createElement('div'); m.id='globalModal'; m.className='modal'; m.innerHTML=`<div class="modal-content"><div id="modalTitle" style="font-size:1.3rem; font-weight:600; margin-bottom:1rem; color:#f97316;"></div><div id="modalBody"></div><button onclick="closeModal()" style="margin-top:1rem;">Close</button></div>`; document.body.appendChild(m); } document.getElementById('modalTitle').innerText=title; document.getElementById('modalBody').innerHTML=html; m.style.display='flex'; }
+    window.closeModal = function() { let m = document.getElementById('globalModal'); if(m) m.style.display='none'; };
+    document.addEventListener('keydown', (e) => { if(e.key==='Escape') closeModal(); });
+    function showConfirm(msg, onConfirm) { let o = document.createElement('div'); o.className='confirm-overlay'; o.innerHTML=`<div class="confirm-box"><h3>⚠️ Confirm Action</h3><p>${msg}</p><div class="confirm-buttons"><button class="confirm-yes" id="confirmYes">Yes</button><button class="confirm-no" id="confirmNo">No</button></div></div>`; document.body.appendChild(o); let yes=o.querySelector('#confirmYes'), no=o.querySelector('#confirmNo'); let cleanup=()=>o.remove(); yes.onclick=()=>{cleanup(); onConfirm(true);}; no.onclick=()=>{cleanup(); onConfirm(false);}; }
+    function checkAuth() { if(!currentUser || currentUser.isBanned){ showLoginModal(); return false; } return true; }
 
-    function showModal(title, html) {
-        let m = document.getElementById('globalModal');
-        if (!m) {
-            m = document.createElement('div');
-            m.id = 'globalModal';
-            m.className = 'modal';
-            m.innerHTML = `<div class="modal-content"><div id="modalTitle" style="font-size:1.3rem; font-weight:600; margin-bottom:1rem; color:#f97316;"></div><div id="modalBody"></div><button onclick="closeModal()" style="margin-top:1rem;">Close</button></div>`;
-            document.body.appendChild(m);
-        }
-        document.getElementById('modalTitle').innerText = title;
-        document.getElementById('modalBody').innerHTML = html;
-        m.style.display = 'flex';
-    }
-
-    window.closeModal = function() {
-        let m = document.getElementById('globalModal');
-        if (m) m.style.display = 'none';
-    };
-
-    // Load Data
+    // ============= FIREBASE DATA FUNCTIONS =============
     async function loadAllData() {
         try {
-            let u = await db.collection('users').get();
-            users = [];
-            u.forEach(d => users.push({ id: d.id, ...d.data() }));
-            
-            let p = await db.collection('posts').orderBy('timestampMs', 'desc').get();
-            posts = [];
-            p.forEach(d => posts.push({ id: d.id, ...d.data() }));
-            
-            let m = await db.collection('messages').get();
-            messages = [];
-            m.forEach(d => messages.push({ id: d.id, ...d.data() }));
-            
-            let t = await db.collection('userTags').get();
-            userTags = {};
-            t.forEach(d => { userTags[d.id] = d.data(); });
-            
-            let c = await db.collection('chatMessages').orderBy('timestampMs', 'asc').get();
-            chatMessages = [];
-            c.forEach(d => chatMessages.push({ id: d.id, ...d.data() }));
-            
-            updateCartCount();
-            updateInboxBadge();
-        } catch (e) {
-            console.error("Load error:", e);
-        }
+            let u = await db.collection('users').get(); users=[]; u.forEach(d=>users.push({id:d.id,...d.data()}));
+            let p = await db.collection('posts').orderBy('timestampMs','desc').get(); posts=[]; p.forEach(d=>posts.push({id:d.id,...d.data()}));
+            let m = await db.collection('messages').get(); messages=[]; m.forEach(d=>messages.push({id:d.id,...d.data()}));
+            let t = await db.collection('userTags').get(); userTags={}; t.forEach(d=>{userTags[d.id]=d.data();});
+            let c = await db.collection('chatMessages').orderBy('timestampMs','asc').get(); chatMessages=[]; c.forEach(d=>chatMessages.push({id:d.id,...d.data()}));
+            let a = await db.collection('lastActivity').get(); lastActivity={}; a.forEach(d=>{lastActivity[d.id]=d.data().timestamp;});
+            updateCartCount(); updateInboxBadge();
+        } catch(e) { console.error("Load error:", e); }
     }
+    async function saveUser(u){ await db.collection('users').doc(u.id).set(u); }
+    async function savePost(p){ let r=await db.collection('posts').add(p); p.id=r.id; return p; }
+    async function deletePostById(id){ await db.collection('posts').doc(id).delete(); }
+    async function saveMessage(m){ let r=await db.collection('messages').add(m); m.id=r.id; return m; }
+    async function deleteMessageById(id){ await db.collection('messages').doc(id).delete(); }
+    async function saveUserTag(u,d){ await db.collection('userTags').doc(u).set(d); }
+    async function deleteUserTag(u){ await db.collection('userTags').doc(u).delete(); }
+    async function saveChatMessage(m){ let r=await db.collection('chatMessages').add(m); m.id=r.id; return m; }
+    async function deleteChatMessageById(id){ await db.collection('chatMessages').doc(id).delete(); }
+    async function clearAllChat(){ let s=await db.collection('chatMessages').get(); s.forEach(d=>d.ref.delete()); }
+    async function saveLastActivity(u){ await db.collection('lastActivity').doc(u).set({timestamp:Date.now()}); }
+    async function loadCurrentUser(){ let s=localStorage.getItem('currentUser'); if(s){ let d=JSON.parse(s); let u=await db.collection('users').doc(d.id).get(); if(u.exists){ currentUser={id:u.id,...u.data()}; updateInboxBadge(); return true; } } return false; }
 
-    async function saveUser(u) { await db.collection('users').doc(u.id).set(u); }
-    async function savePost(p) { let r = await db.collection('posts').add(p); p.id = r.id; return p; }
-    async function deletePostById(id) { await db.collection('posts').doc(id).delete(); }
-    async function saveMessage(m) { let r = await db.collection('messages').add(m); m.id = r.id; return m; }
-    async function saveChatMessage(m) { let r = await db.collection('chatMessages').add(m); m.id = r.id; return m; }
+    function updateCartCount(){ let e=document.getElementById('cartCount'); if(e) e.innerText=cart.reduce((s,i)=>s+i.quantity,0); }
+    function updateInboxBadge(){ let b=document.getElementById('inboxBadge'); if(!b) return; if(currentUser){ let c=messages.filter(m=>m.to===currentUser.username && !m.read).length; if(c>0){ b.innerText=c; b.classList.remove('hidden'); } else b.classList.add('hidden'); } else b.classList.add('hidden'); }
+    function updateLastActivity(){ if(currentUser){ lastActivity[currentUser.username]=Date.now(); saveLastActivity(currentUser.username); } }
+    setInterval(updateLastActivity,30000);
+    function isOnline(u){ return lastActivity[u] && (Date.now()-lastActivity[u])<300000; }
+    function getUserTagDisplay(u){ if(!u) return '<span class="tag tag-member">MEMBER</span>'; if(u.isBanned) return '<span class="tag tag-banned">BANNED</span>'; if(u.isOwner) return '<span class="tag tag-owner">OWNER</span>'; let d=userTags[u.username]; if(d){ let m={prime:'tag-prime',premium:'tag-premium',vip:'tag-vip'}; return `<span class="tag ${m[d.tag]||'tag-member'}">${d.tag.toUpperCase()}</span>`; } return '<span class="tag tag-member">MEMBER</span>'; }
+    function getUserGlowClass(u){ if(!u) return ''; if(u.isBanned) return ''; if(u.isOwner) return 'glow-name glow-prime'; let d=userTags[u.username]; if(d?.glow){ let m={prime:'glow-prime',premium:'glow-premium',vip:'glow-vip'}; return `glow-name ${m[d.tag]||''}`; } return ''; }
+    function canSendMessage(u){ let user=users.find(x=>x.username===u); let tag=userTags[u]?.tag||(user?.isOwner?'owner':'member'); let now=Date.now(); if(userTimeouts[u] && userTimeouts[u]>now){ let r=Math.ceil((userTimeouts[u]-now)/1000); showToast(`Wait ${r}s`,true); return false; } if(!userMessageCount[u]) userMessageCount[u]=[]; userMessageCount[u]=userMessageCount[u].filter(t=>now-t<5000); if(tag==='member'){ if(userMessageCount[u].length>=1){ showToast('Wait 5s',true); return false; } }else{ if(userMessageCount[u].length>=5){ userTimeouts[u]=now+120000; userMessageCount[u]=[]; showToast('Spam! 2min timeout',true); return false; } } userMessageCount[u].push(now); return true; }
 
-    function updateCartCount() {
-        let e = document.getElementById('cartCount');
-        if (e) e.innerText = cart.reduce((s, i) => s + i.quantity, 0);
-    }
+    // ============= AUTO REP POST =============
+    async function createAutoOrderPost(username){ let msg=autoRepMessages[Math.floor(Math.random()*autoRepMessages.length)]; let u=users.find(u=>u.username===username); let p={username,userId:u?.id,content:msg,image:null,timestamp:new Date().toLocaleString(),timestampMs:Date.now(),replies:[],status:'completed',isAutoRep:true,isOrderRep:true}; let s=await savePost(p); posts.unshift(s); return s.id; }
+    async function sendOrderEmail(email,username,details,price,key){ try{ await emailjs.send('service_gc26579','template_1didmn9',{to_email:email,username,order_details:details,total_price:price,cfg_key:key,discord:"sufyancounter"}); showToast(`Email sent to ${username}!`); }catch(e){ console.log(e); } }
 
-    function updateInboxBadge() {
-        let b = document.getElementById('inboxBadge');
-        if (!b) return;
-        if (currentUser) {
-            let c = messages.filter(m => m.to === currentUser.username && !m.read).length;
-            if (c > 0) {
-                b.innerText = c;
-                b.classList.remove('hidden');
-            } else {
-                b.classList.add('hidden');
-            }
-        } else {
-            b.classList.add('hidden');
-        }
-    }
+    // ============= REGISTER/LOGIN (FORGET PASSWORD REMOVED) =============
+    window.showRegisterModal=function(){ showModal('📝 Create Account',`<input id="regU" placeholder="Username"><input id="regE" placeholder="Email"><input id="regP" type="password" placeholder="Password (min 4)"><button onclick="register()">Create Account</button><p><a onclick="closeModal();showLoginModal();">Login</a></p>`); };
+    window.register=async function(){ let u=document.getElementById('regU').value.trim(), e=document.getElementById('regE').value.trim(), p=document.getElementById('regP').value; if(!u||!e||!p){ showToast('All fields required',true); return; } if(!isValidEmail(e)){ showToast('Valid email required',true); return; } if(users.find(x=>x.username===u)){ showToast('Username taken',true); return; } if(users.find(x=>x.email===e)){ showToast('Email registered',true); return; } if(p.length<4){ showToast('Min 4 chars',true); return; } let isOwner=(u==='sufyan'); let nu={id:Date.now().toString(),username:u,email:e,country:'Not specified',password:p,isOwner,isBanned:false,registeredAt:new Date().toISOString(),avatar:null}; users.push(nu); await saveUser(nu); currentUser=nu; localStorage.setItem('currentUser',JSON.stringify({id:nu.id,username:nu.username})); updateNav(); closeModal(); updateInboxBadge(); showToast(`Welcome ${u}!`); showPage('home'); };
+    
+    // LOGIN MODAL - NO FORGET PASSWORD LINK
+    function showLoginModal(){ showModal('🔐 Login',`<input id="loginU" placeholder="Username"><input id="loginP" type="password" placeholder="Password"><button onclick="login()">Login</button><p><a onclick="closeModal();showRegisterModal();">Create Account</a></p>`); }
+    
+    window.login=async function(){ let u=document.getElementById('loginU').value, p=document.getElementById('loginP').value; let user=users.find(x=>x.username===u); if(!user){ showToast('Username not found',true); return; } if(user.password!==p){ showToast('Incorrect password',true); return; } if(user.isBanned){ showToast('Account banned',true); return; } currentUser=user; localStorage.setItem('currentUser',JSON.stringify({id:user.id,username:user.username})); updateNav(); closeModal(); updateInboxBadge(); showToast(`Welcome ${u}!`); showPage('home'); };
+    
+    function updateNav(){ if(currentUser && !currentUser.isBanned){ document.getElementById('authNav').classList.add('hidden'); document.getElementById('userNav').classList.remove('hidden'); let a=currentUser.avatar||`https://ui-avatars.com/api/?background=f97316&color=fff&name=${encodeURIComponent(currentUser.username)}`; document.getElementById('navAvatar').src=a; document.getElementById('userTag').innerHTML=`${currentUser.username} ${getUserTagDisplay(currentUser)}`; }else if(currentUser && currentUser.isBanned){ logout(); showToast('Account banned',true); }else{ document.getElementById('authNav').classList.remove('hidden'); document.getElementById('userNav').classList.add('hidden'); } updateInboxBadge(); }
 
-    function getUserTagDisplay(u) {
-        if (!u) return '<span class="tag tag-member">MEMBER</span>';
-        if (u.isBanned) return '<span class="tag tag-banned">BANNED</span>';
-        if (u.isOwner) return '<span class="tag tag-owner">OWNER</span>';
-        let d = userTags[u.username];
-        if (d) {
-            return `<span class="tag tag-prime">${d.tag.toUpperCase()}</span>`;
-        }
-        return '<span class="tag tag-member">MEMBER</span>';
-    }
+    // ============= DASHBOARD =============
+    window.showDashboard=function(){ if(!currentUser?.isOwner){ showPage('home'); return; } let o=posts.filter(p=>!p.isAutoRep).length, u=users.length, r=posts.filter(p=>p.status==='completed'&&!p.isAutoRep).length*10; showModal('Admin Dashboard',`<div style="text-align:center;"><h3>Welcome ${currentUser.username}</h3><div class="grid-2"><div>Users: ${u}</div><div>Orders: ${o}</div><div>Completed: ${posts.filter(p=>p.status==='completed'&&!p.isAutoRep).length}</div><div>Revenue: $${r}</div></div><button onclick="closeModal();showPage('members');">Manage Users</button><button onclick="downloadBackup()">Backup</button><button onclick="clearAllChatWithConfirm()">Clear Chat</button></div>`); };
+    function downloadBackup(){ let b={users,posts,messages,userTags,chatMessages,timestamp:new Date().toISOString()}; let u=URL.createObjectURL(new Blob([JSON.stringify(b)],{type:'application/json'})); let a=document.createElement('a'); a.href=u; a.download=`backup_${new Date().toISOString()}.json`; a.click(); URL.revokeObjectURL(u); showToast('Backup downloaded'); }
+    window.banUser=function(u){ if(!currentUser?.isOwner) return; showConfirm(`Ban ${u}?`,async(c)=>{ if(c){ let user=users.find(x=>x.username===u); if(user){ user.isBanned=true; await saveUser(user); await saveUserTag(u,{tag:'banned',glow:false}); userTags[u]={tag:'banned',glow:false}; if(currentUser.username===u) logout(); showToast(`${u} banned`); closeModal(); if(document.getElementById('membersList')) renderMembersList(); } } }); };
+    window.unbanUser=function(u){ if(!currentUser?.isOwner) return; showConfirm(`Unban ${u}?`,async(c)=>{ if(c){ let user=users.find(x=>x.username===u); if(user){ user.isBanned=false; await saveUser(user); await deleteUserTag(u); delete userTags[u]; showToast(`${u} unbanned`); closeModal(); if(document.getElementById('membersList')) renderMembersList(); } } }); };
+    window.adminDeleteUser=function(u){ if(!currentUser?.isOwner) return; showConfirm(`⚠️ PERMANENTLY DELETE ${u}?`,async(c)=>{ if(c){ let user=users.find(x=>x.username===u); if(user) await db.collection('users').doc(user.id).delete(); users=users.filter(x=>x.username!==u); await deleteUserTag(u); delete userTags[u]; let up=posts.filter(p=>p.username===u); for(let p of up) await deletePostById(p.id); posts=posts.filter(p=>p.username!==u); let um=messages.filter(m=>m.from===u||m.to===u); for(let m of um) await deleteMessageById(m.id); messages=messages.filter(m=>m.from!==u&&m.to!==u); if(currentUser?.username===u) logout(); showToast(`${u} deleted`); closeModal(); if(document.getElementById('membersList')) renderMembersList(); } }); };
+    window.clearAllChatWithConfirm=function(){ if(!currentUser?.isOwner) return; showConfirm('Clear ALL chat?',async(c)=>{ if(c){ await clearAllChat(); chatMessages=[]; if(document.getElementById('chatMessages')) renderChatMessages(); if(document.getElementById('homeChat')) renderHomeChat(); showToast('Chat cleared'); closeModal(); } }); };
+    window.clearHomeChat=function(){ clearAllChatWithConfirm(); };
 
-    // Auth Functions (NO FORGOT PASSWORD)
-    window.showRegisterModal = function() {
-        showModal('📝 Create Account', 
-            `<input id="regU" placeholder="Username">
-             <input id="regE" placeholder="Email">
-             <input id="regP" type="password" placeholder="Password (min 4)">
-             <button onclick="register()">Create Account</button>
-             <p><a onclick="closeModal();showLoginModal();">Already have account? Login</a></p>`
-        );
-    };
+    // ============= PROFILE =============
+    window.showProfile=function(u){ let user=users.find(x=>x.username===u); if(!user) return; let isOwner=currentUser?.isOwner, isSelf=currentUser?.username===u, tagData=userTags[u]||{}, userOrders=posts.filter(p=>p.userId===user.id && !p.isAutoRep), msgCount=messages.filter(m=>m.from===u||m.to===u).length; let html=`<div style="text-align:center;"><img class="avatar" src="${user.avatar||`https://ui-avatars.com/api/?background=f97316&color=fff&name=${encodeURIComponent(user.username)}`}"><h2 class="${getUserGlowClass(user)}">${user.username}</h2>${getUserTagDisplay(user)}<br><div><span class="online-dot ${isOnline(u)?'online':'offline'}"></span> ${isOnline(u)?'Online':'Offline'}</div><p>Country: ${user.country}</p><p>Joined: ${new Date(user.registeredAt).toLocaleDateString()}</p><p>Messages: ${msgCount}</p><p>Orders: ${userOrders.length}</p>`; if(isSelf||isOwner) html+=`<p>📧 Email: ${user.email}</p>`; else html+=`<p>📧 Email: [Hidden]</p>`; html+=`<button onclick="closeModal();startChatWith('${u}')">Send Message</button>`; if(isSelf) html+=`<hr><h3>Settings</h3><input type="file" id="avatarUpload" accept="image/*"><button onclick="uploadAvatar()">Change Avatar</button><input type="password" id="newPass" placeholder="New Password"><input type="password" id="confirmPass" placeholder="Confirm"><button onclick="changePassword()">Change Password</button>`; if(isOwner && !isSelf) html+=`<hr><h3>Admin</h3><select id="adminTag"><option value="">Remove</option>${availableTags.map(t=>`<option value="${t}" ${tagData.tag===t?'selected':''}>${t.toUpperCase()}</option>`).join('')}</select><label><input type="checkbox" id="adminGlow" ${tagData.glow?'checked':''}> Glow</label><button onclick="updateUserTag('${u}')">Update Tag</button>${user.isBanned?`<button onclick="unbanUser('${u}')">Unban</button>`:`<button onclick="banUser('${u}')">Ban</button>`}<button onclick="adminDeleteUser('${u}')">Delete User</button>`; if(isOwner) html+=`<hr><h3>Orders</h3><div id="adminOrders"></div>`; html+=`</div>`; showModal(`${user.username}'s Profile`,html); if(isOwner && userOrders.length){ document.getElementById('adminOrders').innerHTML=userOrders.map(o=>`<div class="reply">${o.content.substring(0,100)}...<br><small>${o.timestamp} | ${o.status}</small><button onclick="closeModal();viewOrderPost(${o.id})">View</button><button onclick="deletePost(${o.id})">Delete</button></div>`).join(''); } };
+    window.startChatWith=function(u){ closeModal(); showModal(`Message ${u}`, `<textarea id="dmMsg" rows="4"></textarea><button onclick="sendDM('${u}')">Send</button>`); };
+    window.sendDM=async function(to){ let c=document.getElementById('dmMsg').value.trim(); if(!c) return; let m={from:currentUser.username,to:to,content:c,timestamp:new Date().toLocaleString(),read:false}; let s=await saveMessage(m); messages.push(s); updateInboxBadge(); showToast('Sent'); closeModal(); };
+    window.updateUserTag=async function(u){ let tag=document.getElementById('adminTag').value, glow=document.getElementById('adminGlow').checked, old=userTags[u]?.tag; if(tag){ await saveUserTag(u,{tag,glow}); userTags[u]={tag,glow}; if(tag!=='banned' && tag!==old && tag!=='member'){ let msg=autoRepMessages[Math.floor(Math.random()*autoRepMessages.length)]; let user=users.find(x=>x.username===u); let p={username:u,userId:user?.id,content:`${msg} 🎉 (Tagged as ${tag.toUpperCase()})`,image:null,timestamp:new Date().toLocaleString(),timestampMs:Date.now(),replies:[],status:'completed',isAutoRep:true}; let s=await savePost(p); posts.unshift(s); showToast(`Auto post created!`); } }else{ await deleteUserTag(u); delete userTags[u]; } showToast(`Tag updated`); closeModal(); showProfile(u); };
+    window.uploadAvatar=async function(){ let f=document.getElementById('avatarUpload').files[0]; if(f){ let r=new FileReader(); r.onload=async(e)=>{ currentUser.avatar=e.target.result; await saveUser(currentUser); updateNav(); showToast('Avatar updated'); closeModal(); showProfile(currentUser.username); }; r.readAsDataURL(f); } };
+    window.changePassword=async function(){ let n=document.getElementById('newPass').value, c=document.getElementById('confirmPass').value; if(n!==c){ showToast('Passwords do not match',true); return; } if(n.length<4){ showToast('Min 4 chars',true); return; } currentUser.password=n; await saveUser(currentUser); let idx=users.findIndex(u=>u.id===currentUser.id); if(idx!==-1) users[idx].password=n; showToast('Password changed'); closeModal(); };
 
-    window.register = async function() {
-        let u = document.getElementById('regU').value.trim();
-        let e = document.getElementById('regE').value.trim();
-        let p = document.getElementById('regP').value;
-        
-        if (!u || !e || !p) { showToast('All fields required', true); return; }
-        if (!/^[^\s@]+@([^\s@]+\.)+[^\s@]+$/.test(e)) { showToast('Valid email required', true); return; }
-        if (users.find(x => x.username === u)) { showToast('Username taken', true); return; }
-        if (users.find(x => x.email === e)) { showToast('Email registered', true); return; }
-        if (p.length < 4) { showToast('Password min 4 chars', true); return; }
-        
-        let isOwner = (u === 'sufyan');
-        let nu = {
-            id: Date.now().toString(),
-            username: u,
-            email: e,
-            password: p,
-            isOwner: isOwner,
-            isBanned: false,
-            registeredAt: new Date().toISOString(),
-            avatar: null
-        };
-        
-        users.push(nu);
-        await saveUser(nu);
-        currentUser = nu;
-        localStorage.setItem('currentUser', JSON.stringify({ id: nu.id, username: nu.username }));
-        updateNav();
-        closeModal();
-        showToast(`Welcome ${u}!`);
-        showPage('home');
-    };
+    // ============= FORUM =============
+    function renderForum(container){ if(!checkAuth()){ container.innerHTML='<div class="card"><div class="card-title">My Orders</div><p>Please login</p></div>'; return; } container.innerHTML=`<div class="card"><div class="card-title">📦 My Orders</div><button onclick="toggleNewPost()">+ New Order Post</button><div id="newPostForm" class="hidden"><textarea id="postContent" rows="3" placeholder="Payment details, transaction ID..."></textarea><input type="file" id="postImage" accept="image/*"><button onclick="submitOrder()">Submit Payment Proof</button></div><div id="forumPosts"></div></div>`; renderUserPosts(); }
+    function renderUserPosts(){ let c=document.getElementById('forumPosts'); if(!c) return; let my=posts.filter(p=>p.userId===currentUser.id && !p.isOrderRep); if(!my.length){ c.innerHTML='<p>No orders yet.</p>'; return; } c.innerHTML=my.map(p=>{ let u=users.find(u=>u.id===p.userId); return `<div class="post"><div class="post-header"><div class="post-user" onclick="showProfile('${p.username}')"><span class="${getUserGlowClass(u||{})}">${p.username}</span>${getUserTagDisplay(u||{})}${p.status==='completed'?'<span class="tag tag-prime">DELIVERED</span>':'<span class="tag tag-member">PENDING</span>'}</div><div class="post-time">${p.timestamp}</div>${currentUser?.isOwner||currentUser?.username===p.username?`<button class="delete-btn" onclick="deletePost(${p.id})">Delete</button>`:''}</div><div class="post-content">${p.content.replace(/\n/g,'<br>')}</div>${p.image?`<img src="${p.image}" class="post-image" onclick="window.open(this.src)">`:''}<div id="replies-${p.id}">${(p.replies||[]).map(r=>`<div class="reply"><strong onclick="showProfile('${r.username}')">${r.username}</strong> ${getUserTagDisplay(users.find(u=>u.username===r.username)||{})}<br>${r.content}</div>`).join('')}</div><div class="reply-box"><textarea id="reply-${p.id}" rows="2" placeholder="Reply..." onkeypress="handleReplyEnter(event,${p.id})"></textarea><button onclick="addReply(${p.id})">Reply</button>${currentUser.isOwner?`<button onclick="markDelivered(${p.id})" style="background:#10b981;">Mark Delivered & Send Key</button>`:''}</div></div>`; }).join(''); }
+    window.toggleNewPost=function(){ let f=document.getElementById('newPostForm'); if(f) f.classList.toggle('hidden'); };
+    window.submitOrder=async function(){ let c=document.getElementById('postContent').value.trim(); if(!c){ showToast('Enter details',true); return; } let f=document.getElementById('postImage').files[0]; let total=cart.reduce((s,i)=>s+(i.price*i.quantity),0); let details=cart.map(i=>`${i.name} x${i.quantity}`).join(', '); await createAutoOrderPost(currentUser.username); if(f){ let r=new FileReader(); r.onload=async(e)=>{ await saveOrder(c,e.target.result,details,total); }; r.readAsDataURL(f); }else{ await saveOrder(c,null,details,total); } };
+    async function saveOrder(c,img,details,total){ let p={username:currentUser.username,userId:currentUser.id,content:c,image:img,timestamp:new Date().toLocaleString(),timestampMs:Date.now(),replies:[],status:'pending',orderDetails:details,totalPrice:total,isAutoRep:false,isOrderRep:false}; let s=await savePost(p); posts.unshift(s); let m={from:currentUser.username,to:'sufyan',content:`🛍️ NEW ORDER!\n\n${details}\nTotal: $${total}\n\n${c.substring(0,300)}${c.length>300?'...':''}\n${img?'📸 Screenshot attached':''}`,timestamp:new Date().toLocaleString(),read:false,orderId:s.id,orderDetails:details,totalPrice:total,hasImage:!!img,imageData:img}; let sm=await saveMessage(m); messages.push(sm); cart=[]; updateCartCount(); document.getElementById('postContent').value=''; document.getElementById('postImage').value=''; document.getElementById('newPostForm').classList.add('hidden'); renderUserPosts(); updateInboxBadge(); showToast('Order placed! Auto +REP created!'); }
+    window.handleReplyEnter=function(e,id){ if(e.key==='Enter'){ e.preventDefault(); addReply(id); } };
+    window.addReply=async function(id){ let t=document.getElementById(`reply-${id}`).value.trim(); if(!t) return; let p=posts.find(p=>p.id===id); if(p){ p.replies=p.replies||[]; p.replies.push({username:currentUser.username,content:t,timestamp:new Date().toLocaleString()}); await db.collection('posts').doc(id).update({replies:p.replies}); renderUserPosts(); } };
+    window.deletePost=async function(id){ let p=posts.find(p=>p.id===id); if(!p) return; if(currentUser?.isOwner || currentUser?.username===p.username){ await deletePostById(id); posts=posts.filter(p=>p.id!==id); showToast('Post deleted'); if(document.getElementById('forumPosts')) renderUserPosts(); }else{ showToast('Not your post',true); } };
+    window.markDelivered=async function(id){ let p=posts.find(p=>p.id===id); if(p){ let key=`CFG-${Math.random().toString(36).substring(2,10).toUpperCase()}`; p.status='completed'; p.replies=p.replies||[]; p.replies.push({username:'OWNER',content:`✅ Payment verified! CFG Key: ${key}\nContact Discord: sufyancounter`,timestamp:new Date().toLocaleString()}); await db.collection('posts').doc(id).update({status:'completed',replies:p.replies}); let user=users.find(u=>u.username===p.username); if(user?.email) await sendOrderEmail(user.email,user.username,p.orderDetails||'CFG',p.totalPrice||'10',key); let m={from:'sufyan',to:p.username,content:`🎮 Order Delivered!\n${p.orderDetails||'CFG'}\nKey: ${key}`,timestamp:new Date().toLocaleString(),read:false}; let sm=await saveMessage(m); messages.push(sm); updateInboxBadge(); renderUserPosts(); showToast(`Key sent to ${p.username}`); } };
+    window.viewOrderPost=function(id){ let p=posts.find(p=>p.id===id); if(p) showModal('Order Details',`<div><strong>Product:</strong> ${p.orderDetails}<br><strong>Total:</strong> $${p.totalPrice}<br><br>${p.content.replace(/\n/g,'<br>')}${p.image?`<br><img src="${p.image}" style="max-width:100%;">`:''}<br><small>${p.timestamp}</small></div>`); };
 
-    window.showLoginModal = function() {
-        showModal('🔐 Login',
-            `<input id="loginU" placeholder="Username">
-             <input id="loginP" type="password" placeholder="Password">
-             <button onclick="login()">Login</button>
-             <p><a onclick="closeModal();showRegisterModal();">Create Account</a></p>`
-        );
-    };
+    // ============= INBOX =============
+    function renderInbox(container){ if(!checkAuth()){ container.innerHTML='<div class="card"><div class="card-title">Inbox</div><p>Please login</p></div>'; return; } let msgs=messages.filter(m=>m.to===currentUser.username||m.from===currentUser.username).sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp)); if(!msgs.length){ container.innerHTML='<div class="card"><div class="card-title">📬 Inbox</div><p>No messages</p><button onclick="composeMsg()">+ New Message</button></div>'; return; } container.innerHTML=`<div class="card"><div class="card-title">📬 Inbox</div><button onclick="composeMsg()">+ New Message</button><div id="inboxList">${msgs.map(m=>`<div class="message-item ${!m.read && m.to===currentUser.username?'message-unread':''}" onclick="viewMessage('${m.id}')"><strong>${m.from===currentUser.username?'To: '+m.to:'From: '+m.from}</strong><br>${m.content.substring(0,80)}${m.orderDetails?`<br><small>📦 ${m.orderDetails}</small>`:''}<br><small>${m.timestamp}</small>${currentUser?.isOwner?`<button class="delete-btn" onclick="event.stopPropagation();deleteMsg('${m.id}')">Delete</button>`:''}</div>`).join('')}</div></div>`; }
+    window.viewMessage=async function(id){ let m=messages.find(m=>m.id===id); if(!m) return; if(!m.read && m.to===currentUser.username){ m.read=true; await db.collection('messages').doc(id).update({read:true}); updateInboxBadge(); } let imgHtml=''; if(m.hasImage && m.imageData) imgHtml=`<br><br><strong>📸 Screenshot:</strong><br><img src="${m.imageData}" style="max-width:100%;">`; else if(m.hasImage) imgHtml=`<br><br><strong>📸 Screenshot in order post</strong>`; showModal('Message',`<strong>From: ${m.from}</strong><br><strong>To: ${m.to}</strong><br><strong>Time: ${m.timestamp}</strong><br><br>${m.content.replace(/\n/g,'<br>')}${m.orderDetails?`<br><br><strong>Order:</strong> ${m.orderDetails}<br><strong>Total:</strong> $${m.totalPrice}`:''}${imgHtml}<br><br><button onclick="closeModal();startChatWith('${m.from}')">Reply</button>`); if(currentUser.isOwner) setTimeout(()=>showPage('inbox'),100); };
+    window.deleteMsg=async function(id){ if(!currentUser?.isOwner) return; showConfirm('Delete message?',async(c)=>{ if(c){ await deleteMessageById(id); messages=messages.filter(m=>m.id!==id); updateInboxBadge(); showToast('Deleted'); if(document.getElementById('inboxList')) showPage('inbox'); } }); };
+    window.composeMsg=function(){ let others=users.filter(u=>u.username!==currentUser.username && !u.isBanned).map(u=>u.username); if(!others.length){ showToast('No users',true); return; } showModal('New Message',`<select id="msgTo">${others.map(o=>`<option value="${o}">${o}</option>`).join('')}</select><textarea id="msgContent" rows="4"></textarea><button onclick="sendMsg()">Send</button>`); };
+    window.sendMsg=async function(){ let to=document.getElementById('msgTo').value, c=document.getElementById('msgContent').value.trim(); if(!c) return; let m={from:currentUser.username,to:to,content:c,timestamp:new Date().toLocaleString(),read:false}; let s=await saveMessage(m); messages.push(s); updateInboxBadge(); showToast('Sent'); closeModal(); showPage('inbox'); };
 
-    window.login = async function() {
-        let u = document.getElementById('loginU').value;
-        let p = document.getElementById('loginP').value;
-        let user = users.find(x => x.username === u);
-        
-        if (!user) { showToast('Username not found', true); return; }
-        if (user.password !== p) { showToast('Incorrect password', true); return; }
-        if (user.isBanned) { showToast('Account banned', true); return; }
-        
-        currentUser = user;
-        localStorage.setItem('currentUser', JSON.stringify({ id: user.id, username: user.username }));
-        updateNav();
-        closeModal();
-        showToast(`Welcome ${u}!`);
-        showPage('home');
-    };
+    // ============= MEMBERS =============
+    function renderMembers(container){ if(!checkAuth()){ container.innerHTML='<div class="card"><div class="card-title">Members</div><p>Please login</p></div>'; return; } container.innerHTML=`<div class="card"><div class="card-title">👥 Members</div><input type="text" id="memberSearch" placeholder="Search..." onkeyup="filterMembers()"><div id="membersList" class="grid-3"></div></div>`; renderMembersList(); }
+    function renderMembersList(){ let s=document.getElementById('memberSearch')?.value.toLowerCase()||''; let f=users.filter(u=>u.username.toLowerCase().includes(s)); document.getElementById('membersList').innerHTML=f.map(u=>`<div class="member-card" onclick="showProfile('${u.username}')"><img class="avatar-small" src="${u.avatar||`https://ui-avatars.com/api/?background=f97316&color=fff&name=${encodeURIComponent(u.username)}`}"><div class="${getUserGlowClass(u)}">${u.username}</div>${getUserTagDisplay(u)}<div><span class="online-dot ${isOnline(u.username)?'online':'offline'}"></span> ${isOnline(u.username)?'Online':'Offline'}</div></div>`).join(''); }
+    window.filterMembers=renderMembersList;
 
-    function updateNav() {
-        if (currentUser && !currentUser.isBanned) {
-            document.getElementById('authNav').classList.add('hidden');
-            document.getElementById('userNav').classList.remove('hidden');
-            let a = currentUser.avatar || `https://ui-avatars.com/api/?background=f97316&color=fff&name=${encodeURIComponent(currentUser.username)}`;
-            document.getElementById('navAvatar').src = a;
-            document.getElementById('userTag').innerHTML = `${currentUser.username} ${getUserTagDisplay(currentUser)}`;
-        } else if (currentUser && currentUser.isBanned) {
-            logout();
-            showToast('Account banned', true);
-        } else {
-            document.getElementById('authNav').classList.remove('hidden');
-            document.getElementById('userNav').classList.add('hidden');
-        }
-        updateInboxBadge();
-    }
+    // ============= CHAT =============
+    function renderChat(container){ if(!checkAuth()){ container.innerHTML='<div class="card"><div class="card-title">Live Chat</div><p>Please login</p></div>'; return; } container.innerHTML=`<div class="card"><div class="card-title">💬 Public Chat</div><div id="chatMessages" class="chat-container"></div><div style="display:flex;"><input type="text" id="chatInput" placeholder="Message..." onkeypress="handleChatEnter(event)" style="flex:1;"><button onclick="sendChat()">Send</button></div>${currentUser?.isOwner?'<button onclick="clearAllChatWithConfirm()" style="margin-top:0.5rem;">Clear All Chat</button>':''}</div>`; renderChatMessages(); setInterval(renderChatMessages,3000); }
+    function renderChatMessages(){ let c=document.getElementById('chatMessages'); if(!c) return; c.innerHTML=chatMessages.slice(-50).map(m=>{ let u=users.find(x=>x.username===m.username); return `<div class="chat-message"><span class="username ${getUserGlowClass(u||{})}" onclick="showProfile('${m.username}')">${m.username}</span> ${getUserTagDisplay(u||{})}<span style="font-size:0.65rem;"> ${m.time}</span><br>${m.message}${currentUser?.isOwner?`<button class="delete-btn" onclick="deleteChatMsg('${m.id}')">Delete</button>`:''}</div>`; }).join(''); c.scrollTop=c.scrollHeight; }
+    window.sendChat=async function(){ let msg=document.getElementById('chatInput').value.trim(); if(!msg) return; if(!canSendMessage(currentUser.username)) return; let m={username:currentUser.username,message:msg,time:new Date().toLocaleTimeString(),timestampMs:Date.now()}; let s=await saveChatMessage(m); chatMessages.push(s); document.getElementById('chatInput').value=''; renderChatMessages(); };
+    window.handleChatEnter=function(e){ if(e.key==='Enter') sendChat(); };
+    window.deleteChatMsg=async function(id){ if(!currentUser?.isOwner) return; showConfirm('Delete message?',async(c)=>{ if(c){ await deleteChatMessageById(id); chatMessages=chatMessages.filter(m=>m.id!==id); renderChatMessages(); showToast('Deleted'); } }); };
 
-    function logout() {
-        currentUser = null;
-        localStorage.removeItem('currentUser');
-        updateNav();
-        updateInboxBadge();
-        showToast('Logged out');
-        showPage('home');
-    }
+    // ============= STORE =============
+    function renderStore(container){ if(!checkAuth()){ container.innerHTML='<div class="card"><div class="card-title">Store</div><p>Please login</p></div>'; return; } container.innerHTML=`<div class="card"><div class="card-title">🛒 Store</div><div class="grid-3" id="productsGrid"></div></div>`; document.getElementById('productsGrid').innerHTML=products.map(p=>`<div class="product-card"><h3>${p.name}</h3><div class="product-price">$${p.price}</div><p>${p.description}</p><button onclick="addToCart(${p.id})">Add to Cart</button></div>`).join(''); }
+    window.addToCart=function(id){ let p=products.find(p=>p.id===id); let e=cart.find(i=>i.id===id); if(e) e.quantity++; else cart.push({...p,quantity:1}); updateCartCount(); showToast(`${p.name} added`); };
+    function renderCart(container){ if(!checkAuth()){ container.innerHTML='<div class="card"><div class="card-title">Cart</div><p>Please login</p></div>'; return; } if(!cart.length){ container.innerHTML='<div class="card"><div class="card-title">Cart Empty</div><button onclick="showPage(\'store\')">Store</button></div>'; return; } let total=0; let items=cart.map(i=>{total+=i.price*i.quantity; return `<div class="cart-item"><span>${i.name} x${i.quantity}</span><span>$${i.price*i.quantity}</span><button onclick="removeFromCart(${i.id})">Remove</button></div>`;}).join(''); container.innerHTML=`<div class="card"><div class="card-title">🛒 Cart</div>${items}<div class="cart-item" style="border-top:2px solid #f97316;"><span>Total</span><span>$${total}</span></div><button onclick="showPage('checkout')">Checkout</button></div>`; }
+    window.removeFromCart=function(id){ cart=cart.filter(i=>i.id!==id); updateCartCount(); showPage('cart'); };
+    function renderCheckout(container){ if(!checkAuth()){ container.innerHTML='<div class="card"><div class="card-title">Checkout</div><p>Please login</p></div>'; return; } let total=cart.reduce((s,i)=>s+(i.price*i.quantity),0); let remitly=total; let ltc=total===10?12:total===18?20:12; let steam=total===10?15:total===18?25:15; container.innerHTML=`<div class="card"><div class="card-title">💳 Checkout</div><p><strong>Total: <span style="color:#f97316;">$${total}</span></strong></p><div style="background:#0a0e16;padding:1.5rem;"><h3>📱 Option 1: EasyPaisa</h3><p>Send $${remitly} to: Muhammad Arshad, +92 348 8308531, EasyPaisa Pakistan</p><hr><h3>₿ Option 2: Litecoin</h3><p>Send $${ltc} LTC to: ltc1qplpy27p9q3rlrmv2t5srmw8hkytm6xhp663we3</p><hr><h3>🎮 Option 3: Steam Wallet</h3><p>Send $${steam} Steam code (US) - Buy from G2A/G2G, send to Discord: sufyancounter</p></div><button onclick="showPage('forum')">Submit Payment Proof</button></div>`; }
 
-    // Page Rendering (Simplified)
-    function showPage(page) {
-        let c = document.getElementById('pageContent');
-        if (page === 'home') renderHome(c);
-        else if (page === 'store') renderStore(c);
-        else if (page === 'forum') renderForum(c);
-        else if (page === 'cart') renderCart(c);
-        else if (page === 'inbox') renderInbox(c);
-        else if (page === 'members') renderMembers(c);
-    }
+    // ============= HOME =============
+    function renderHome(container){ let rep=posts.filter(p=>p.isAutoRep===true); container.innerHTML=`<div class="card"><div class="card-title">⚡ Welcome to Counter Prime</div><p>Professional CFG Store</p><button onclick="showPage('store')">Store</button><button onclick="showPage('forum')">My Orders</button></div><div class="grid-2"><div class="card"><div class="card-title">📋 Latest Reputation</div><div id="latestRep">${rep.slice(0,10).map(p=>`<div style="padding:8px 0; border-bottom:1px solid #1f2538; display:flex; justify-content:space-between;"><div><strong class="${getUserGlowClass(users.find(u=>u.username===p.username)||{})}" onclick="showProfile('${p.username}')">${p.username}</strong>: ${p.content}<br><small>${p.timestamp}</small></div>${currentUser?.isOwner?`<button class="rep-delete-btn" onclick="deleteRepPost('${p.id}')">Delete</button>`:''}</div>`).join('')||'No posts'}</div></div><div class="card"><div class="card-title">💬 Live Chat</div><div id="homeChat" class="chat-container" style="height:300px;"></div><div style="display:flex;"><input type="text" id="homeChatInput" placeholder="Message..." onkeypress="handleHomeChatEnter(event)" style="flex:1;"><button onclick="sendHomeChat()">Send</button></div>${currentUser?.isOwner?'<button onclick="clearHomeChat()" style="margin-top:0.5rem;">Clear All Chat</button>':''}</div></div>`; renderHomeChat(); setInterval(renderHomeChat,3000); }
+    function renderHomeChat(){ let c=document.getElementById('homeChat'); if(!c) return; c.innerHTML=chatMessages.slice(-20).map(m=>{ let u=users.find(x=>x.username===m.username); return `<div><strong class="${getUserGlowClass(u||{})}" onclick="showProfile('${m.username}')">${m.username}</strong> <span style="font-size:0.65rem;">${m.time}</span><br>${m.message}</div>`; }).join(''); c.scrollTop=c.scrollHeight; }
+    window.sendHomeChat=async function(){ let msg=document.getElementById('homeChatInput').value.trim(); if(!msg) return; if(!canSendMessage(currentUser.username)) return; let m={username:currentUser.username,message:msg,time:new Date().toLocaleTimeString(),timestampMs:Date.now()}; let s=await saveChatMessage(m); chatMessages.push(s); document.getElementById('homeChatInput').value=''; renderHomeChat(); };
+    window.handleHomeChatEnter=function(e){ if(e.key==='Enter') sendHomeChat(); };
+    window.deleteRepPost=async function(id){ if(!currentUser?.isOwner) return; showConfirm('Delete this reputation post?',async(c)=>{ if(c){ await deletePostById(id); posts=posts.filter(p=>p.id!==id); showToast('Deleted'); renderHome(document.getElementById('pageContent')); } }); };
 
-    function renderHome(container) {
-        container.innerHTML = `
-            <div class="card">
-                <div class="card-title">⚡ Welcome to Counter Prime</div>
-                <p>Professional CFG Store</p>
-                <button onclick="showPage('store')">Store</button>
-                <button onclick="showPage('forum')">My Orders</button>
-            </div>
-            <div class="card">
-                <div class="card-title">💬 Live Chat</div>
-                <div id="homeChat" class="chat-container" style="height:300px;"></div>
-                <div style="display:flex;">
-                    <input type="text" id="homeChatInput" placeholder="Message..." style="flex:1;">
-                    <button onclick="sendHomeChat()">Send</button>
-                </div>
-            </div>
-        `;
-        renderHomeChat();
-        setInterval(renderHomeChat, 3000);
-    }
-
-    function renderHomeChat() {
-        let c = document.getElementById('homeChat');
-        if (!c) return;
-        c.innerHTML = chatMessages.slice(-20).map(m => {
-            return `<div><strong>${m.username}</strong> <span style="font-size:0.65rem;">${m.time}</span><br>${m.message}</div>`;
-        }).join('');
-        c.scrollTop = c.scrollHeight;
-    }
-
-    window.sendHomeChat = async function() {
-        if (!currentUser) { showToast('Login first', true); return; }
-        let msg = document.getElementById('homeChatInput').value.trim();
-        if (!msg) return;
-        let m = {
-            username: currentUser.username,
-            message: msg,
-            time: new Date().toLocaleTimeString(),
-            timestampMs: Date.now()
-        };
-        let s = await saveChatMessage(m);
-        chatMessages.push(s);
-        document.getElementById('homeChatInput').value = '';
-        renderHomeChat();
-    };
-
-    function renderStore(container) {
-        if (!currentUser) { container.innerHTML = '<div class="card"><p>Please login to view store</p></div>'; return; }
-        container.innerHTML = `
-            <div class="card">
-                <div class="card-title">🛒 Store</div>
-                <div class="grid-3" id="productsGrid"></div>
-            </div>
-        `;
-        document.getElementById('productsGrid').innerHTML = products.map(p => `
-            <div class="product-card">
-                <h3>${p.name}</h3>
-                <div class="product-price">$${p.price}</div>
-                <p>${p.description}</p>
-                <button onclick="addToCart(${p.id})">Add to Cart</button>
-            </div>
-        `).join('');
-    }
-
-    window.addToCart = function(id) {
-        let p = products.find(p => p.id === id);
-        let e = cart.find(i => i.id === id);
-        if (e) e.quantity++;
-        else cart.push({ ...p, quantity: 1 });
-        updateCartCount();
-        showToast(`${p.name} added to cart`);
-    };
-
-    function renderCart(container) {
-        if (!currentUser) { container.innerHTML = '<div class="card"><p>Please login</p></div>'; return; }
-        if (!cart.length) {
-            container.innerHTML = '<div class="card"><div class="card-title">Cart Empty</div><button onclick="showPage(\'store\')">Go to Store</button></div>';
-            return;
-        }
-        let total = 0;
-        let items = cart.map(i => {
-            total += i.price * i.quantity;
-            return `<div class="cart-item"><span>${i.name} x${i.quantity}</span><span>$${i.price * i.quantity}</span><button onclick="removeFromCart(${i.id})">Remove</button></div>`;
-        }).join('');
-        container.innerHTML = `
-            <div class="card">
-                <div class="card-title">🛒 Cart</div>
-                ${items}
-                <div class="cart-item" style="border-top:2px solid #f97316;"><span>Total</span><span>$${total}</span></div>
-                <button onclick="showPage('forum')">Checkout</button>
-            </div>
-        `;
-    }
-
-    window.removeFromCart = function(id) {
-        cart = cart.filter(i => i.id !== id);
-        updateCartCount();
-        showPage('cart');
-    };
-
-    function renderForum(container) {
-        if (!currentUser) { container.innerHTML = '<div class="card"><p>Please login</p></div>'; return; }
-        container.innerHTML = `
-            <div class="card">
-                <div class="card-title">📦 My Orders</div>
-                <button onclick="toggleNewPost()">+ New Order Post</button>
-                <div id="newPostForm" class="hidden">
-                    <textarea id="postContent" rows="3" placeholder="Payment details, transaction ID..."></textarea>
-                    <button onclick="submitOrder()">Submit Payment Proof</button>
-                </div>
-                <div id="forumPosts"></div>
-            </div>
-        `;
-        renderUserPosts();
-    }
-
-    function renderUserPosts() {
-        let c = document.getElementById('forumPosts');
-        if (!c) return;
-        let my = posts.filter(p => p.userId === currentUser?.id);
-        if (!my.length) { c.innerHTML = '<p>No orders yet.</p>'; return; }
-        c.innerHTML = my.map(p => `
-            <div class="post">
-                <div><strong>${p.username}</strong> ${getUserTagDisplay(users.find(u => u.username === p.username) || {})} | ${p.timestamp}</div>
-                <div>${p.content}</div>
-                ${p.image ? `<img src="${p.image}" style="max-width:100%;">` : ''}
-            </div>
-        `).join('');
-    }
-
-    window.toggleNewPost = function() {
-        let f = document.getElementById('newPostForm');
-        if (f) f.classList.toggle('hidden');
-    };
-
-    window.submitOrder = async function() {
-        let c = document.getElementById('postContent').value.trim();
-        if (!c) { showToast('Enter details', true); return; }
-        let total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
-        let details = cart.map(i => `${i.name} x${i.quantity}`).join(', ');
-        
-        let p = {
-            username: currentUser.username,
-            userId: currentUser.id,
-            content: `Order: ${details}\nTotal: $${total}\n\n${c}`,
-            image: null,
-            timestamp: new Date().toLocaleString(),
-            timestampMs: Date.now(),
-            replies: [],
-            status: 'pending'
-        };
-        let s = await savePost(p);
-        posts.unshift(s);
-        
-        // Send message to owner
-        let m = {
-            from: currentUser.username,
-            to: 'sufyan',
-            content: `NEW ORDER!\n${details}\nTotal: $${total}\n\n${c}`,
-            timestamp: new Date().toLocaleString(),
-            read: false
-        };
-        await saveMessage(m);
-        
-        cart = [];
-        updateCartCount();
-        document.getElementById('postContent').value = '';
-        document.getElementById('newPostForm').classList.add('hidden');
-        renderUserPosts();
-        updateInboxBadge();
-        showToast('Order placed!');
-    };
-
-    function renderInbox(container) {
-        if (!currentUser) { container.innerHTML = '<div class="card"><p>Please login</p></div>'; return; }
-        let msgs = messages.filter(m => m.to === currentUser.username || m.from === currentUser.username);
-        if (!msgs.length) {
-            container.innerHTML = '<div class="card"><div class="card-title">Inbox</div><p>No messages</p></div>';
-            return;
-        }
-        container.innerHTML = `
-            <div class="card">
-                <div class="card-title">📬 Inbox</div>
-                <div id="inboxList">${msgs.map(m => `<div><strong>${m.from === currentUser.username ? 'To: ' + m.to : 'From: ' + m.from}</strong><br>${m.content.substring(0,80)}<br><small>${m.timestamp}</small></div><hr>`).join('')}</div>
-            </div>
-        `;
-    }
-
-    function renderMembers(container) {
-        if (!currentUser) { container.innerHTML = '<div class="card"><p>Please login</p></div>'; return; }
-        container.innerHTML = `
-            <div class="card">
-                <div class="card-title">👥 Members</div>
-                <div id="membersList" class="grid-3">${users.filter(u => !u.isBanned).map(u => `<div><strong>${u.username}</strong>${getUserTagDisplay(u)}</div>`).join('')}</div>
-            </div>
-        `;
-    }
-
-    window.showDashboard = function() {
-        if (!currentUser?.isOwner) { showPage('home'); return; }
-        showModal('Admin Dashboard', `<div><h3>Welcome ${currentUser.username}</h3><p>Users: ${users.length}</p><p>Orders: ${posts.length}</p><button onclick="closeModal()">Close</button></div>`);
-    };
-
-    window.showProfile = function(u) {
-        let user = users.find(x => x.username === u);
-        if (!user) return;
-        showModal(`${user.username}'s Profile`, `<div><strong>Username:</strong> ${user.username}<br><strong>Joined:</strong> ${new Date(user.registeredAt).toLocaleDateString()}<br>${getUserTagDisplay(user)}</div>`);
-    };
-
-    async function init() {
-        await loadAllData();
-        let saved = localStorage.getItem('currentUser');
-        if (saved) {
-            let d = JSON.parse(saved);
-            let u = users.find(x => x.id === d.id);
-            if (u && !u.isBanned) currentUser = u;
-        }
-        updateNav();
-        showPage('home');
-        setInterval(async () => { await loadAllData(); updateInboxBadge(); }, 10000);
-    }
-
+    // ============= PAGE ROUTER =============
+    function showPage(p){ let c=document.getElementById('pageContent'); if(p==='home') renderHome(c); else if(p==='store') renderStore(c); else if(p==='forum') renderForum(c); else if(p==='cart') renderCart(c); else if(p==='inbox') renderInbox(c); else if(p==='members') renderMembers(c); else if(p==='chat') renderChat(c); else if(p==='checkout') renderCheckout(c); }
+    function logout(){ currentUser=null; localStorage.removeItem('currentUser'); updateNav(); updateInboxBadge(); showToast('Logged out'); showPage('home'); }
+    async function init(){ await loadAllData(); await loadCurrentUser(); updateNav(); showPage('home'); setInterval(async()=>{ await loadAllData(); updateInboxBadge(); if(document.getElementById('membersList')) renderMembersList(); if(document.getElementById('chatMessages')) renderChatMessages(); if(document.getElementById('homeChat')) renderHomeChat(); },10000); }
     init();
 </script>
 </body>
